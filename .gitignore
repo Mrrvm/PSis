@@ -1,0 +1,54 @@
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+#########################
+# Code::Blocks  
+*.depend  
+*.layout  
+*.cbp
+
+# generated directories
+bin/
+obj/
+#########################
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+*.DS_Store
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+.ycm_extra_conf.py
+.ycm_extra_conf.pyc
+wordmorph
+__pycache__/*
+vgcore*
+
+# Compressed files
+*.tgz
+*.zip
+*.tar
