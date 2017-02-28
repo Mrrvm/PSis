@@ -13,14 +13,14 @@ int main() {
 	scanf("%d", &a);
 	if (a == 1) {
 		/* load library test1 */
-		void *lib1 = dlopen("test1.so", RTLD_LAZY);
+		void *lib1 = dlopen("./test1.so", RTLD_LAZY);
 		func_1 = dlsym(lib1, "func_1");
 		func_2 = dlsym(lib1, "func_2");	
 	}
 	else {
 		if(a== 2) {
 			/* load library test2 */
-			void *lib2 = dlopen("test2.so", RTLD_LAZY);
+			void *lib2 = dlopen("./test2.so", RTLD_LAZY);
 			func_1 = dlsym(lib2, "func_1");
 			func_2 = dlsym(lib2, "func_2");
 		}
