@@ -29,7 +29,7 @@ int main(int argc, char const *argv[]) {
 		}
 	}
 
-	printf("\nThe final string is: %s\n", result_str);
+	printf("\nThere you go buddy: %s\n", result_str);
 
 	return 0;
 }
