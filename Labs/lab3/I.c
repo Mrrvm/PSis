@@ -3,18 +3,27 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <time.h>
 
 int main(int argc, char const *argv[])
 {
-	int i = 0, ret = 0;
+	int i = 0, ret = 0, time_sleeping[10];
+	srand(time(NULL));
 
 	printf("In reproduction...\n");
 
-	while(i <= 10) {
+	while(i<10) {
+		time_sleeping[i] = rand()%10;
+		i++;
+	}
+	i=0;
+
+	while(i < 10) {
 		ret = fork();
 		if(ret == 0) {
-			sleep(random()%10);
-			printf("[Child %d]: I was born with the pid %d \n", i, getpid());
+			sleep(time_sleeping[i]);
+			printf("[Child %d]: I was born with the pid %d and slept", i, getpid());
+			printf(" %d seconds\n", time_sleeping[i]);
 			return 0;
 		}
 		i++;
