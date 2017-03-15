@@ -1,31 +1,43 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
+#include <sys/wait.h>
 
 int main(int argc, char const *argv[])
 {
-	int i = 0, ret = 0, time_sleeping = 0;
-	srand(time(NULL));
+	
+	int i;
+	int pid;
+	int sleeptime;
 
-	printf("In reproduction...\n");
+	srandom(time(NULL));
+	
+	for(i = 0; i < 10; ++i)
+	{	
+		sleeptime = random()%10;
+		pid = fork();
 
-
-	while(i < 10) {
-		time_sleeping = rand()%10;
-		ret = fork();
-		if(ret == 0)
+		if(pid==0)
 			break;
-		i++;
 	}
-	if(ret == 0) {
-		sleep(time_sleeping);
-		printf("[Child %d]: I was born with the pid %d and slept", i, getpid());
-		printf(" %d seconds\n", time_sleeping);
-		exit(-1);
-	}
-	exit(0);
-}
 
+	if(pid == 0)
+	{	
+		sleep(sleeptime);
+
+		printf("\n[Child %d] My PID is %d\n", i, getpid() );
+		printf("I slept for %d seconds\n", sleeptime );
+
+		return 0;
+	}
+
+	for (int i = 0; i < 10; ++i)
+	{
+		wait(NULL);
+	}
+
+	return 0;
+}
