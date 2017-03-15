@@ -15,11 +15,14 @@ int main(int argc, char const *argv[])
 {
 	int i = 0; 
 	int alarm_time = 0;
+	struct sigaction sa;
 		
 	srand(time(NULL));
 	alarm_time = rand()%10;
 	alarm(alarm_time);
-	signal(SIGALRM, alarm_flagger); 
+
+	sa.sa_handler = &alarm_flagger;
+	sigaction(SIGALRM, &sa, NULL); 
 
 	while(1) {
 		printf("%d\n", i);
