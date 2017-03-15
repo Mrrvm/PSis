@@ -5,22 +5,32 @@
 #include <signal.h>
 #include <time.h>
 
+int alarm_flag = 0;
+
+void alarm_flagger(int sig) {
+	alarm_flag = 1;
+}
+
 int main(int argc, char const *argv[])
 {
-	int i = 0, alarm_time = 0;
+	int i = 0; 
+	int alarm_time = 0;
+		
 	srand(time(NULL));
-
-	alarm_time = (rand())%10;
+	alarm_time = rand()%10;
 	alarm(alarm_time);
+	signal(SIGALRM, alarm_flagger); 
 
 	while(1) {
 		printf("%d\n", i);
-		if(!sigaction(SIGALRM, NULL, NULL)) {
-			alarm_time = (rand()^i)%10;
+		if(alarm_flag == 1) {
+			alarm_time = rand()%10;
 			alarm(alarm_time);
 			i = 0;
+			alarm_flag = 0;
 		}
 		i++;
 	}
 	return 0;
 }
+
