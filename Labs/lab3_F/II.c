@@ -12,13 +12,10 @@ int main(int argc, char const *argv[])
 	int i, pid;
 	int total_time_slept = 0;
 	int sleeptime = 0;
-
-
-
+	int statval = 0;
 
 	for(i = 0; i < 10; ++i)
 	{	
-
 		pid = fork();
 
 		if(pid == 0)
@@ -29,24 +26,22 @@ int main(int argc, char const *argv[])
 			sleeptime = random()%10;
 
 			sleep(sleeptime);
-			printf("%d\n", sleeptime );
+			printf("Sleeptime: %d\n", sleeptime);
 			
-			printf("[Child %d] Woke up\n", getpid() );
+			printf("[Child %d] Woke up\n", getpid());
 
-			exit(0);
-
+			exit(sleeptime);
 
 		}
 		else
 		{
-			pid = wait(NULL);
+			pid = wait(&statval);
+			sleeptime = WEXITSTATUS(statval);
 			total_time_slept = total_time_slept + sleeptime;
 			printf("\n[Parent] Child %d slept for %d seconds\n", pid, sleeptime);
 		}
 	}
 
 	printf("[Parent] Total time slept: %d\n", total_time_slept );
-
-
 	return 0;
 }
