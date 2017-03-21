@@ -7,7 +7,6 @@
 
 int main(int argc, char const *argv[])
 {
-	fork();
 	execl("./", "./VI.sh", "-c", (char *) NULL);	
 	return 0;
 }
