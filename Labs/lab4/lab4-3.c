@@ -6,52 +6,41 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <time.h>
+#include <sys/mman.h>
 
 typedef struct{
-		unsigned start, end;
+		unsigned start, end, m_7, m_19, m_7_19;
 } com_struct;
 
 int main(){
 	unsigned int  m_7, m_19, m_7_19;
 	m_7 = m_19 = m_7_19 = 0;
-	com_struct limits;
 
-	int j = 0;
+	int i = 0;
 	int pid;
 
-	for (int i = 0; i < 3; ++i)
+	com_struct *limits = (com_struct*)mmap(NULL, 3*sizeof(com_struct), PROT_READ|PROT_WRITE, MAP_ANON|MAP_SHARED, -1, 0 );
+
+	limits[0].start = 0;
+	limits[0].end = UINT_MAX/3;
+	limits[1].start = UINT_MAX/3+1;
+	limits[1].end = UINT_MAX*2/3;
+	limits[2].start = UINT_MAX*2/3+1;
+	limits[2].end = UINT_MAX;
+
+
+	for (i = 0; i < 3; ++i)
 	{
 		pid = fork();
 
 		if (pid == 0)
-		{
-			if (j == 0)
-			{
-				limits.start = 0;
-				limits.end = UINT_MAX/3;
-			}
-			else if (j == 1)
-			{
-				limits.start = UINT_MAX/3 +1;
-				limits.end	= UINT_MAX*2/3;
-			}
-			else if (j == 2)
-			{
-				limits.start = UINT_MAX*2/3;
-				limits.end = UINT_MAX;
-			}
-
 			break;
-		}
-
-		j++;
-
 	}
 
 
 	if (pid == 0)
 	{
-		for (unsigned int  a = limits.start; a < limits.end; a++)
+		for (unsigned int  a = limits[i].start; a <  limits[i].end; a++)
 		{
 			if(a%7 == 0)
 				m_7 ++;
@@ -64,6 +53,10 @@ int main(){
 			
 		}
 
+		limits[i].m_7 = m_7;
+		limits[i].m_19 = m_19;
+		limits[i].m_7_19 = m_7_19;
+
 		printf("m 7    %d\n", m_7);
 		printf("m   19 %d\n", m_19);
 		printf("m 7 19 %d\n\n", m_7_19);
@@ -71,10 +64,24 @@ int main(){
 		exit(0);
 	}
 
+
 	for (int b = 0; b < 3; ++b)
 	{
 		wait(NULL);
 	}
+
+	m_7 = m_19 = m_7_19 = 0;
+
+	for (int b = 0; b < 3; ++b)
+	{
+		m_7 += limits[b].m_7;
+		m_19 += limits[b].m_19;
+		m_7_19 += limits[b].m_7_19;
+	}
+
+	printf("\nTotal m_7: %d \nTotal m_19: %d \nTotal m_7_19: %d\n", m_7, m_19, m_7_19);
+
+
 
 	return 0;
 

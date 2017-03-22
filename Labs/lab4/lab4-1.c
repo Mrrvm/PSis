@@ -14,44 +14,33 @@ typedef struct{
 int main(){
 	unsigned int  m_7, m_19, m_7_19;
 	m_7 = m_19 = m_7_19 = 0;
-	com_struct limits;
+	com_struct limits[3];
 
-	int j = 0;
+	int i = 0;
+
+	limits[0].start = 0;
+	limits[0].end = UINT_MAX/3;
+	limits[1].start = UINT_MAX/3+1;
+	limits[1].end = UINT_MAX*2/3;
+	limits[2].start = UINT_MAX*2/3+1;
+	limits[2].end = UINT_MAX;
+
+
 	int pid;
 
-	for (int i = 0; i < 3; ++i)
+	for (i = 0; i < 3; ++i)
 	{
 		pid = fork();
 
 		if (pid == 0)
-		{
-			if (j == 0)
-			{
-				limits.start = 0;
-				limits.end = UINT_MAX/3;
-			}
-			else if (j == 1)
-			{
-				limits.start = UINT_MAX/3 +1;
-				limits.end	= UINT_MAX*2/3;
-			}
-			else if (j == 2)
-			{
-				limits.start = UINT_MAX*2/3;
-				limits.end = UINT_MAX;
-			}
-
 			break;
-		}
-
-		j++;
 
 	}
 
 
 	if (pid == 0)
 	{
-		for (unsigned int  a = limits.start; a <  limits.end; a++)
+		for (unsigned int  a = limits[i].start; a <  limits[i].end; a++)
 		{
 			if(a%7 == 0)
 				m_7 ++;
