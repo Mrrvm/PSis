@@ -57,6 +57,7 @@ int main(){
 		limits[i].m_19 = m_19;
 		limits[i].m_7_19 = m_7_19;
 
+		printf("[Third %d:]\n", i+1);
 		printf("m 7    %d\n", m_7);
 		printf("m   19 %d\n", m_19);
 		printf("m 7 19 %d\n\n", m_7_19);
