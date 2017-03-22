@@ -71,8 +71,6 @@ int main(){
 		wait(NULL);
 	}
 
-	m_7 = m_19 = m_7_19 = 0;
-
 	for (int b = 0; b < 3; ++b)
 	{
 		m_7 += limits[b].m_7;
