@@ -21,8 +21,8 @@ int main(){
 	limits[0].start = 0;
 	limits[0].end = UINT_MAX/3;
 	limits[1].start = UINT_MAX/3+1;
-	limits[1].end = UINT_MAX*2/3;
-	limits[2].start = UINT_MAX*2/3+1;
+	limits[1].end = UINT_MAX/3*2;
+	limits[2].start = UINT_MAX/3*2+1;
 	limits[2].end = UINT_MAX;
 
 
@@ -52,7 +52,7 @@ int main(){
 				m_7_19++;
 			
 		}
-
+		printf("[Third %d:]\n", i+1);
 		printf("m 7    %d\n", m_7);
 		printf("m   19 %d\n", m_19);
 		printf("m 7 19 %d\n\n", m_7_19);
