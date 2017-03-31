@@ -50,28 +50,34 @@ int main(int argc, char const *argv[]) {
       if(pid == 0) {
         close(pip[1]);
         break;
-      }
-      else
-        close(pip[0]);        
+      }     
     }
     //generate random numbers
     if(pid != 0) {
+      close(pip[0]);  
       int i ;
-      for(i = 2; i < 999; i++){
-        _random = random()%999;
+      for(i = 2; i < 99999; i++){
+        _random = random()%99999;
         write(pip[1], &_random, sizeof(_random));   
       }
       close(pip[1]);
-      wait(NULL);   
+      for (i = 0; i < n_child; ++i)
+      {
+        wait(NULL);   
+      }
+      printf("FECHOU CARALHO\n");
     }
 
     if(pid == 0) {
+        printf("LA VEEM ELES A PEDALAR\n");
       while(read(pip[0], &n, sizeof(n))) {
         if(verify_prime(n)) {
-          printf("%d is prime\n", n); 
+          printf("%d is prime %d\n", n, getpid()); 
         }
       }
+      printf("ACABEI\n");
       close(pip[0]);
+      exit(0);
     }
   }
 
