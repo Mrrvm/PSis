@@ -32,10 +32,10 @@ int main(int argc, char const *argv[]) {
 
   if(n_child==0){
     int i, n;
-    for(i = 2; i < 99999; i++){
+    for(i = 2; i < 999999; i++){
       n = random()%999999;
       if (verify_prime(n))
-        printf("%d is prime\n", n);
+        printf("%d is prime, processed by %d\n", n, getpid());
     }
   }
   else{
@@ -56,8 +56,8 @@ int main(int argc, char const *argv[]) {
     if(pid != 0) {
       close(pip[0]);  
       int i ;
-      for(i = 2; i < 99999; i++){
-        _random = random()%99999;
+      for(i = 2; i < 999999; i++){
+        _random = random()%999999;
         write(pip[1], &_random, sizeof(_random));   
       }
       close(pip[1]);
@@ -65,17 +65,14 @@ int main(int argc, char const *argv[]) {
       {
         wait(NULL);   
       }
-      printf("FECHOU CARALHO\n");
     }
 
     if(pid == 0) {
-        printf("LA VEEM ELES A PEDALAR\n");
       while(read(pip[0], &n, sizeof(n))) {
         if(verify_prime(n)) {
-          printf("%d is prime %d\n", n, getpid()); 
+          printf("%d is prime, processed by %d\n", n, getpid()); 
         }
       }
-      printf("ACABEI\n");
       close(pip[0]);
       exit(0);
     }
