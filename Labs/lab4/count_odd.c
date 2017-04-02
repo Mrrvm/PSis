@@ -15,9 +15,10 @@ int main(int argc, char const *argv[])
 {
 	fd = open("mem_file", O_RDWR);
 	char *mem = (char *)mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-	int prev = curr = counter = 0;
+	int prev, curr, counter;
+	prev = curr = counter = 0;
 
-	curr = prev = atoi(mem);
+	//curr = prev = atoi(mem);
 	while(1) {
 		if(prev != curr) {
 			if(curr%2 != 0) {

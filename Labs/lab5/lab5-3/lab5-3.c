@@ -66,8 +66,8 @@ int main(int argc, char const *argv[]) {
       int total_primes = 0;
       int partial_primes = 0;
 
-      for(i = 2; i < 99999; i++){
-        _random = random()%99999;
+      for(i = 2; i < 999; i++){
+        _random = random()%999;
         write(pip[1], &_random, sizeof(_random));   
       }
       close(pip[1]);

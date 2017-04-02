@@ -13,7 +13,8 @@ int i = 0;
 int fd;
 
 void alarm_flagger(int sig) {
-	printf("%d\n", i);
+	printf("generated %d random numbers\n", i);
+	close(fd);
 	exit(0);
 }
 

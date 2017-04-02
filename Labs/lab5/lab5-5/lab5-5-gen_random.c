@@ -18,7 +18,7 @@ void error_and_die(const char *msg) {
 int main(){
 	
 	char *memname = "odd_even";
-  int i;
+    int i;
 		
 	shm_unlink(memname);
 	int fd = shm_open(memname, O_CREAT | O_RDWR, 0666);
@@ -40,7 +40,7 @@ int main(){
 	for(i=0; i < 10000; i++){
 	  ptr->value = random();
 	  sleep(1);	
-      	}
+     }
 
 	shm_unlink(memname);
 
