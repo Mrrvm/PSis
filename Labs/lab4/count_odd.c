@@ -9,24 +9,45 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-int fd = 0;
+void error_and_die(const char *msg) {
+  perror(msg);
+  exit(EXIT_FAILURE);
+}
 
 int main(int argc, char const *argv[])
 {
-	fd = open("mem_file", O_RDWR);
-	char *mem = (char *)mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+	// shared memory support
+	const char *memname = "sample";
+  	const size_t region_size = sysconf(_SC_PAGE_SIZE);
+  	int r, fd;
+
+  	// number evaluation support
 	int prev, curr, counter;
 	prev = curr = counter = 0;
 
-	//curr = prev = atoi(mem);
-	while(1) {
-		if(prev != curr) {
-			if(curr%2 != 0) {
-				counter++;
-			}
+  	// shared memory settings
+	fd = shm_open(memname, O_CREAT | O_TRUNC | O_RDWR, 0666);
+	if (fd == -1)
+    	error_and_die("shm_open");
+ 
+	r = ftruncate(fd, region_size);
+	if (r != 0)
+	   error_and_die("ftruncate");
+	 
+	int *ptr = mmap(0, region_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	if (ptr == MAP_FAILED)
+	    error_and_die("mmap");
+
+	curr = 1;
+	prev = 0;
+	while(prev != curr) {
+		if(curr%2 != 0) {
+			counter++;
+			printf("%d\n", counter);
 		}
-		prev = curr;
-		curr = atoi(mem);
+		prev = curr;	
+		curr = *ptr;
 	}
+	close(fd);
 	return 0;
 }
