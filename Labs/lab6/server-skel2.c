@@ -34,8 +34,16 @@ int main(){
         recvfrom(sock_fd, m.buffer, MESSAGE_LEN, 0, (struct sockaddr *)&client_addr, &addr_len);
         printf("message received: %s\n", m.buffer);
         /* process message */
-        story = strcat(story, m.buffer);
-        sendto(sock_fd, story, strlen(story) +1, 0, ( struct sockaddr *) &client_addr, sizeof(client_addr));
+        if(strlen(story) > MESSAGE_LEN)
+        {
+            char *notifiation;
+            notifiation = "ERROR: story exceeds the message buffer.\n";
+            sendto(sock_fd, notifiation, strlen(notifiation) +1, 0, ( struct sockaddr *) &client_addr, sizeof(client_addr));
+        }
+        else {
+            story = strcat(story, m.buffer);
+            sendto(sock_fd, story, strlen(story) +1, 0, ( struct sockaddr *) &client_addr, sizeof(client_addr));
+        }
         
     }
     printf("OK\n");
