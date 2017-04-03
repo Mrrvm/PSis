@@ -21,6 +21,7 @@ int main(){
 	story = strdup("");
 	
     /* create socket  */ 
+    unlink(SOCKET_NAME);
     sock_fd = socket(AF_UNIX, SOCK_DGRAM, 0);
     addr.sun_family = AF_UNIX;
 
@@ -29,15 +30,13 @@ int main(){
         
     while(1){
         /* read message */
-        recv(sock_fd, m.buffer, 100, 0);
+        recv(sock_fd, m.buffer, MESSAGE_LEN, 0);
         printf("message received: %s\n", m.buffer);
         /* process message */
-		story = strcat(story, m.buffer);
+        story = strcat(story, m.buffer);
         
     }
-    printf("%s\n", story);
     printf("OK\n");
-    unlink(SOCKET_NAME);
     exit(0);
     
 }
