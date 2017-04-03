@@ -17,23 +17,25 @@ int main(){
     message m;
     char * story;
     struct sockaddr_un addr, client_addr;
+    int addr_len;
   
 	story = strdup("");
-    
+	
     unlink(SOCKET_NAME);
     /* create socket  */ 
     sock_fd = socket(AF_UNIX, SOCK_DGRAM, 0);
     addr.sun_family = AF_UNIX;
-
     strcpy(addr.sun_path, SOCKET_NAME);
+
     bind(sock_fd, (struct sockaddr *)  &addr, sizeof(addr));
         
     while(1){
         /* read message */
-        recv(sock_fd, m.buffer, MESSAGE_LEN, 0);
+        recvfrom(sock_fd, m.buffer, MESSAGE_LEN, 0, (struct sockaddr *)&client_addr, &addr_len);
         printf("message received: %s\n", m.buffer);
         /* process message */
         story = strcat(story, m.buffer);
+        sendto(sock_fd, story, strlen(story) +1, 0, ( struct sockaddr *) &client_addr, sizeof(client_addr));
         
     }
     printf("OK\n");
