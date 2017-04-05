@@ -14,7 +14,7 @@
 int main(){
  
     message m;  
-    struct sockaddr_un addr, client_addr;
+    struct sockaddr_in addr, client_addr;
     int sock_fd;
     int i = 0;
     char story[100];

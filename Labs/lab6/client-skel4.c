@@ -11,16 +11,20 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#include <arpa/inet.h>
 int main(){
  
     int sock_fd;  
     message m;  
-    struct sockaddr_un addr;
+    struct sockaddr_in addr;
 
     /* create socket  */ 
-    sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    addr.sun_family = AF_UNIX;
-    strcpy(addr.sun_path, SOCKET_NAME);
+    sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    addr.sin_family = AF_INET;
+
+    addr.sin_port = htons(3000); 
+    //inet_aton("127.0.0.1", &server_addr.sin_addr);
+    addr.sin_addr.s_addr = INADDR_ANY;
     
     connect(sock_fd, ( struct sockaddr *) &addr, sizeof(addr));
     printf("Message:\n");

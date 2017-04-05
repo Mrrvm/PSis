@@ -10,19 +10,24 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <arpa/inet.h>
 
 int main(){
     
     message m;
     int sock_fd, new_sock;
     char *story;
-    struct sockaddr_un addr, client_addr;
+
+    struct sockaddr_in addr;
 
     unlink(SOCKET_NAME);
     /* create socket  */ 
-    sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    addr.sun_family = AF_UNIX;
-    strcpy(addr.sun_path, SOCKET_NAME);
+    sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    addr.sin_family = AF_INET;
+
+    addr.sin_port = htons(3000);        /* nmero de porto */
+    //inet_aton("146.193.41.15", & addr.sin_addr);  /* endereo IP */
+    addr.sin_addr.s_addr = INADDR_ANY;
 
     bind(sock_fd, (struct sockaddr *)  &addr, sizeof(addr));
     listen(sock_fd, 10);  

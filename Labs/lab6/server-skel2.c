@@ -19,7 +19,8 @@ int main(){
     struct sockaddr_un addr, client_addr;
     int addr_len;
   
-	story = strdup("");
+    story = malloc(100);
+	strcpy(story, "");
 	
     unlink(SOCKET_NAME);
     /* create socket  */ 
@@ -31,16 +32,18 @@ int main(){
         
     while(1){
         /* read message */
+        addr_len = sizeof(client_addr);
         recvfrom(sock_fd, m.buffer, MESSAGE_LEN, 0, (struct sockaddr *)&client_addr, &addr_len);
         printf("message received: %s\n", m.buffer);
         /* process message */
-        if(strlen(story) > MESSAGE_LEN)
+        if(strlen(story)+strlen(m.buffer)+1 > MESSAGE_LEN)
         {
             char *notifiation;
             notifiation = "ERROR: story exceeds the message buffer.\n";
             sendto(sock_fd, notifiation, strlen(notifiation) +1, 0, ( struct sockaddr *) &client_addr, sizeof(client_addr));
         }
         else {
+            story = realloc(story, strlen(story)+strlen(m.buffer+1));
             story = strcat(story, m.buffer);
             sendto(sock_fd, story, strlen(story) +1, 0, ( struct sockaddr *) &client_addr, sizeof(client_addr));
         }
