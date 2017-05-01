@@ -45,7 +45,6 @@ int main(){
                 (const struct sockaddr *) &gateway_addr, 
                 sizeof(gateway_addr));
 
-
     while(1) {
         // waits messages from client
         listen(sock_stream, 1); // this allows only 1 client to connect
@@ -56,7 +55,7 @@ int main(){
         printf("%s\n", buff);
 
         // sends message back to client in UPPER_CASE  
-        
+
     }
 }
 
