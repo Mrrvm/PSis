@@ -13,6 +13,7 @@
 #include <ctype.h>
 
 #define MESSAGE_LEN 100
+
 #define CLI_GW 0 // Client request to Gateway
 #define SER_GW 1 // Server sends address to Gateway
 

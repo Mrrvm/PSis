@@ -20,6 +20,7 @@ int main(){
     int sock_stream;
     int sock_client;
     message_gw *message_gw_;
+    message_std *message_std_;
     int local_port = 3001;
     char buff[100];
 
@@ -45,17 +46,21 @@ int main(){
                 (const struct sockaddr *) &gateway_addr, 
                 sizeof(gateway_addr));
 
+    listen(sock_stream, 1); // this allows only 1 client to connect
+    message_std_ = malloc(sizeof(message_std));
+
     while(1) {
-        // waits messages from client
-        listen(sock_stream, 1); // this allows only 1 client to connect
         sock_client = accept(sock_stream, 
                     (struct sockaddr *) & client_addr, &size_addr);
-        recv(sock_client, buff, 100, 0);
+        printf("Waiting a client to connect...\n");
+        // waits messages from client
+        recv(sock_client, message_std_, sizeof(*message_std_), 0);
         // prints it 
-        printf("%s\n", buff);
+        printf("Message is %s\n", message_std_->buffer);
 
         // sends message back to client in UPPER_CASE  
-
+        close(sock_client);
     }
+    close(sock_stream);
 }
 
