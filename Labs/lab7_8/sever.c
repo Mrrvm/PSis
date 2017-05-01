@@ -1,15 +1,5 @@
 #include "defs.h"
 
-char *touppercase(char *str) {
-  // Convert to upper case
-  char *s = str;
-  while (*s) {
-    *s = toupper((unsigned char) *s);
-    s++;
-  }
-  return s;
-}
-
 int main(){
     
     struct sockaddr_in local_addr;
@@ -59,6 +49,8 @@ int main(){
         printf("Message is %s\n", message_std_->buffer);
 
         // sends message back to client in UPPER_CASE  
+        // Lets pretend this is in UPPER CASE ;)
+        send(sock_client, message_std_, sizeof(*message_std_), 0);
         close(sock_client);
     }
     close(sock_stream);

@@ -42,9 +42,9 @@ int main(){
 		// sends a message to the given server
 		send(sock_stream, message_std_, sizeof(*message_std_), 0);
 		// waits a response from the server
-		//recv(sock_stream, message_std_, sizeof(*message_std_), 0);
+		recv(sock_stream, message_std_, sizeof(*message_std_), 0);
 		// prints it
-		//printf("\n\n The server said: %s\n\n", message_std_->buffer);
+		printf("\nThe server said: %s\n", message_std_->buffer);
 	}
 	else {
 		printf("Could not connect\n");
