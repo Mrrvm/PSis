@@ -1,43 +1,32 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <arpa/inet.h>
-
-#define SOCKET_NAME "xxx"
-#define MESSAGE_LEN 100
-
-typedef struct message{
-    char buffer[MESSAGE_LEN];
-} message;
-
+#include "defs.h"
 
 int main(){
     
-    int sock_gate;
-    struct sockaddr_in addr;
-    message m;
-    
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(3000);  
-    addr.sin_addr.s_addr = INADDR_ANY;
+    struct sockaddr_in local_addr;
+    struct sockaddr_in temp_addr;
+    socklen_t size_addr;
+    int sock_local;
+    char buff[100];
 
-    /* create socket gateway */ 
-    sock_gate = socket(AF_INET, SOCK_DGRAM, 0);
-    bind(sock_gate, (struct sockaddr *)  &addr, sizeof(addr)); 
-        
-    while(1){
-        recv(sock_gate, m.buffer, 100, 0);
-        printf("%s\n", m.buffer);        
+    // generates itself
+    sock_local = socket(AF_INET, SOCK_DGRAM, 0);
+    local_addr.sin_family = AF_INET;
+    local_addr.sin_port= htons(3000);
+    local_addr.sin_addr.s_addr= INADDR_ANY;
+    bind(sock_local, (struct sockaddr *)&local_addr, sizeof(local_addr));
+
+    while(1)
+    {
+        // waits contact from any server
+        // stores this contact in a list - NOT DONE YET
+        size_addr = sizeof(temp_addr);
+        recvfrom(sock_local, buff, 100, 0, 
+              (struct sockaddr *) &temp_addr, &size_addr);
+        printf("%s\n", buff);
+
+        // waits requests from client
+        // sends a response to the client
     }
 
-    exit(0);
-    
 }
 
