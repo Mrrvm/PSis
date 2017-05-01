@@ -1,48 +1,62 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <arpa/inet.h>
+#include "defs.h"
 
-#define MESSAGE_LEN 100
-#define CLI_GW 0
-#define SER_GW 1
-#define CLI_SER 2
-
-typedef struct message{
-	int type;
-    char buffer[MESSAGE_LEN];
-} message;
-
+char *touppercase(char *str) {
+  // Convert to upper case
+  char *s = str;
+  while (*s) {
+    *s = toupper((unsigned char) *s);
+    s++;
+  }
+  return s;
+}
 
 int main(){
     
-    int sock_stream, sock_gate;
-    struct sockaddr_in gate_addr, client_addr;
-    message m;
- 	
-    /* socket gateway */
- 	gate_addr.sin_family = AF_INET;
-    gate_addr.sin_port = htons(3000);  
-    inet_aton("194.210.134.31", &gate_addr.sin_addr);
-    sock_gate = socket(AF_INET, SOCK_DGRAM, 0);
+    struct sockaddr_in local_addr;
+    struct sockaddr_in gateway_addr;
+    struct sockaddr_in client_addr;
+    socklen_t size_addr;
+    int sock_gw;
+    int sock_stream;
+    int sock_client;
+    message_gw *message_gw_;
+    int local_port = 3001;
+    char buff[100];
 
-    /* socket stream/client */ 
-    // sock_stream = socket(AF_INET, SOCK_STREAM, 0);
-    // client_addr.sin_family = AF_INET;
-    // client_addr.sin_port = htons(3001+getpid()); 
-    // client_addr.sin_addr.s_addr = INADDR_ANY;
-    // bind(sock_stream, (struct sockaddr *)  &client_addr, sizeof(client_addr));
-    // listen(sock_stream, 10); 
+    // gateway socket
+    sock_gw = socket(AF_INET, SOCK_DGRAM, 0);
+    gateway_addr.sin_family = AF_INET;
+    gateway_addr.sin_port = htons(3000);
+    inet_aton(MY_IP, &gateway_addr.sin_addr);
 
-    strcpy(m.buffer, "ola");
-    sendto(sock_gate, m.buffer, strlen(m.buffer)+1, 0, (struct sockaddr *) &gate_addr, sizeof(gate_addr));
-    exit(0);    
+    // client socket
+    sock_stream = socket(AF_INET, SOCK_STREAM, 0);
+    local_addr.sin_family = AF_INET;
+    local_addr.sin_port= htons(local_port);
+    inet_aton(MY_IP, &local_addr.sin_addr);
+    bind(sock_stream, (struct sockaddr *)&local_addr, sizeof(local_addr));
+
+    // sends address to gateway
+    message_gw_ = malloc(sizeof(message_gw));
+    message_gw_->type = SER_GW;
+    strcpy(message_gw_->address, MY_IP);
+    message_gw_->port = local_port;
+    sendto(sock_gw, message_gw_, sizeof(*message_gw_), 0,
+                (const struct sockaddr *) &gateway_addr, 
+                sizeof(gateway_addr));
+
+
+    while(1) {
+        // waits messages from client
+        listen(sock_stream, 1); // this allows only 1 client to connect
+        sock_client = accept(sock_stream, 
+                    (struct sockaddr *) & client_addr, &size_addr);
+        recv(sock_client, buff, 100, 0);
+        // prints it 
+        printf("%s\n", buff);
+
+        // sends message back to client in UPPER_CASE  
+        
+    }
 }
 
