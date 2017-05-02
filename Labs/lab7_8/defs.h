@@ -12,6 +12,27 @@
 #include <string.h>
 #include <ctype.h>
 
+#define KNRM  "\x1B[0m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT  "\x1B[37m"
+#define RESET "\033[0m"
+
+/*DEBUG_OFF - No printfs
+  DEBUG_ON  - Printfs
+ */
+#define DEBUG_ON
+
+#ifdef DEBUG_ON
+  #define spam(a) printf a
+#else
+  #define spam(a) (void)0
+#endif
+
 #define MESSAGE_LEN 100
 
 #define CLI_GW 0 // Client request to Gateway
@@ -21,6 +42,8 @@
 #define SER_AVB 1
 
 #define MY_IP "192.168.1.8"
+
+typedef void *item;
 
 typedef struct message_gw{
     int type;
@@ -32,3 +55,6 @@ typedef struct message_std{
 	int type;
     char buffer[MESSAGE_LEN];
 } message_std;
+
+void file_error(char *msg);
+void memory_error(char *msg);

@@ -1,4 +1,4 @@
-#include "defs.h"
+#include "structures.h"
 
 int main(){
     
@@ -7,6 +7,10 @@ int main(){
     socklen_t size_addr;
     int sock_local;
     message_gw *message_gw_, *aux_message;
+    list *servers_list;
+
+    // creates list to save server ip's and port's
+    servers_list = create_list();
 
     // generates itself
     sock_local = socket(AF_INET, SOCK_DGRAM, 0);
@@ -27,16 +31,20 @@ int main(){
 
         if(message_gw_->type == SER_GW) {
             // stores this contact in a list - NOT DONE YET
+            message_gw_->type = SER_AVB;
+            push_item_to_list(servers_list, (message_gw *)message_gw_);
+
             aux_message->type = SER_AVB;
             strcpy(aux_message->address, message_gw_->address);
             aux_message->port = message_gw_->port;
-            printf("Received server %s:%d\n", 
+            
+            printf(KBLU"Received server "KRED"%s:%d\n"RESET, 
                 message_gw_->address,
                 message_gw_->port);
         }
         else if(message_gw_->type == CLI_GW) {        
             // sends a response to the client
-            printf("Client is requesting\n");
+            printf(KYEL"Client is requesting\n"RESET);
             sendto(sock_local, aux_message, sizeof(*aux_message), 0,
                 (const struct sockaddr *) &temp_addr, 
                 sizeof(temp_addr));
