@@ -37,17 +37,17 @@ int main(){
 		// gets message to send
 		message_std_ = malloc(sizeof(message_std));
 
-		printf(KYEL"\nWrite message:\n"RESET);
+		printf("\nWrite message:\n");
 		fgets(message_std_->buffer, MESSAGE_LEN, stdin);
 		// sends a message to the given server
 		send(sock_stream, message_std_, sizeof(*message_std_), 0);
 		// waits a response from the server
 		recv(sock_stream, message_std_, sizeof(*message_std_), 0);
 		// prints it
-		printf(KBLU"\nThe server said: %s\n"RESET, message_std_->buffer);
+		printf("\nThe server said: %s\n", message_std_->buffer);
 	}
 	else {
-		printf(KRED"Could not connect\n"RESET);
+		printf("Could not connect\n");
 		exit(0);
 	}
 	close(sock_stream);

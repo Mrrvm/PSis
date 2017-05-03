@@ -39,13 +39,13 @@ int main(){
     message_std_ = malloc(sizeof(message_std));
 
     while(1) {
-        printf(KBLU"Waiting a client to connect...\n"RESET);
+        printf("Waiting a client to connect...\n");
         sock_client = accept(sock_stream, 
                     (struct sockaddr *) & client_addr, &size_addr);
         // waits messages from client
         recv(sock_client, message_std_, sizeof(*message_std_), 0);
         // prints it 
-        printf(KYEL"Message is %s\n"RESET, message_std_->buffer);
+        printf("Message is %s\n", message_std_->buffer);
 
         // sends message back to client in UPPER_CASE  
         // Lets pretend this is in UPPER CASE ;)
