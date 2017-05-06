@@ -17,7 +17,7 @@ int main(){
     sock_gw = socket(AF_INET, SOCK_DGRAM, 0);
     gateway_addr.sin_family = AF_INET;
     gateway_addr.sin_port = htons(3000);
-    inet_aton(MY_IP, &gateway_addr.sin_addr);
+    inet_aton(GW_IP, &gateway_addr.sin_addr);
 
     // client socket
     sock_stream = socket(AF_INET, SOCK_STREAM, 0);
