@@ -11,7 +11,7 @@ int main(){
     int sock_client;
     message_gw *message_gw_;
     message_std *message_std_;
-    int local_port = getpid();
+    int local_port = 3000+getpid();
 
     // gateway socket
     sock_gw = socket(AF_INET, SOCK_DGRAM, 0);
