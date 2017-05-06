@@ -13,7 +13,7 @@ int main(){
     sock_gw = socket(AF_INET, SOCK_DGRAM, 0);
     gateway_addr.sin_family = AF_INET;
     gateway_addr.sin_port = htons(3000);
-    inet_aton(MY_IP, &gateway_addr.sin_addr);
+    inet_aton(GW_IP, &gateway_addr.sin_addr);
 
 	// requests an address to the gateway
 	message_gw_ = malloc(sizeof(message_gw));

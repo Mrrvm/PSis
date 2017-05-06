@@ -20,7 +20,8 @@
 #define NO_SER_AVB 0
 #define SER_AVB 1
 
-#define MY_IP "192.168.1.8"
+#define MY_IP "192.168.1.5"
+#define GW_IP "192.168.1.8"
 
 typedef void *item;
 
