@@ -1,4 +1,4 @@
-#include "defs.h"
+#include "structures.h"
 
 int main(){
     
