@@ -112,9 +112,8 @@ void print_list(list *got_list, void (*print_item)(item)) {
             aux_node = get_next_node(aux_node)) {
         spam(("[ "));
         print_item(get_node_item(aux_node));
-        spam(("] -> \n"));
+        spam((" ] -> "));
     }
-    spam(("-> [ " KBLU "NULL" RESET " ]"));
 }
 
 void free_list(list *got_list, void (*free_item)(item)) {
