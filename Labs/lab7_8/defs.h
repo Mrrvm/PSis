@@ -34,7 +34,7 @@
 #define SER_AVB 1
 
 #define MY_IP "192.168.1.8"
-#define GW_IP "192.168.1.8"
+#define GW_IP "193.136.128.103"
 
 #define DEBUG_ON
 

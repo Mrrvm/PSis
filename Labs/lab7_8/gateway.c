@@ -57,10 +57,12 @@ int main(){
             else {
                 curr_node = get_next_node(curr_node);
             }
-            message_gw_ = (message_gw *)get_node_item(curr_node);
-            sendto(sock_local, message_gw_, sizeof(*message_gw_), 0,
-                (const struct sockaddr *) &temp_addr, 
-                sizeof(temp_addr));
+            if(curr_node != NULL) {
+                message_gw_ = (message_gw *)get_node_item(curr_node);
+                sendto(sock_local, message_gw_, sizeof(*message_gw_), 0,
+                    (const struct sockaddr *) &temp_addr, 
+                    sizeof(temp_addr));
+            }
         }
     }
 }

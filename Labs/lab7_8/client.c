@@ -24,7 +24,7 @@ int main(){
 	
 	// receives a server address
     recv(sock_gw, message_gw_, sizeof(*message_gw_), 0);
-    spam(("Received IP from gw"));
+    spam(("Received IP from gw\n"));
     // connects to that server via stream
     sock_stream = socket(AF_INET, SOCK_STREAM, 0);
     server_addr.sin_family = AF_INET;
