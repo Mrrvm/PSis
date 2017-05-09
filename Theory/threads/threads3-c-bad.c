@@ -7,14 +7,14 @@
 void * func (void * arg){
 
 	long n = * (long*) arg;
-	long i = 0;
+	long i;
 
-
+	i = 0;
 	printf("New thread ID %d %lu\n",getpid(), pthread_self()) ;
 	for (long k = 0; k < 999999999; k++){
 		i+=n;
 	}
-	return & i;
+	return &i;
 }
 
 int main(){
@@ -49,7 +49,7 @@ int main(){
 	pthread_join(thr_id_1, (void*)&ret1);
 	pthread_join(thr_id_2, (void*)&ret2);
 	
-	printf("%ld %ld\n", ret1, *ret2);
+	printf("%ld %ld\n", *ret1, *ret2);
 	
 	getchar();
 	exit(0);

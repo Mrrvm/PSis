@@ -50,7 +50,7 @@ int main(){
 	pthread_join(thr_id_1, (void*)&ret1);
 	pthread_join(thr_id_2, (void*)&ret2);
 	
-	printf("%ld %ld\n", ret1, *ret2);
+	printf("%ld %ld\n", *ret1, *ret2);
 	
 	getchar();
 	exit(0);

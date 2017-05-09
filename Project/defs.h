@@ -1,9 +1,19 @@
 #ifndef defsHeader
 #define defsHeader
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <ctype.h>
 
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -15,9 +25,8 @@
 #define KWHT  "\x1B[37m"
 #define RESET "\033[0m"
 
-/*DEBUG_OFF - No printfs
-  DEBUG_ON  - Printfs
- */
+// DEBUG_OFF - No printfs
+// DEBUG_ON  - Printfs
 #define DEBUG_ON
 
 #ifdef DEBUG_ON
@@ -34,7 +43,5 @@ typedef enum
     TRUE=1
 } bool;
 
-void file_error(char *msg);
-void memory_error(char *msg);
 
 #endif

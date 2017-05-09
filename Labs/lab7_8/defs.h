@@ -33,8 +33,8 @@
 #define NO_SER_AVB 0
 #define SER_AVB 1
 
-#define MY_IP "192.168.1.8"
-#define GW_IP "193.136.128.103"
+#define MY_IP "192.168.1.73"
+#define GW_IP "192.168.1.73"
 
 #define DEBUG_ON
 
