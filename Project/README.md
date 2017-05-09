@@ -1,4 +1,5 @@
 # PSis Project
 
-<img src=".images/main_image">
-
+<p align="center">
+  <img src=".images/main_image">
+</p>
