@@ -14,6 +14,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <ctype.h>
+#include <pthread.h>
 
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -24,17 +25,6 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 #define RESET "\033[0m"
-
-// DEBUG_OFF - No printfs
-// DEBUG_ON  - Printfs
-#define DEBUG_ON
-
-#ifdef DEBUG_ON
-  #define spam(a) printf a
-#else
-  #define spam(a) (void)0
-#endif
-
 
 typedef void *item;
 typedef enum

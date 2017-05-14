@@ -1,0 +1,37 @@
+#include "gateway.h"
+
+void *handle_cli_requests(void * arg) {
+
+	struct sockaddr_in local_addr;
+	struct sockaddr_in cli_addr;
+	struct sockaddr_in peer_addr;
+	socklen_t size_addr;
+	int sock_cli;
+    uint16_t request;
+
+    printf("Thread 1:\n");
+
+	// Creates socket for client requests
+    sock_cli = socket(AF_INET, SOCK_DGRAM, 0);
+    local_addr.sin_family = AF_INET;
+    local_addr.sin_port= htons(3000);
+    local_addr.sin_addr.s_addr = INADDR_ANY;
+    bind(sock_cli, (struct sockaddr *)&local_addr, sizeof(local_addr));
+    while(1) {
+    	// Waits for client requests
+    	printf("\nWaiting for client requests...\n");
+    	size_addr = sizeof(cli_addr);
+    	recvfrom(sock_cli, &request, sizeof(request), 0, 
+              (struct sockaddr *) &cli_addr, &size_addr);
+
+    	request = ntohs(request);
+    	if(request == 1) {
+    		printf("Request received! Sending peer...\n");
+    		peer_addr.sin_port = htons(4000);
+    		inet_aton("192.168.1.8", &peer_addr.sin_addr);
+    		sendto(sock_cli,(const struct sockaddr *) &peer_addr, sizeof(peer_addr), 0,
+                    (const struct sockaddr *) &cli_addr, 
+                    sizeof(cli_addr));
+    	}
+    }
+}

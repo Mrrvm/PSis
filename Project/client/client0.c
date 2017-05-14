@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 	}
 	else {
 		// Adds a new photo to the gallery
-		gallery_add_photo(connect_ret, "my_first_nude");
+		//gallery_add_photo(connect_ret, "my_first_nude");
 	}
 	return 0;
 }

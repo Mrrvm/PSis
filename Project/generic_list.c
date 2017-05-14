@@ -1,4 +1,3 @@
-
 #include "generic_list.h"
 
 
@@ -20,7 +19,7 @@ node *create_node(item new_item, node *next_node, int item_size_) {
     /* Memory allocation */
     new_node = (node *)malloc(sizeof(node));
     if (new_node == NULL)
-        memory_error("Unable to reserve node memory");
+        printf("Unable to reserve node memory");
     /* Add item to node*/
     new_node->this = malloc(item_size_);
     memcpy(new_node->this, new_item, item_size_);
@@ -63,7 +62,7 @@ list *create_list(int item_size_) {
     /* Create List */
     new_list = (list *)malloc(sizeof(list));
     if(new_list == NULL)
-        memory_error("Unable to reserve list memory");
+        printf("Unable to reserve list memory");
     /* Set head to null */
     new_list->head = NULL;
     /* Set size to 0 :( */
@@ -104,15 +103,15 @@ size_t get_list_size(list *got_list) {
 
 void print_list(list *got_list, void (*print_item)(item)) {
     node *aux_node;
-    spam(("Print list:\n"));
-    spam(("Size of list: %lu\n", get_list_size(got_list)));
+    printf("Print list:\n");
+    printf("Size of list: %lu\n", get_list_size(got_list));
 
     for(aux_node = get_head(got_list);
             aux_node != NULL;
             aux_node = get_next_node(aux_node)) {
-        spam(("[ "));
+        printf("[ ");
         print_item(get_node_item(aux_node));
-        spam((" ] -> "));
+        printf(" ] -> ");
     }
 }
 
