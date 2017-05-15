@@ -39,7 +39,7 @@ int gallery_connect(char *host, in_port_t port) {
 				return sock_peer;
 			}
 			else {
-				0
+				return 0;
 			}
 	    }
 	    else {

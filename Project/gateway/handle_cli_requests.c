@@ -28,7 +28,7 @@ void *handle_cli_requests(void * arg) {
     	if(request == 1) {
     		printf("Request received! Sending peer...\n");
     		peer_addr.sin_port = htons(4000);
-    		inet_aton("192.168.1.8", &peer_addr.sin_addr);
+    		inet_aton("193.136.135.96", &peer_addr.sin_addr);
     		sendto(sock_cli,(const struct sockaddr *) &peer_addr, sizeof(peer_addr), 0,
                     (const struct sockaddr *) &cli_addr, 
                     sizeof(cli_addr));
