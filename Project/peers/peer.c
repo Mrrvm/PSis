@@ -1,5 +1,4 @@
-#include "../defs.h"
-#include "../structures.h"
+#include "peer.h"
 
 int main(int argc, char *argv[])
 {
@@ -38,10 +37,7 @@ int main(int argc, char *argv[])
 	// Thread 1: Pings the gateway
 
 	// Thread 2: Waits for clients
-		// Creates a new thread for each client
-		// Resolves client requests
-		// Must have syncronization when reading/writing photos between clients
-	error = pthread_create(&thr_clients, NULL,	handle_clients, NULL);
+	error = pthread_create(&thr_clients, NULL,	handle_clients, &sock_stream);
 	if(error != 0) {
 		perror("Unable to create thread to handle clients.");
 		exit(-1);
