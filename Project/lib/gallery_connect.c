@@ -7,9 +7,7 @@ int gallery_connect(char *host, in_port_t port) {
     int sock_peer = 0;
     int sock_gw = 0;
     uint16_t request;
-    long int ret = sizeof(peer_addr);
-    int peer_port;
-    char *peer_address;
+    long int ret;
 
     // Gateway settings
     sock_gw = socket(AF_INET, SOCK_DGRAM, 0);
@@ -27,13 +25,28 @@ int gallery_connect(char *host, in_port_t port) {
 	  
 	    if(ret != 0 && ret != -1) {
 			// Connects to the peer
-			peer_port = ntohs(peer_addr.sin_port);
-			peer_address = inet_ntoa(peer_addr.sin_addr);
-	    	printf("Received IP %s:%d from Gateway\n", peer_address, peer_port);
+	    	printf("Received IP %s:%d from Gateway\n", inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port));
 			
+	    	// Check if peer is available, if not return 0!
+
 			// Creates connection with peer
-			return sock_peer;
-	    }	
+			sock_peer = socket(AF_INET, SOCK_STREAM, 0);
+			peer_addr.sin_family = AF_INET;
+			if(0 == connect(sock_peer, 
+				(const struct sockaddr *) &peer_addr, 
+				sizeof(peer_addr))) {
+				
+				return sock_peer;
+			}
+			else {
+				0
+			}
+	    }
+	    else {
+	    	return -1;
+	    }
     }
-    return 0;
+    else {
+    	return -1;
+    }
 }
