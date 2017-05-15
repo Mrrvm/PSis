@@ -1,10 +1,12 @@
 #include "gateway.h"
 
 // port 3000 - client requests
+// port 3001 - peer entries (list)
 
 int main() {
 
 	pthread_t thr_cli;
+	pthread_t thr_peerlist;
 	int error;
 	void *ret;
 
@@ -16,18 +18,36 @@ int main() {
 		exit(-1);
 	}
 
+	
+	// Thread 2: 
+	// Manages peer info in peer socket
+	// Adds it to the peer list
+
+	error = pthread_create(&thr_peerlist, NULL,	handle_peer_list, NULL);
+	if(error != 0) {
+		perror("Unable to create thread to handle peer list.");
+		exit(-1);
+	}
+
+
+
+
 	pthread_join(thr_cli, (void*)&ret);
+
+	pthread_join(thr_peerlist, (void*)&ret);
 
 	exit(0);
 }
 
 
 
-// (???) Not sure if 1 or 2 threads, 1 or 2 sockets
-// Thread 2: 
+
+
+
+
+
+
 	// Manages peer pings in peer socket
 		// If one is dead, remove from the list
-	// Manages peer info in peer socket
-		// Adds it to the peer list
 
 // Must have syncronization when reading/writing the list of peers

@@ -9,7 +9,7 @@ void *handle_cli_requests(void * arg) {
 	int sock_cli;
     uint16_t request;
 
-    printf("Thread 1:\n");
+    printf("Thread handle clients:\n");
 
 	// Creates socket for client requests
     sock_cli = socket(AF_INET, SOCK_DGRAM, 0);
