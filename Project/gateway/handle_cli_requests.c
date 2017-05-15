@@ -9,7 +9,11 @@ void *handle_cli_requests(void * arg) {
 	int sock_cli;
     uint16_t request;
 
+    list *servers_list = (list *)arg;
+    node *curr_node = NULL;
+
     printf("Thread handle clients:\n");
+
 
 	// Creates socket for client requests
     sock_cli = socket(AF_INET, SOCK_DGRAM, 0);
@@ -27,11 +31,19 @@ void *handle_cli_requests(void * arg) {
     	request = ntohs(request);
     	if(request == 1) {
     		printf("Request received! Sending peer...\n");
-    		peer_addr.sin_port = htons(4000);
-    		inet_aton("193.136.135.96", &peer_addr.sin_addr);
-    		sendto(sock_cli,(const struct sockaddr *) &peer_addr, sizeof(peer_addr), 0,
+    		if (curr_node == NULL) {
+                curr_node = get_head(servers_list);
+            }
+            if(curr_node != NULL){
+                peer_addr = *(struct sockaddr_in *)get_node_item(curr_node);
+        		sendto(sock_cli,(const struct sockaddr *) &peer_addr, sizeof(peer_addr), 0,
                     (const struct sockaddr *) &cli_addr, 
                     sizeof(cli_addr));
+                curr_node = get_next_node(curr_node);   
+            }
+            else {
+                printf("List is empty\n");
+            }
     	}
     }
 }

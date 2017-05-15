@@ -10,10 +10,7 @@ void *handle_peer_list(void * arg) {
     struct sockaddr_in local_addr;
     struct sockaddr_in peer_addr;
     int sock_local;
-
-
-    list *servers_list = create_list(sizeof(peer_addr));
-    node *curr_node = NULL;
+    list *servers_list = (list *)arg;
 
     printf("Thread peer list:\n");
 

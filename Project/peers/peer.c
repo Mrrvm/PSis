@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
 	struct sockaddr_in gateway_addr;
 	int sock_gw;
 	int sock_stream;
-	int local_port = 4000; //3000+getpid();
+	int local_port = 3000+getpid();
 	pthread_t thr_clients;
     int error;
 	void *ret;
@@ -35,12 +35,11 @@ int main(int argc, char *argv[])
 
 
     // Send info to gateway
-    if(-1 == sendto(sock_gw,(const struct sockaddr *) &local_addr, sizeof(local_addr), 0,
+    if(-1 != sendto(sock_gw,(const struct sockaddr *) &local_addr, sizeof(local_addr), 0,
         (const struct sockaddr *) &gateway_addr, 
         sizeof(gateway_addr))) {
 
-	// Thread 1: Pings the gateway
-
+		// Thread 1: Pings the gateway
 
 		// Thread 2: Waits for clients
 		error = pthread_create(&thr_clients, NULL, handle_clients, &sock_stream);
