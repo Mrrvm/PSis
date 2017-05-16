@@ -19,11 +19,9 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	photo_size = htons(photo_size);
 	send(peer_socket, &photo_size, sizeof(photo_size), 0);
 	
-	while(!feof(photo)) {
-		fread(buffer, 1, sizeof(buffer), photo);
-    	send(peer_socket, buffer, photo_size, 0);
-    	bzero(buffer, sizeof(buffer));
-	}
+	fread(buffer, 1, sizeof(buffer), photo);
+
+    send(peer_socket, buffer, sizeof(buffer), 0);
 	
 	// strcpy(photo_data_.file_name, file_name);
 	// photo_data_.id_photo = 0;
