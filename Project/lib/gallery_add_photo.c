@@ -14,7 +14,7 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	fseek(photo, 0, SEEK_END);
 	photo_size = ftell(photo);
 	fseek(photo, 0, SEEK_SET);
-	char *buffer[photo_size];
+	char buffer[photo_size];
 	
 	photo_size = htons(photo_size);
 	send(peer_socket, &photo_size, sizeof(photo_size), 0);
