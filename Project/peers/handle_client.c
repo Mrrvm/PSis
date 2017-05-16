@@ -12,8 +12,9 @@ void *handle_client(void * arg) {
 	char buffer[photo_size];
 	recv(client_socket, buffer, photo_size, 0);
 
+
 	photo = fopen("photos/nude_received.jpg", "w");
-	fwrite(buffer, 1, sizeof(buffer), photo);
+	fwrite(buffer, 1, sizeof(buffer)+1, photo);
 	fclose(photo);
 
 	// recv(client_socket, &photo_data_, sizeof(photo_data), 0);
