@@ -42,7 +42,9 @@ void *handle_cli_requests(void * arg) {
                 curr_node = get_next_node(curr_node);   
             }
             else {
-                printf("List is empty\n");
+                sendto(sock_cli,(const struct sockaddr *) &peer_addr, 0, 0,   //send message with size 0 so the return value of the receive is 0.
+                    (const struct sockaddr *) &cli_addr, 
+                    sizeof(cli_addr));
             }
     	}
     }

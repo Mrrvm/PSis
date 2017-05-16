@@ -42,8 +42,11 @@ int gallery_connect(char *host, in_port_t port) {
 				return 0;
 			}
 	    }
-	    else {
+	    else if(ret==-1){
 	    	return -1;
+	    }
+	    else if(ret==0){
+	    	return 0;
 	    }
     }
     else {
