@@ -2,11 +2,20 @@
 
 void *handle_client(void * arg) {
 
-	int test;
-	conn_args *new_conn_args = (conn_args *) arg;
+	int client_socket = *(int *) arg;
+	int photo_size;
+	photo_data photo_data_;
+	char *buffer;
+	FILE *photo;
 
-	printf("ClienT thread created!\n");
-	recv(new_conn_args->sock_client_, &test, sizeof(test), 0);	
-	printf("Received: %d\n", ntohs(test));
-	free(arg);
+	recv(client_socket, &photo_size, sizeof(photo_size), 0);
+
+	buffer = malloc(photo_size);
+	recv(client_socket, buffer, photo_size, 0);
+
+	photo = fopen("nude_received.jpg", "w");
+	fwrite(buffer, 1, sizeof(buffer), photo);
+	fclose(photo);
+
+	recv(client_socket, photo_data_, sizeof(photo_data_), 0);
 }

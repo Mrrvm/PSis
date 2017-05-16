@@ -4,7 +4,7 @@ int main(int argc, char *argv[])
 {
 	char *host = NULL;
 	in_port_t port = 0;
-	int connect_ret = 0;
+	int connect_ret = 1;
 
 	// Checks if user inserted the write input
 	if(argc != 3) {
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 	}
 	else {
 		// Adds a new photo to the gallery
-		gallery_add_photo(connect_ret, "my_first_nude");
+		gallery_add_photo(connect_ret, "photos/my_first_nude.jpg");
 	}
 	return 0;
 }
