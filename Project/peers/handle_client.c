@@ -9,10 +9,10 @@ void *handle_client(void * arg) {
 
 	recv(client_socket, &photo_size, sizeof(photo_size), 0);
 	photo_size = ntohs(photo_size);
-	char *buffer[photo_size];
+	char buffer[photo_size];
 	recv(client_socket, buffer, photo_size, 0);
 
-	photo = fopen("photos/nude_received.png", "w");
+	photo = fopen("photos/nude_received.jpg", "w");
 	fwrite(buffer, 1, sizeof(buffer), photo);
 	fclose(photo);
 
