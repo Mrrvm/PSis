@@ -2,7 +2,7 @@
 
 void print_server(item got_item) {
     struct sockaddr_in peer_addr = *(struct sockaddr_in *) got_item;
-    printf("%d\n", ntohs(peer_addr.sin_port));
+    printf("%d", ntohs(peer_addr.sin_port));
 }
 
 void *handle_peer_list(void * arg) {
@@ -12,7 +12,7 @@ void *handle_peer_list(void * arg) {
     int sock_local;
     list *servers_list = (list *)arg;
 
-    printf("Thread peer list:\n");
+    printf(KYEL"Thread peer list:\n"RESET);
 
 	// Creates socket for peer entries
     sock_local = socket(AF_INET, SOCK_DGRAM, 0);
