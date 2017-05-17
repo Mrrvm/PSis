@@ -113,6 +113,7 @@ void print_list(list *got_list, void (*print_item)(item)) {
         print_item(get_node_item(aux_node));
         printf(" ] -> ");
     }
+    printf("\n");
 }
 
 void free_list(list *got_list, void (*free_item)(item)) {
