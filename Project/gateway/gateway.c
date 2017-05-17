@@ -7,11 +7,11 @@ int main() {
 
 	pthread_t thr_cli;
 	pthread_t thr_peerlist;
-	peer_data* peer_data_;
+	struct sockaddr_in peer_addr;
 	int error;
 	void *ret;
 
-	list *servers_list = create_list(sizeof(peer_data));
+	list *servers_list = create_list(sizeof(peer_addr));
 
 	// Thread 1: Resolves client requests in client socket
 	// Sends an address back according to the roud-robin approach
@@ -20,15 +20,21 @@ int main() {
 		perror("Unable to create thread to handle client requests.");
 		exit(-1);
 	}
+
 	
 	// Thread 2: 
 	// Manages peer info in peer socket
 	// Adds it to the peer list
+    
+	
 	error = pthread_create(&thr_peerlist, NULL,	handle_peer_list, servers_list);
 	if(error != 0) {
 		perror("Unable to create thread to handle peer list.");
 		exit(-1);
 	}
+
+
+
 
 	pthread_join(thr_cli, (void*)&ret);
 
@@ -38,14 +44,3 @@ int main() {
 }
 
 
-
-
-
-
-
-
-
-	// Manages peer pings in peer socket
-		// If one is dead, remove from the list
-
-// Must have syncronization when reading/writing the list of peers
