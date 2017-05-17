@@ -5,6 +5,7 @@ void *handle_cli_requests(void * arg) {
     struct sockaddr_in local_addr;
     struct sockaddr_in cli_addr;
     struct sockaddr_in peer_addr;
+    peer_data *peer_data_ = NULL;
     socklen_t size_addr;
     int sock_cli;
     uint16_t request;
@@ -35,7 +36,8 @@ void *handle_cli_requests(void * arg) {
                 curr_node = get_head(servers_list);
             }
             if(curr_node != NULL){
-                peer_addr = *(struct sockaddr_in *)get_node_item(curr_node);
+                peer_data_ = (peer_data *)get_node_item(curr_node);
+                peer_addr = peer_data_->peer_addr;
                 sendto(sock_cli,(const struct sockaddr *) &peer_addr, sizeof(peer_addr), 0,
                     (const struct sockaddr *) &cli_addr, 
                     sizeof(cli_addr));
