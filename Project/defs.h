@@ -47,8 +47,8 @@ typedef struct photo_data_ {
 
 typedef struct peer_data_ {
 	char address[ADDRESS_SIZE];
-	int port;
-	int sock_peer;
+	uint32_t port;
+	long sock_peer;
 } peer_data;
 
 #endif

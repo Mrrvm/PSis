@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 	pthread_t thr_clients;
     int error;
 	void *ret;
-	peer_data peer_data_;
+	peer_data* peer_data_;
 
 	if(argc != 2) {
 		printf("Invalid execution. Please use:\n./program [hostname]\n");
@@ -32,13 +32,15 @@ int main(int argc, char *argv[])
     inet_aton(argv[1], &local_addr.sin_addr);
     bind(sock_stream, (struct sockaddr *)&local_addr, sizeof(local_addr));
 
-    &peer_data_ = malloc(sizeof(peer_data_));
-    peer_data_.port = local_addr.sin_port;
-    strcpy(argv[1], &peer_data_.address);
-    peer_data_.sock_peer = htonl(0);
+    peer_data_ = malloc(sizeof(peer_data));
+
+    peer_data_->port = local_addr.sin_port;
+    strcpy(argv[1], peer_data_->address);
+    peer_data_->sock_peer = htonl(0);
+
 
     // Send info to gateway
-    if(-1 != sendto(sock_gw, &peer_data_, sizeof(peer_data_), 0,
+    if(-1 != sendto(sock_gw, peer_data_, sizeof(*peer_data_), 0,
         (const struct sockaddr *) &gateway_addr, 
         sizeof(gateway_addr))) {
 

@@ -7,11 +7,11 @@ int main() {
 
 	pthread_t thr_cli;
 	pthread_t thr_peerlist;
-	peer_data peer_data_;
+	peer_data* peer_data_;
 	int error;
 	void *ret;
 
-	list *servers_list = create_list(sizeof(peer_data_));
+	list *servers_list = create_list(sizeof(peer_data));
 
 	// Thread 1: Resolves client requests in client socket
 	// Sends an address back according to the roud-robin approach
