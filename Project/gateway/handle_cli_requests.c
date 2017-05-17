@@ -12,7 +12,7 @@ void *handle_cli_requests(void * arg) {
     list *servers_list = (list *)arg;
     node *curr_node = NULL;
 
-    printf(KBLU"Thread handle clients:\n"RESET);
+    printf("Thread handle clients:\n");
 
 
 	// Creates socket for client requests
@@ -23,14 +23,14 @@ void *handle_cli_requests(void * arg) {
     bind(sock_cli, (struct sockaddr *)&local_addr, sizeof(local_addr));
     while(1) {
     	// Waits for client requests
-    	printf(KBLU"Waiting for client requests...\n"RESET);
+    	printf("Waiting for client requests...\n");
     	size_addr = sizeof(cli_addr);
     	recvfrom(sock_cli, &request, sizeof(request), 0, 
               (struct sockaddr *) &cli_addr, &size_addr);
 
     	request = ntohs(request);
     	if(request == 1) {
-    		printf(KBLU"Request received! Sending peer...\n"RESET);
+    		printf("Request received! Sending peer...\n");
     		if (curr_node == NULL) {
                 curr_node = get_head(servers_list);
             }

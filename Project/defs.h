@@ -33,13 +33,15 @@
 #define GET_NAME 4
 #define GET_PHOTO 5
 
+#define MESSAGE_SIZE 30
+
 typedef void *item;
 
 typedef struct photo_data_ {
 	uint32_t type;
-	char *file_name;
+	char file_name[MESSAGE_SIZE];
 	uint32_t id_photo;
-	char *keyword;
+	char keyword[MESSAGE_SIZE][10];
 } photo_data;
 
 #endif
