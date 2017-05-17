@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
     gateway_addr.sin_port = htons(3001);
     inet_aton(argv[1], &gateway_addr.sin_addr);
 
-
     // Stream socket creation client
     sock_stream_client = socket(AF_INET, SOCK_STREAM, 0);
     local_addr.sin_family = AF_INET;
@@ -33,12 +32,10 @@ int main(int argc, char *argv[])
     inet_aton(argv[1], &local_addr.sin_addr);
     bind(sock_stream_client, (struct sockaddr *)&local_addr, sizeof(local_addr));
 
-
     // Send info to gateway
     if(-1 != sendto(sock_gw,(const struct sockaddr *) &local_addr, sizeof(local_addr), 0,
         (const struct sockaddr *) &gateway_addr, 
         sizeof(gateway_addr))) {
-
 
     	sock_stream_gw = socket(AF_INET, SOCK_STREAM, 0);
     	connect(sock_peer, (const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
