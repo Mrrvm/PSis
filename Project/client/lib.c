@@ -27,8 +27,6 @@ int gallery_connect(char *host, in_port_t port) {
 			// Connects to the peer
 	    	printf("Received IP %s:%d from Gateway\n", inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port));
 			
-	    	// Check if peer is available, if not return 0!
-
 			// Creates connection with peer
 			sock_peer = socket(AF_INET, SOCK_STREAM, 0);
 			peer_addr.sin_family = AF_INET;
