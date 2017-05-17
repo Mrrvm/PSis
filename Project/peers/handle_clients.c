@@ -3,14 +3,20 @@
 void *handle_client(void * arg) {
 
 	int client_socket = *(int *) arg;
-	photo_data photo_data_;
+	photo_data *photo_data_;
 
-	recv(client_socket, &photo_data_, sizeof(photo_data_), 0);
+	printf("Handling client\n");
 
-	photo_data_.type = ntohl(photo_data_.type);
-	printf("%s %d\n", photo_data_.file_name, photo_data_.type);
+	photo_data_ = malloc(sizeof(photo_data));
+	photo_data_->file_name = malloc(sizeof(char *));
+	photo_data_->keyword = malloc(sizeof(char *));
 
-	if(photo_data_.type == ADD_PHOTO) {
+	recv(client_socket, photo_data_, sizeof(*photo_data_), 0);
+
+	photo_data_->type = ntohs(photo_data_->type);
+	//printf("%s %d\n", photo_data_->file_name, photo_data_->type);
+
+	if(photo_data_->type == ADD_PHOTO) {
 		// int photo_size;
 		// photo_data photo_data_;
 		// FILE *photo;
@@ -27,6 +33,8 @@ void *handle_client(void * arg) {
 
 	// Send photo data to gateway
 
+
+	free(photo_data_);
 }
 
 // Creates a new thread for each client
