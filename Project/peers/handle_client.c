@@ -3,7 +3,7 @@
 void *handle_client(void * arg) {
 
 	int client_socket = *(int *) arg;
-	long photo_size;
+	int photo_size;
 	photo_data photo_data_;
 	FILE *photo;
 
@@ -12,8 +12,7 @@ void *handle_client(void * arg) {
 	char * buffer=malloc(photo_size);
 	recv(client_socket, buffer, photo_size, 0);
 
-
-	photo = fopen("photos/nude_received.png", "wb");
+	photo = fopen("photos/nude_received.jpg", "wb");
 	fwrite(buffer, 1, photo_size, photo);
 	fclose(photo);
 
