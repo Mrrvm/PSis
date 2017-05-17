@@ -10,14 +10,10 @@ void *handle_client(void * arg) {
 	printf("Handling client\n");
 
 	photo_data_ = malloc(sizeof(photo_data));
-
 	recv(client_socket, photo_data_, sizeof(*photo_data_), 0);
 
 	photo_data_->type = ntohs(photo_data_->type);
 	printf("%s\n", photo_data_->file_name);
-
-	// Send photo data to gateway
-	
 
 	if(photo_data_->type == ADD_PHOTO) {
 		int photo_size;
@@ -28,11 +24,12 @@ void *handle_client(void * arg) {
 		photo_size = ntohl(photo_size);
 		char *buffer = malloc(photo_size);
 		recv(client_socket, buffer, photo_size, 0);
-
-		photo = fopen("photos/nude_received.jpg", "wb");
-		fwrite(buffer, 1, photo_size, photo);
-		fclose(photo);
 	}
+
+	// Send photo data and photo to gateway
+	send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
+	send(gw_socket, &photo_size, sizeof(photo_size), 0);
+	send(gw_socket, buffer, photo_size, 0);
 
 	free(photo_data_);
 }
@@ -55,7 +52,6 @@ void *handle_clients(void * arg) {
         printf("Waiting connection from client...\n");
 
         (*ssockets).client_sock = accept(sock_stream, NULL, NULL);
-
         
         error = pthread_create(&thr_client, NULL, handle_client, (void *)ssockets);
 		if(error != 0) {

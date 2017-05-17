@@ -38,7 +38,7 @@ void *handle_peer_list(void * arg) {
         listen(sock_peer, 10);
         sock_peer = accept(sock_peer, NULL, NULL);
 
-
+        peer_data_->sock_peer = sock_peer;
         peer_data_->peer_addr = peer_addr;
         push_item_to_list(servers_list, peer_data_);
         print_list(servers_list, print_server);
