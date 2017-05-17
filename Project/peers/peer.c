@@ -17,7 +17,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-
 	printf("Created server: %d\n", local_port);
 
 	// Gateway settings
@@ -35,20 +34,29 @@ int main(int argc, char *argv[])
     bind(sock_stream_client, (struct sockaddr *)&local_addr, sizeof(local_addr));
 
 
-
     // Send info to gateway
     if(-1 != sendto(sock_gw,(const struct sockaddr *) &local_addr, sizeof(local_addr), 0,
         (const struct sockaddr *) &gateway_addr, 
         sizeof(gateway_addr))) {
 
-    	sock_stream_gw = socket(AF_INET, SOCK_STREAM, 0);
 
+    	sock_stream_gw = socket(AF_INET, SOCK_STREAM, 0);
     	connect(sock_peer, (const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+
+    	// Creates a structure with stream sockets to send as a thread argument
+    	stream_sockets *ssockets = NULL;
+    	ssockets = malloc(sizeof(stream_sockets));
+    	(*ssockets).gw_sock = sock_stream_gw;
+    	(*ssockets).client_sock = sock_stream;
+
 
 		// Thread 1: Pings the gateway
 
 		// Thread 2: Waits for clients
-		error = pthread_create(&thr_clients, NULL, handle_clients, &sock_stream_client);
+
+
+		error = pthread_create(&thr_clients, NULL, handle_clients, (void *)ssockets);
+
 		if(error != 0) {
 			perror("Unable to create thread to handle clients.");
 			exit(-1);
