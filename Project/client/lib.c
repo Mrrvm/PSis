@@ -72,20 +72,20 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	free(photo_data_);
 
 	// Opens photo
-	// photo = fopen(file_name, "rb");
+	photo = fopen(file_name, "rb");
 	
-	// // Gets the photo size
-	// fseek(photo, 0L, SEEK_END);
-	// photo_size = ftell(photo);
-	// fseek(photo, 0L, SEEK_SET);
-	// char * buffer=malloc(photo_size);
-	// size_buff = htonl(photo_size);
+	// Gets the photo size
+	fseek(photo, 0L, SEEK_END);
+	photo_size = ftell(photo);
+	fseek(photo, 0L, SEEK_SET);
+	char * buffer=malloc(photo_size);
+	size_buff = htonl(photo_size);
 
-	// // Sends photo size
-	// send(peer_socket, &size_buff, sizeof(size_buff), 0);
+	// Sends photo size
+	send(peer_socket, &size_buff, sizeof(size_buff), 0);
 	
-	// // Sends the photo in binary
-	// fread(buffer, 1, photo_size, photo);
- //    send(peer_socket, buffer, photo_size, 0);
+	// Sends the photo in binary
+	fread(buffer, 1, photo_size, photo);
+    send(peer_socket, buffer, photo_size, 0);
 
 }	
