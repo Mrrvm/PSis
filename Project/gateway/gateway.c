@@ -20,24 +20,17 @@ int main() {
 		perror("Unable to create thread to handle client requests.");
 		exit(-1);
 	}
-
 	
 	// Thread 2: 
 	// Manages peer info in peer socket
 	// Adds it to the peer list
-    
-	
 	error = pthread_create(&thr_peerlist, NULL,	handle_peer_list, servers_list);
 	if(error != 0) {
 		perror("Unable to create thread to handle peer list.");
 		exit(-1);
 	}
 
-
-
-
 	pthread_join(thr_cli, (void*)&ret);
-
 	pthread_join(thr_peerlist, (void*)&ret);
 
 	exit(0);
