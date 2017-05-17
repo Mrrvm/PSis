@@ -12,7 +12,7 @@ void *handle_peer_list(void * arg) {
     int sock_local;
     list *servers_list = (list *)arg;
 
-    printf(KYEL"Thread peer list:\n"RESET);
+    printf("Thread peer list:\n");
 
 	// Creates socket for peer entries
     sock_local = socket(AF_INET, SOCK_DGRAM, 0);
