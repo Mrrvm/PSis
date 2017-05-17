@@ -1,14 +1,14 @@
 #include "gateway.h"
 
 void print_server(item got_item) {
-    struct sockaddr_in peer_addr = *(struct sockaddr_in *) got_item;
-    printf("%d", ntohs(peer_addr.sin_port));
+    peer_data peer_data_ = *(peer_data *) got_item;
+    printf("%d", ntohs(peer_data_.port));
 }
 
 void *handle_peer_list(void * arg) {
 
     struct sockaddr_in local_addr;
-    struct sockaddr_in peer_addr;
+    peer_data peer_data_;
     int sock_local;
     list *servers_list = (list *)arg;
 
@@ -21,13 +21,11 @@ void *handle_peer_list(void * arg) {
     local_addr.sin_addr.s_addr= INADDR_ANY;
     bind(sock_local, (struct sockaddr *)&local_addr, sizeof(local_addr));
 
-
-
     while(1) {
 
-        recv(sock_local, (struct sockaddr *) &peer_addr, sizeof(peer_addr), 0);
+        recv(sock_local, &peer_data_, sizeof(peer_data_), 0);
 
-        push_item_to_list(servers_list, &peer_addr);
+        push_item_to_list(servers_list, peer_data_);
         print_list(servers_list, print_server);
 
     }
