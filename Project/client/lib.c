@@ -1,4 +1,4 @@
-	#include "lib.h"
+#include "lib.h"
 
 int gallery_connect(char *host, in_port_t port) {
 	
@@ -61,14 +61,17 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	int photo_size, size_buff;
 
 	photo_data_ = malloc(sizeof(photo_data));
+	photo_data_->file_name = malloc(sizeof(char *));
+	photo_data_->keyword = malloc(sizeof(char *));
 	// Sends photo data
-	photo_data_->type = htonl(ADD_PHOTO);
+	photo_data_->type = htons(ADD_PHOTO);
 	strcpy(photo_data_->file_name, file_name);
 	strcpy(photo_data_->keyword, "");
-	photo_data_->id_photo = htonl(0);
+	photo_data_->id_photo = htons(0);
 
 	send(peer_socket, photo_data_, sizeof(*photo_data_), 0);
 
+	free(photo_data_);
 
 	// Opens photo
 	// photo = fopen(file_name, "rb");

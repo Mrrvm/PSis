@@ -36,7 +36,7 @@
 typedef void *item;
 
 typedef struct photo_data_ {
-	int type;
+	uint32_t type;
 	char *file_name;
 	uint32_t id_photo;
 	char *keyword;
