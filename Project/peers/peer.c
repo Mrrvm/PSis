@@ -10,12 +10,12 @@ int main(int argc, char *argv[])
 	pthread_t thr_clients;
     int error;
 	void *ret;
+	peer_data peer_data_;
 
 	if(argc != 2) {
 		printf("Invalid execution. Please use:\n./program [hostname]\n");
 		exit(1);
 	}
-
 
 	printf("Created server: %d\n", local_port);
 
@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
     gateway_addr.sin_port = htons(3001);
     inet_aton(argv[1], &gateway_addr.sin_addr);
 
-
     // Stream socket creation
     sock_stream = socket(AF_INET, SOCK_STREAM, 0);
     local_addr.sin_family = AF_INET;
@@ -33,9 +32,13 @@ int main(int argc, char *argv[])
     inet_aton(argv[1], &local_addr.sin_addr);
     bind(sock_stream, (struct sockaddr *)&local_addr, sizeof(local_addr));
 
+    &peer_data_ = malloc(sizeof(peer_data_));
+    peer_data_.port = local_addr.sin_port;
+    strcpy(argv[1], &peer_data_.address);
+    peer_data_.sock_peer = htonl(0);
 
     // Send info to gateway
-    if(-1 != sendto(sock_gw,(const struct sockaddr *) &local_addr, sizeof(local_addr), 0,
+    if(-1 != sendto(sock_gw, &peer_data_, sizeof(peer_data_), 0,
         (const struct sockaddr *) &gateway_addr, 
         sizeof(gateway_addr))) {
 

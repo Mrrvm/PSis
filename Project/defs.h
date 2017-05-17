@@ -34,6 +34,7 @@
 #define GET_PHOTO 5
 
 #define MESSAGE_SIZE 30
+#define ADDRESS_SIZE 20
 
 typedef void *item;
 
@@ -43,5 +44,11 @@ typedef struct photo_data_ {
 	uint32_t id_photo;
 	char keyword[MESSAGE_SIZE][10];
 } photo_data;
+
+typedef struct peer_data_ {
+	char address[ADDRESS_SIZE];
+	int port;
+	int sock_peer;
+} peer_data;
 
 #endif
