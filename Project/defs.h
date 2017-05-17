@@ -26,17 +26,20 @@
 #define KWHT  "\x1B[37m"
 #define RESET "\033[0m"
 
-typedef void *item;
-typedef enum
-{
-    FALSE=0,
-    TRUE=1
-} bool;
+#define ADD_PHOTO 0
+#define ADD_KEYWORD 1
+#define SEARCH_PHOTO 2
+#define DEL_PHOTO 3
+#define GET_NAME 4
+#define GET_PHOTO 5
 
+typedef void *item;
 
 typedef struct photo_data_ {
+	int type;
 	char *file_name;
 	uint32_t id_photo;
+	char *keyword;
 } photo_data;
 
 #endif
