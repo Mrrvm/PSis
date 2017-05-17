@@ -2,10 +2,6 @@
 
 uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	
-	// int test = htons(14);
-	// printf("Adding %s\n", file_name);
-	// send(peer_socket, &test, sizeof(test), 0);
-	
 	photo_data photo_data_;
 	FILE *photo;
 	int photo_size, size_buff;
@@ -16,7 +12,6 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	fseek(photo, 0L, SEEK_SET);
 
 	char * buffer=malloc(photo_size);
-	
 	size_buff = htonl(photo_size);
 
 	send(peer_socket, &size_buff, sizeof(size_buff), 0);
