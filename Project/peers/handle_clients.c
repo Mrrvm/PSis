@@ -42,15 +42,16 @@ void *handle_clients(void * arg) {
 	stream_sockets *ssockets = (stream_sockets *)arg;
 	int error;
 	pthread_t thr_client;
+	int sock_stream = (*ssockets).client_sock;
 
-	listen((*ssockets).client_sock, 20);
-	printf("In clientS thread\n");
+	listen(sock_stream, 20);
+	printf("In clients thread\n");
 
 	while(1) {
         
         printf("Waiting connection from client...\n");
 
-        (*ssockets).client_sock = accept((*ssockets).client_sock, NULL, NULL);
+        (*ssockets).client_sock = accept(sock_stream, NULL, NULL);
         
         error = pthread_create(&thr_client, NULL, handle_client, (void *)ssockets);
 		if(error != 0) {
