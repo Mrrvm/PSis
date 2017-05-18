@@ -56,8 +56,10 @@ int main(int argc, char *argv[])
 			exit(-1);
 		}
 
-		pthread_join(thr_clients, (void*)&ret);
-    	
+        // Receive new information aka replication
+        while(1) {
+            handle_replication(sock_stream_gw);
+        }
     }
 
 	exit(0);
