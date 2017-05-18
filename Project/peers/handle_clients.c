@@ -18,7 +18,6 @@ void *handle_client(void * arg) {
 	if(photo_data_->type == ADD_PHOTO) {
 		int photo_size;
 		photo_data photo_data_;
-		FILE *photo;
 
 		recv(client_socket, &photo_size, sizeof(photo_size), 0);
 		photo_size = ntohl(photo_size);
@@ -40,18 +39,17 @@ void *handle_client(void * arg) {
 void *handle_clients(void * arg) {
 
 	stream_sockets *ssockets = (stream_sockets *)arg;
-	int sock_stream = (*ssockets).client_sock;
 	int error;
 	pthread_t thr_client;
 
-	listen(sock_stream, 10);
+	listen(sock_stream, 20);
 	printf("In clientS thread\n");
 
 	while(1) {
         
         printf("Waiting connection from client...\n");
 
-        (*ssockets).client_sock = accept(sock_stream, NULL, NULL);
+        (*ssockets).client_sock = accept((*ssockets).client_sock, NULL, NULL);
         
         error = pthread_create(&thr_client, NULL, handle_client, (void *)ssockets);
 		if(error != 0) {
