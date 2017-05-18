@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     	stream_sockets *ssockets = NULL;
     	ssockets = malloc(sizeof(stream_sockets));
     	(*ssockets).gw_sock = sock_stream_gw;
-    	(*ssockets).client_sock = sock_stream;
+    	(*ssockets).client_sock = sock_stream_client;
 
 		// Thread 1: Pings the gateway
 
