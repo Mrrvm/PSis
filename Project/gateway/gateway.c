@@ -7,7 +7,7 @@ int main() {
 
 	pthread_t thr_cli;
 	pthread_t thr_peerlist;
-	pthread_t thr_replication
+	pthread_t thr_replication;
 	peer_data peer_data_;
 	int error;
 	void *ret;

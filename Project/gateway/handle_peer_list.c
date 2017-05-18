@@ -21,7 +21,7 @@ void *handle_peer_list(void * arg) {
     sock_local = socket(AF_INET, SOCK_DGRAM, 0);
     local_addr.sin_family = AF_INET;
     local_addr.sin_port= htons(3001);
-    local_addr.sin_addr.s_addr= INADDR_ANY;
+    local_addr.sin_addr.s_addr = INADDR_ANY;
     bind(sock_local, (struct sockaddr *)&local_addr, sizeof(local_addr));
 
     peer_data_ = malloc(sizeof(peer_data));
@@ -31,9 +31,7 @@ void *handle_peer_list(void * arg) {
         recv(sock_local, (struct sockaddr *) &peer_addr, sizeof(peer_addr), 0);
 
         sock_peer = socket(AF_INET, SOCK_STREAM, 0);
-        local_addr.sin_family = AF_INET;
         local_addr.sin_port= htons(3002);
-        inet_aton(argv[1], &local_addr.sin_addr);
         bind(sock_peer, (struct sockaddr *)&local_addr, sizeof(local_addr));
         listen(sock_peer, 10);
         sock_peer = accept(sock_peer, NULL, NULL);

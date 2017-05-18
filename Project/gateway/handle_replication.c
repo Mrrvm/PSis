@@ -2,6 +2,7 @@
 
 void *handle_replication(void * arg) {
 
+
 	list *servers_list = (list *)arg;
 	photo_data *photo_data_;
 
@@ -10,7 +11,7 @@ void *handle_replication(void * arg) {
 	while(1) {
 
 		// Receive photo data
-		recv(client_socket, photo_data_, sizeof(*photo_data_), 0);
+		recv(peer_rep_sock, photo_data_, sizeof(*photo_data_), 0);
 		photo_data_->type = ntohs(photo_data_->type);
 
 		if(photo_data_->type == ADD_PHOTO) {
