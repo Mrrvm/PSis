@@ -12,6 +12,8 @@ void *handle_peer(void *arg) {
     list *servers_list = (*thread_arg).servers_list;
     int peer_sock = (*thread_arg).peer_socket; 
     photo_data *photo_data_ = NULL;
+    int photo_size = 0;
+    char *buffer;
 
     photo_data_ = malloc(sizeof(photo_data));
 
@@ -19,13 +21,12 @@ void *handle_peer(void *arg) {
     photo_data_->type = ntohs(photo_data_->type);
     
     if(photo_data_->type == ADD_PHOTO) {
-        int photo_size;
-        photo_data photo_data_;
 
-        recv(client_socket, &photo_size, sizeof(photo_size), 0);
+        recv(peer_sock, &photo_size, sizeof(photo_size), 0);
         photo_size = ntohl(photo_size);
-        char *buffer = malloc(photo_size);
-        recv(client_socket, buffer, photo_size, 0);
+        buffer = malloc(photo_size);
+        recv(peer_sock, buffer, photo_size, 0);
+        free(buffer);
     }
 
     // Sends to all the peers for replication!
