@@ -23,14 +23,15 @@ void *handle_client(void * arg) {
 		photo_size = ntohl(photo_size);
 		buffer = malloc(photo_size);
 		recv(client_socket, buffer, photo_size, 0);
+		free(buffer);
 	}
 
 	// Send photo data and photo to gateway
-	send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
-	send(gw_socket, &photo_size, sizeof(photo_size), 0);
-	send(gw_socket, buffer, photo_size, 0);
+	// send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
+	// send(gw_socket, &photo_size, sizeof(photo_size), 0);
+	// send(gw_socket, buffer, photo_size, 0);
 
-	free(buffer);
+	free(ssockets);
 	free(photo_data_);
 }
 
@@ -43,6 +44,7 @@ void *handle_clients(void * arg) {
 	int error;
 	pthread_t thr_client;
 	int sock_stream = (*ssockets).client_sock;
+	int ret;
 
 	listen(sock_stream, 20);
 	printf("In clients thread\n");
@@ -58,5 +60,6 @@ void *handle_clients(void * arg) {
 			perror("Unable to create thread to handle clients.");
 			exit(-1);
 		}
+		pthread_join(thr_client, (void*)&ret);
 	}
 }

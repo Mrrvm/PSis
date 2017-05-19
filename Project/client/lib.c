@@ -29,7 +29,6 @@ int gallery_connect(char *host, in_port_t port) {
 			
 			// Creates connection with peer
 			sock_peer = socket(AF_INET, SOCK_STREAM, 0);
-			peer_addr.sin_family = AF_INET;
 			if(0 == connect(sock_peer, 
 				(const struct sockaddr *) &peer_addr, 
 				sizeof(peer_addr))) {

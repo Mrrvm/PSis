@@ -41,16 +41,17 @@ void *handle_peer(void *arg) {
 void *handle_peers(void * arg) {
 
     struct sockaddr_in local_addr;
+    struct sockaddr_in local_addr_st;
     struct sockaddr_in peer_addr;
-    int sock_local;
-    int sock_peer;
+    int sock_local = 0;
+    int sock_peer = 0;
+    int sock_peer_accepted = 0;
     list *servers_list = (list *)arg;
     peer_data *peer_data_;
     int error;
     pthread_t thr_peer;
     handle_peer_arg *thread_arg = NULL;
-
-    printf("Thread peers:\n");
+    int one_more_socket = 1;
 
     // Creates datagram socket for peer entries
     sock_local = socket(AF_INET, SOCK_DGRAM, 0);
@@ -61,32 +62,37 @@ void *handle_peers(void * arg) {
 
     // Creates stream socket to handle requests from peers
     sock_peer = socket(AF_INET, SOCK_STREAM, 0);
-    local_addr.sin_port = htons(3002);
-    bind(sock_peer, (struct sockaddr *)&local_addr, sizeof(local_addr));
-    listen(sock_peer, 20);
+    local_addr_st.sin_family = AF_INET;
+    local_addr_st.sin_port = htons(3002);
+    local_addr_st.sin_addr.s_addr = INADDR_ANY;
+    setsockopt(sock_peer, SOL_SOCKET, SO_REUSEADDR, &one_more_socket, sizeof(int));
+    bind(sock_peer, (struct sockaddr *)&local_addr_st, sizeof(local_addr_st));
+    listen(sock_peer, 10);
 
     peer_data_ = malloc(sizeof(peer_data));
     thread_arg = malloc(sizeof(handle_peer_arg));
 
     while(1) {
 
+        printf(KYEL"[Thread peer requests]"RESET" Waiting for peers to connect...\n");
         recv(sock_local, (struct sockaddr *) &peer_addr, sizeof(peer_addr), 0);
 
-        sock_peer = accept(sock_peer, NULL, NULL);
-        
-        peer_data_->sock_peer = sock_peer;
+        printf(KYEL"[Thread peer requests]"RESET" Accepting sock stream from peer\n");
+        sock_peer_accepted = accept(sock_peer, NULL, NULL);
+        printf("sock: %d, errno: %d\n", sock_peer, errno);
+        //peer_data_->sock_peer = sock_peer;
         peer_data_->peer_addr = peer_addr;
         push_item_to_list(servers_list, peer_data_);
         print_list(servers_list, print_server);
         
-        (*thread_arg).peer_socket = sock_peer;
-        (*thread_arg).servers_list = servers_list;
+        // (*thread_arg).peer_socket = sock_peer;
+        // (*thread_arg).servers_list = servers_list;
 
-        error = pthread_create(&thr_peer, NULL, handle_peer, (void *)thread_arg);
-        if(error != 0) {
-            perror("Unable to create thread to handle peers");
-            exit(-1);
-        }
+        // error = pthread_create(&thr_peer, NULL, handle_peer, (void *)thread_arg);
+        // if(error != 0) {
+        //     perror("Unable to create thread to handle peers");
+        //     exit(-1);
+        // }
 
     }
 }
