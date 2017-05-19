@@ -15,6 +15,7 @@ void *handle_peer(void *arg) {
     int photo_size = 0;
     char *buffer;
     FILE *photo;
+    int size_buff = 0;
 
     photo_data_ = malloc(sizeof(photo_data));
 
@@ -25,18 +26,17 @@ void *handle_peer(void *arg) {
     if(photo_data_->type == ADD_PHOTO) {
 
         recv(peer_sock, &photo_size, sizeof(photo_size), 0);
-        photo_size = ntohl(photo_size);
-        buffer = malloc(photo_size);
-        recv(peer_sock, buffer, photo_size, 0);
+        size_buff = ntohl(photo_size);
+        buffer = malloc(size_buff);
+        recv(peer_sock, buffer, size_buff, 0);
     }
 
     // Sends to all the peers for replication!
-    printf("Photo size is %d\n", photo_size);
-    photo_size = htonl(photo_size);
+    printf("Photo size is %d\n", size_buff);
     photo_data_->type = htons(photo_data_->type);
     send(peer_sock, photo_data_, sizeof(*photo_data_), 0);
     send(peer_sock, &photo_size, sizeof(photo_size), 0);
-    send(peer_sock, buffer, photo_size, 0);
+    send(peer_sock, buffer, size_buff, 0);
 
     free(buffer);
     free(photo_data_);

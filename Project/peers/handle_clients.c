@@ -8,6 +8,7 @@ void *handle_client(void * arg) {
 	photo_data *photo_data_;
 	int photo_size = 0;
 	char *buffer;
+	int size_buff = 0;
 
 	printf("Handling client\n");
 
@@ -19,17 +20,16 @@ void *handle_client(void * arg) {
 
 	if(photo_data_->type == ADD_PHOTO) {
 		recv(client_socket, &photo_size, sizeof(photo_size), 0);
-		photo_size = ntohl(photo_size);
-		buffer = malloc(photo_size);
-		recv(client_socket, buffer, photo_size, 0);
+		size_buff = ntohl(photo_size);
+		buffer = malloc(size_buff);
+		recv(client_socket, buffer, size_buff, 0);
 	}
 
 	// Send photo data and photo to gateway
-	photo_size = htonl(photo_size);
 	photo_data_->type = htons(photo_data_->type);
 	send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
 	send(gw_socket, &photo_size, sizeof(photo_size), 0);
-	send(gw_socket, buffer, photo_size, 0);
+	send(gw_socket, buffer, size_buff, 0);
 
 	free(buffer);
 	free(ssockets);
