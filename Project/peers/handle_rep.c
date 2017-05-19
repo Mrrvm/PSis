@@ -14,15 +14,14 @@ void handle_rep(int socket) {
     
     if(photo_data_->type == ADD_PHOTO) {
         
-        int res = recv(socket, &photo_size, sizeof(photo_size), 0);
-        printf("%d errno %d\n", res, errno);
+        recv(socket, &photo_size, sizeof(photo_size), 0);
             
         photo_size = ntohl(photo_size);
     	printf("Received photo of size %d!\n", photo_size);
         buffer = malloc(photo_size);
         recv(socket, buffer, photo_size, 0);
         
-        photo = fopen("photos/nude_received.jpg", "wb");
+        photo = fopen("nude_received.jpg", "wb");
         fwrite(buffer, 1, photo_size, photo);
         fclose(photo);
 	    free(buffer);

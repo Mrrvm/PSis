@@ -16,11 +16,12 @@ void *handle_peer(void *arg) {
     char *buffer;
     FILE *photo;
     int size_buff = 0;
+    node *curr_node = NULL;
+    int item_sock = 0;
+    peer_data *peer_data_;
 
     photo_data_ = malloc(sizeof(photo_data));
-
-    int res = recv(peer_sock, photo_data_, sizeof(*photo_data_), 0);
-    printf("%d errno %d\n", res, errno);
+    recv(peer_sock, photo_data_, sizeof(*photo_data_), 0);
     photo_data_->type = ntohs(photo_data_->type);
     
     if(photo_data_->type == ADD_PHOTO) {
@@ -32,11 +33,16 @@ void *handle_peer(void *arg) {
     }
 
     // Sends to all the peers for replication!
-    printf("Photo size is %d\n", size_buff);
     photo_data_->type = htons(photo_data_->type);
-    send(peer_sock, photo_data_, sizeof(*photo_data_), 0);
-    send(peer_sock, &photo_size, sizeof(photo_size), 0);
-    send(peer_sock, buffer, size_buff, 0);
+    curr_node = get_head(servers_list);
+    while(curr_node != NULL) {
+        peer_data_ = get_node_item(curr_node);
+        item_sock = peer_data_->sock_peer;
+        send(item_sock, photo_data_, sizeof(*photo_data_), 0);
+        send(item_sock, &photo_size, sizeof(photo_size), 0);
+        send(item_sock, buffer, size_buff, 0);
+        curr_node = get_next_node(curr_node);
+    }
 
     free(buffer);
     free(photo_data_);
