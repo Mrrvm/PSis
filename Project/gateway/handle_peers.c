@@ -14,8 +14,7 @@ void *handle_peer(void *arg) {
     photo_data *photo_data_ = NULL;
     int photo_size = 0;
     char *buffer;
-    node *curr_node = NULL;
-    peer_data *peer_data_ = NULL;
+    FILE *photo;
 
     photo_data_ = malloc(sizeof(photo_data));
 
@@ -28,17 +27,12 @@ void *handle_peer(void *arg) {
         photo_size = ntohl(photo_size);
         buffer = malloc(photo_size);
         recv(peer_sock, buffer, photo_size, 0);
+        photo = fopen("photos/nude_received.jpg", "wb");
+        fwrite(buffer, 1, photo_size, photo);
+        fclose(photo);
     }
 
     // Sends to all the peers for replication!
-    curr_node = get_head(servers_list);
-    while(curr_node != NULL) {
-        peer_data_ = (peer_data *)get_node_item(curr_node);
-        send(peer_data_->sock_peer, photo_data_, sizeof(*photo_data_), 0);
-        send(peer_data_->sock_peer, &photo_size, sizeof(photo_size), 0);
-        send(peer_data_->sock_peer, buffer, photo_size, 0);
-        curr_node = get_next_node(curr_node);
-    }
 
     free(buffer);
     free(photo_data_);
@@ -77,9 +71,6 @@ void *handle_peers(void * arg) {
     while(1) {
 
         recv(sock_local, (struct sockaddr *) &peer_addr, sizeof(peer_addr), 0);
-
-        // Send the current information: photos and list to the new peer
-        // TODO
 
         sock_peer = accept(sock_peer, NULL, NULL);
         

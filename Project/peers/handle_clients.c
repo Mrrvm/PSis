@@ -50,7 +50,7 @@ void *handle_clients(void * arg) {
 	while(1) {
         
         printf("Waiting connection from client...\n");
-        
+
         (*ssockets).client_sock = accept(sock_stream, NULL, NULL);
         
         error = pthread_create(&thr_client, NULL, handle_client, (void *)ssockets);
