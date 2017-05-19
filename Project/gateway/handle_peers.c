@@ -18,7 +18,8 @@ void *handle_peer(void *arg) {
 
     photo_data_ = malloc(sizeof(photo_data));
 
-    recv(peer_sock, photo_data_, sizeof(*photo_data_), 0);
+    int res = recv(peer_sock, photo_data_, sizeof(*photo_data_), 0);
+    printf("%d errno %d\n", res, errno);
     photo_data_->type = ntohs(photo_data_->type);
     
     if(photo_data_->type == ADD_PHOTO) {
@@ -26,6 +27,7 @@ void *handle_peer(void *arg) {
         recv(peer_sock, &photo_size, sizeof(photo_size), 0);
         photo_size = ntohl(photo_size);
         buffer = malloc(photo_size);
+        printf("%d\n", photo_size);
         recv(peer_sock, buffer, photo_size, 0);
         photo = fopen("photos/nude_received.jpg", "wb");
         fwrite(buffer, 1, photo_size, photo);
@@ -80,19 +82,20 @@ void *handle_peers(void * arg) {
         printf(KYEL"[Thread peer requests]"RESET" Accepting sock stream from peer\n");
         sock_peer_accepted = accept(sock_peer, NULL, NULL);
         printf("sock: %d, errno: %d\n", sock_peer, errno);
-        //peer_data_->sock_peer = sock_peer;
+        
+        peer_data_->sock_peer = sock_peer_accepted;
         peer_data_->peer_addr = peer_addr;
         push_item_to_list(servers_list, peer_data_);
         print_list(servers_list, print_server);
         
-        // (*thread_arg).peer_socket = sock_peer;
-        // (*thread_arg).servers_list = servers_list;
+        (*thread_arg).peer_socket = sock_peer_accepted;
+        (*thread_arg).servers_list = servers_list;
 
-        // error = pthread_create(&thr_peer, NULL, handle_peer, (void *)thread_arg);
-        // if(error != 0) {
-        //     perror("Unable to create thread to handle peers");
-        //     exit(-1);
-        // }
+        error = pthread_create(&thr_peer, NULL, handle_peer, (void *)thread_arg);
+        if(error != 0) {
+            perror("Unable to create thread to handle peers");
+            exit(-1);
+        }
 
     }
 }

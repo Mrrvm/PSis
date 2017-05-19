@@ -18,19 +18,19 @@ void *handle_client(void * arg) {
 	printf("%s\n", photo_data_->file_name);
 
 	if(photo_data_->type == ADD_PHOTO) {
-		
 		recv(client_socket, &photo_size, sizeof(photo_size), 0);
 		photo_size = ntohl(photo_size);
 		buffer = malloc(photo_size);
 		recv(client_socket, buffer, photo_size, 0);
-		free(buffer);
 	}
 
 	// Send photo data and photo to gateway
-	// send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
-	// send(gw_socket, &photo_size, sizeof(photo_size), 0);
-	// send(gw_socket, buffer, photo_size, 0);
+	photo_size = htonl(photo_size);
+	send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
+	send(gw_socket, &photo_size, sizeof(photo_size), 0);
+	send(gw_socket, buffer, photo_size, 0);
 
+	free(buffer);
 	free(ssockets);
 	free(photo_data_);
 }
