@@ -26,6 +26,7 @@ void *handle_client(void * arg) {
 
 	// Send photo data and photo to gateway
 	photo_size = htonl(photo_size);
+	photo_data_->type = htons(photo_data_->type);
 	send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
 	send(gw_socket, &photo_size, sizeof(photo_size), 0);
 	send(gw_socket, buffer, photo_size, 0);

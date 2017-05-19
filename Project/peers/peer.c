@@ -65,6 +65,10 @@ int main(int argc, char *argv[])
             exit(-1);
         }
 
+        while(1) {
+            handle_rep(sock_stream_gw);
+        }
+
         pthread_join(thr_clients, (void*)&ret);
         
     }

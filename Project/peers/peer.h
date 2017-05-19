@@ -1,6 +1,7 @@
 #include "../defs.h"
 
 void *handle_clients(void * arg);
+void handle_rep(int socket);
 
 typedef struct stream_sockets_{
 	int client_sock;
