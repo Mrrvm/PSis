@@ -32,11 +32,11 @@ void *handle_peer(void *arg) {
         photo = fopen("photos/nude_received.jpg", "wb");
         fwrite(buffer, 1, photo_size, photo);
         fclose(photo);
+        free(buffer);
     }
 
     // Sends to all the peers for replication!
 
-    free(buffer);
     free(photo_data_);
 }
 
