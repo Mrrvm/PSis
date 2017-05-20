@@ -26,9 +26,10 @@ void handle_rep(int socket) {
                 	printf("Received photo of size %d!\n", photo_size);
                     getchar();
                     buffer = calloc(1, photo_size);
-                    if(photo_size >= recv(socket, buffer, photo_size, 0)) {
+                    res = recv(socket, buffer, photo_size, 0);
+                    if(photo_size >= res && res > 0) {
 
-                        photo = fopen("nude_received.jpg", "wb");
+                        photo = fopen("photos/nude_received.jpg", "wb");
                         fwrite(buffer, 1, photo_size, photo);
                         fclose(photo);
                         //free(buffer); ???????????
