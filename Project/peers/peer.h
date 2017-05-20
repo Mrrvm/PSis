@@ -1,4 +1,5 @@
 #include "../defs.h"
+#include "../generic_list.h"
 
 void *handle_clients(void * arg);
 void handle_rep(int socket);

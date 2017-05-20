@@ -8,11 +8,12 @@ int main(int argc, char *argv[])
     int sock_gw = 0;
     int sock_stream_client = 0;
     int sock_stream_gw = 0;
-    int one_more_socket = 1;
+    int reuse_socket = 1;
     int local_port = 3000+getpid();
-    pthread_t thr_clients;
     int error;
+    pthread_t thr_clients;
     void *ret;
+    list *photo_data_list = create_list(sizeof(photo_data));
 
     if(argc != 2) {
         printf("Invalid execution. Please use:\n./program [hostname]\n");
@@ -34,11 +35,12 @@ int main(int argc, char *argv[])
     inet_aton(argv[1], &local_addr.sin_addr);
     bind(sock_stream_client, (struct sockaddr *)&local_addr, sizeof(local_addr));
 
+    // Set stream socket for gateway
     sock_stream_gw = socket(AF_INET, SOCK_STREAM, 0);
     gateway_addr_st.sin_family = AF_INET;
     gateway_addr_st.sin_port = htons(3002);
     inet_aton(argv[1], &gateway_addr_st.sin_addr);
-    setsockopt(sock_stream_gw, SOL_SOCKET, SO_REUSEADDR, &one_more_socket, sizeof(int));
+    setsockopt(sock_stream_gw, SOL_SOCKET, SO_REUSEADDR, &reuse_socket, sizeof(int));
     
     // Send info to gateway
     if(-1 != sendto(sock_gw,(const struct sockaddr *) &local_addr, sizeof(local_addr), 0,
@@ -48,7 +50,6 @@ int main(int argc, char *argv[])
         // Set stream socket for sending info to gateway
         printf("Connecting stream socket to the gateway\n");
         connect(sock_stream_gw, (const struct sockaddr *) &gateway_addr_st, sizeof(gateway_addr_st));
-        printf("sock: %d, errno: %d\n", sock_stream_gw, errno);
         
         // Creates a structure with stream sockets to send as a thread argument
         stream_sockets *ssockets = NULL;
@@ -65,12 +66,12 @@ int main(int argc, char *argv[])
             exit(-1);
         }
 
-        while(1) {
-            handle_rep(sock_stream_gw);
-        }
+        // Thread 3: Waits for information requests from gw
 
-        pthread_join(thr_clients, (void*)&ret);
-        
+        // Thread 4: Handles replication
+        handle_rep(sock_stream_gw);
+
+        pthread_join(thr_clients, (void*)&ret); 
     }
 
     exit(0);

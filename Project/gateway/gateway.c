@@ -1,13 +1,13 @@
 #include "gateway.h"
 
-// port 3000 - client requests
-// port 3001 - peer entries 
+// port 3000 - client requests (datagram)
+// port 3001 - peer entries (datagram)
+// port 3002 - peer requests (stream)
 
 int main() {
 
 	pthread_t thr_cli;
 	pthread_t thr_peers;
-	peer_data peer_data_;
 	int error;
 	void *ret;
 
@@ -27,6 +27,8 @@ int main() {
 		perror("Unable to create thread to handle peer list.");
 		exit(-1);
 	}
+
+	// Thread 3: Pings the peers
 
 	pthread_join(thr_cli, (void*)&ret);
 	pthread_join(thr_peers, (void*)&ret);

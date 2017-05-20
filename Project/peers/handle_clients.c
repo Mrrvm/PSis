@@ -9,31 +9,41 @@ void *handle_client(void * arg) {
 	int photo_size = 0;
 	char *buffer;
 	int size_buff = 0;
+	int res;
 
 	printf("Handling client\n");
 
 	photo_data_ = malloc(sizeof(photo_data));
-	recv(client_socket, photo_data_, sizeof(*photo_data_), 0);
+	
+	while(1) {
+		res = recv(client_socket, photo_data_, sizeof(*photo_data_), 0);
+		if(sizeof(*photo_data_) >= res && res > 0) {
 
-	photo_data_->type = ntohs(photo_data_->type);
-	printf("%s\n", photo_data_->file_name);
+			photo_data_->type = ntohs(photo_data_->type);
+			printf("%s\n", photo_data_->file_name);
 
-	if(photo_data_->type == ADD_PHOTO) {
-		recv(client_socket, &photo_size, sizeof(photo_size), 0);
-		size_buff = ntohl(photo_size);
-		buffer = malloc(size_buff);
-		recv(client_socket, buffer, size_buff, 0);
+			if(photo_data_->type == ADD_PHOTO) {
+				res = recv(client_socket, &photo_size, sizeof(photo_size), 0);
+				if(sizeof(photo_size) >= res && res > 0) {
+					size_buff = ntohl(photo_size);
+					buffer = calloc(1, size_buff);
+					recv(client_socket, buffer, size_buff, 0);
+				}
+			}
+
+			// Send photo data and photo to gateway
+			photo_data_->type = htons(photo_data_->type);
+			res = send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
+			if(sizeof(*photo_data_) >= res && res > 0) {
+				res = send(gw_socket, &photo_size, sizeof(photo_size), 0);
+				if(sizeof(photo_size) >= res && res > 0) {
+					send(gw_socket, buffer, size_buff, 0);
+				}
+			}
+
+			//free(buffer); ?????????????
+		}
 	}
-
-	// Send photo data and photo to gateway
-	photo_data_->type = htons(photo_data_->type);
-	send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
-	send(gw_socket, &photo_size, sizeof(photo_size), 0);
-	send(gw_socket, buffer, size_buff, 0);
-
-	free(buffer);
-	free(ssockets);
-	free(photo_data_);
 }
 
 // Creates a new thread for each client
@@ -61,6 +71,5 @@ void *handle_clients(void * arg) {
 			perror("Unable to create thread to handle clients.");
 			exit(-1);
 		}
-		pthread_join(thr_client, (void*)&ret);
 	}
 }
