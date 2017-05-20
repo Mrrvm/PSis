@@ -3,6 +3,7 @@
 
 void *handle_clients(void * arg);
 void handle_rep(int socket);
+void *handle_ping_peer(void * arg);
 
 typedef struct stream_sockets_{
 	int client_sock;

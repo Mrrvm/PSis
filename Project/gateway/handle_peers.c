@@ -67,6 +67,7 @@ void *handle_peers(void * arg) {
     struct sockaddr_in local_addr;
     struct sockaddr_in local_addr_st;
     struct sockaddr_in peer_addr;
+    int sock_gw_ping= 0;
     int sock_local = 0;
     int sock_peer = 0;
     int sock_peer_accepted = 0;
@@ -101,9 +102,12 @@ void *handle_peers(void * arg) {
         printf(KYEL"[Thread peer requests]"RESET" Waiting for peers to connect...\n");
         recv(sock_local, (struct sockaddr *) &peer_addr, sizeof(peer_addr), 0);
 
+        recv(sock_local, &sock_gw_ping, sizeof(sock_gw_ping), 0);
+
         printf(KYEL"[Thread peer requests]"RESET" Accepting sock stream from peer\n");
         sock_peer_accepted = accept(sock_peer, NULL, NULL);
         
+        peer_data_->sock_ping = sock_gw_ping;
         peer_data_->sock_peer = sock_peer_accepted;
         peer_data_->peer_addr = peer_addr;
         push_item_to_list(servers_list, peer_data_);
