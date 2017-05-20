@@ -24,7 +24,6 @@ void handle_rep(int socket) {
                     printf("%d\n", errno);
                     photo_size = ntohl(photo_size);
                 	printf("Received photo of size %d!\n", photo_size);
-                    getchar();
                     buffer = calloc(1, photo_size);
                     res = recv(socket, buffer, photo_size, 0);
                     if(photo_size >= res && res > 0) {
