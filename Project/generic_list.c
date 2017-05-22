@@ -92,6 +92,10 @@ void push_node_to_list(list *got_list, node *got_node) {
     return;
 }
 
+void decrement_list_size(list *got_list){
+    got_list->size --;
+}
+
 void push_item_to_list(list *got_list, item new_item) {
     /* Node Creation */
     node *new_node = NULL;

@@ -33,16 +33,16 @@ void *handle_ping_gw(void * arg){
         addr = peer_data_->peer_addr;
 
         size_sent = sendto(sock_peer_ping , &buff, sizeof(buff), 0, (const struct sockaddr *) &addr, sizeof(addr));
+        usleep(50000);
         size_received = recv(sock_peer_ping, &buff, sizeof(buff), MSG_DONTWAIT);
 
-        printf("SENT: %d   RECEIVED: %d\n", size_sent, size_received);
         if (size_received == -1)
         {
             peer_data_->counter++;
         }
 
         if(peer_data_->counter == 3){
-            printf("THE PEER DIED\n");
+            printf("Dead Peer: %d\n", ntohs(addr.sin_port));
             aux_node = curr_node;
             if(prev_node != NULL) {
                 printf("1\n");
@@ -51,8 +51,8 @@ void *handle_ping_gw(void * arg){
             }
             else if(get_next_node(curr_node) != NULL) {
                 printf("2\n");
-                set_next_node(curr_node, NULL);
                 set_head(servers_list, get_next_node(curr_node));
+                set_next_node(curr_node, NULL);
                 free_node(aux_node, free);
             }
             else {
@@ -60,10 +60,10 @@ void *handle_ping_gw(void * arg){
                 set_head(servers_list, NULL);
                 free_node(aux_node, free);
             }
+            decrement_list_size(servers_list);
             print_list(servers_list, print_server1);
         }
-        sleep(2);
-       prev_node = curr_node;
+        prev_node = curr_node;
         curr_node = get_next_node(curr_node);
     }
 

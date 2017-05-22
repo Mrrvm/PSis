@@ -21,4 +21,6 @@ size_t get_list_size(list *got_list);
 void print_list(list *got_list, void (*print_item)(item));
 void free_list(list *got_list, void (*free_item)(item));
 
+void decrement_list_size(list *got_list);
+
 #endif

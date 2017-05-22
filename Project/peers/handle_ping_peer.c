@@ -16,7 +16,6 @@ void *handle_ping_peer(void * arg){
         addr_size = sizeof(gateway_addr_ping);
     	size_received = recvfrom(sock_gw_ping, &buff, sizeof(buff), 0, (struct sockaddr *) &gateway_addr_ping, &addr_size);
         size_sent = size_sent = sendto(sock_gw_ping, &buff, sizeof(buff), 0, (const struct sockaddr*)  &gateway_addr_ping, sizeof(gateway_addr_ping));
-        printf("RECEIVED: %d  SENT: %d\n", size_received, size_sent);
     }
 
 
