@@ -46,17 +46,12 @@ int main(int argc, char *argv[])
 
     //socket for the ping comunication
     sock_gw_ping = socket(AF_INET, SOCK_DGRAM, 0);
-    local_addr.sin_family = AF_INET;
     bind(sock_gw_ping, (struct sockaddr *)&local_addr, sizeof(local_addr));
     
     // Send info to gateway
     if(-1 != sendto(sock_gw ,(const struct sockaddr *) &local_addr, sizeof(local_addr), 0,
         (const struct sockaddr *) &gateway_addr, 
         sizeof(gateway_addr))) {
-
-        sendto(sock_gw , &sock_gw_ping, sizeof(sock_gw_ping), 0,
-        (const struct sockaddr *) &gateway_addr, 
-        sizeof(gateway_addr));
 
         // Set stream socket for sending info to gateway
         printf("Connecting stream socket to the gateway\n");

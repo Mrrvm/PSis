@@ -35,6 +35,10 @@ node *get_next_node(node *got_node) {
     return got_node->next;
 }
 
+void set_next_node(node *got_node, node *next_node) {
+    got_node->next = next_node;
+}
+
 void free_node(node *got_node, void (*free_item)(item)) {
     /* Free node item */
     free_item(got_node->this);
