@@ -44,19 +44,14 @@ int main(int argc, char *argv[])
     inet_aton(argv[1], &gateway_addr_st.sin_addr);
     setsockopt(sock_stream_gw, SOL_SOCKET, SO_REUSEADDR, &reuse_socket, sizeof(int));
 
-    //socket for the ping comunication
-    // sock_gw_ping = socket(AF_INET, SOCK_DGRAM, 0);
-    // local_addr.sin_family = AF_INET;
-    // bind(sock_gw_ping, (struct sockaddr *)&local_addr, sizeof(local_addr));
-    
+    // Set socket for the ping comunication
+    sock_gw_ping = socket(AF_INET, SOCK_DGRAM, 0);
+    bind(sock_gw_ping, (struct sockaddr *)&local_addr, sizeof(local_addr));
+
     // Send info to gateway
     if(-1 != sendto(sock_gw ,(const struct sockaddr *) &local_addr, sizeof(local_addr), 0,
         (const struct sockaddr *) &gateway_addr, 
         sizeof(gateway_addr))) {
-
-        // sendto(sock_gw , &sock_gw_ping, sizeof(sock_gw_ping), 0,
-        // (const struct sockaddr *) &gateway_addr, 
-        // sizeof(gateway_addr));
 
         // Set stream socket for sending info to gateway
         printf("Connecting stream socket to the gateway\n");
@@ -68,12 +63,12 @@ int main(int argc, char *argv[])
         (*ssockets).gw_sock = sock_stream_gw;
         (*ssockets).client_sock = sock_stream_client;
 
-        // Thread 1: Pings the gateway
-        // error = pthread_create(&thr_ping_peer, NULL, handle_ping_peer, &sock_gw_ping);
-        // if(error != 0) {
-        //     perror("Unable to create thread to handle pings.");
-        //     exit(-1);
-        // }
+        Thread 1: Pings the gateway
+        error = pthread_create(&thr_ping_peer, NULL, handle_ping_peer, &sock_gw_ping);
+        if(error != 0) {
+            perror("Unable to create thread to handle pings.");
+            exit(-1);
+        }
 
         // Thread 2: Waits for clients
         error = pthread_create(&thr_clients, NULL, handle_clients, (void *)ssockets);
@@ -88,7 +83,7 @@ int main(int argc, char *argv[])
         handle_rep(sock_stream_gw);
 
         pthread_join(thr_clients, (void*)&ret); 
-        //pthread_join(thr_ping_peer, (void*)&ret);
+        pthread_join(thr_ping_peer, (void*)&ret);
     }
 
     exit(0);

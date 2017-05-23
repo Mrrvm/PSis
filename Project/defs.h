@@ -45,7 +45,7 @@ typedef struct photo_data_ {
 } photo_data;
 
 typedef struct peer_data_ {
-	int sock_ping;
+	int counter;
 	int sock_peer;
 	struct sockaddr_in peer_addr;
 } peer_data;
