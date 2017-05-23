@@ -11,53 +11,51 @@ void *handle_peer(void *arg) {
     handle_peer_arg *thread_arg = (handle_peer_arg *)arg;
     list *servers_list = (*thread_arg).servers_list;
     int peer_sock = (*thread_arg).peer_socket; 
-    photo_data *photo_data_ = NULL;
+    photo_data photo_data_;
     int photo_size = 0;
-    char *buffer;
+    //char *buffer;
     FILE *photo;
     int size_buff = 0;
     node *curr_node = NULL;
     int item_sock = 0;
     peer_data *peer_data_;
     int res;
-
-    photo_data_ = malloc(sizeof(photo_data));
     
     while(1) {    
-        res = recv(peer_sock, photo_data_, sizeof(*photo_data_), 0);
-        if(sizeof(*photo_data_) >= res && res > 0) {
-
-            photo_data_->type = ntohs(photo_data_->type);
+        char *buffer;
+        res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
+        if(sizeof(photo_data_) >= res && res > 0) {
             
-            if(photo_data_->type == ADD_PHOTO) {
+            if(ntohl(photo_data_.type) == ADD_PHOTO) {
 
-                printf("Receiving photo size\n");
                 res = recv(peer_sock, &photo_size, sizeof(photo_size), 0);
                 if(sizeof(photo_size) >= res && res > 0) {
                     size_buff = ntohl(photo_size);
+                    printf("size_buff %d photo_size %d\n", size_buff, photo_size );
                     printf("Received photo size: %d\n", size_buff);
-                    buffer = calloc(1, size_buff);
+                    buffer = malloc(size_buff);
                     recv(peer_sock, buffer, size_buff, 0);
                 }
             }
 
             // Sends to all the peers for replication!
-            photo_data_->type = htons(photo_data_->type);
             curr_node = get_head(servers_list);
             while(curr_node != NULL) {
                 peer_data_ = get_node_item(curr_node);
                 item_sock = peer_data_->sock_peer;
-                res = send(item_sock, photo_data_, sizeof(*photo_data_), 0);
-                if(sizeof(*photo_data_) >= res && res > 0) {
+                res = send(item_sock, &photo_data_, sizeof(photo_data_), 0);
+                if(sizeof(photo_data_) >= res && res > 0) {
+                    printf("Sent bytes: %d\n", photo_size);
                     res = send(item_sock, &photo_size, sizeof(photo_size), 0);
                     if(sizeof(photo_size) >= res && res > 0) {
-                        send(item_sock, buffer, size_buff, 0);
+                       res = send(item_sock, buffer, size_buff, 0);
+                       printf("%d\n", res);
                     }
                 }
                 curr_node = get_next_node(curr_node);
             }
 
-            //free(buffer); ???????????????
+            //free(buffer); 
         }
     }
 }
@@ -102,12 +100,12 @@ void *handle_peers(void * arg) {
         printf(KYEL"[Thread peer requests]"RESET" Waiting for peers to connect...\n");
         recv(sock_local, (struct sockaddr *) &peer_addr, sizeof(peer_addr), 0);
 
-        recv(sock_local, &sock_gw_ping, sizeof(sock_gw_ping), 0);
+        //recv(sock_local, &sock_gw_ping, sizeof(sock_gw_ping), 0);
 
         printf(KYEL"[Thread peer requests]"RESET" Accepting sock stream from peer\n");
         sock_peer_accepted = accept(sock_peer, NULL, NULL);
         
-        peer_data_->sock_ping = sock_gw_ping;
+        //peer_data_->sock_ping = sock_gw_ping;
         peer_data_->sock_peer = sock_peer_accepted;
         peer_data_->peer_addr = peer_addr;
         push_item_to_list(servers_list, peer_data_);

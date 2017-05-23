@@ -5,7 +5,7 @@ void *handle_client(void * arg) {
 	stream_sockets *ssockets = (stream_sockets *)arg;
 	int client_socket = (*ssockets).client_sock;
 	int gw_socket = (*ssockets).gw_sock;
-	photo_data *photo_data_;
+	photo_data photo_data_;
 	int photo_size = 0;
 	char *buffer;
 	int size_buff = 0;
@@ -13,36 +13,34 @@ void *handle_client(void * arg) {
 
 	printf("Handling client\n");
 
-	photo_data_ = malloc(sizeof(photo_data));
-	
 	while(1) {
-		res = recv(client_socket, photo_data_, sizeof(*photo_data_), 0);
-		if(sizeof(*photo_data_) >= res && res > 0) {
 
-			photo_data_->type = ntohs(photo_data_->type);
-			printf("%s\n", photo_data_->file_name);
+		res = recv(client_socket, &photo_data_, sizeof(photo_data_), 0);
+		if(sizeof(photo_data_) >= res && res > 0) {
 
-			if(photo_data_->type == ADD_PHOTO) {
+			printf("%s\n", photo_data_.file_name);
+
+			if(ntohl(photo_data_.type) == ADD_PHOTO) {
 				res = recv(client_socket, &photo_size, sizeof(photo_size), 0);
 				if(sizeof(photo_size) >= res && res > 0) {
 					size_buff = ntohl(photo_size);
-					buffer = calloc(1, size_buff);
+					buffer = malloc(size_buff);
 					recv(client_socket, buffer, size_buff, 0);
 				}
 			}
 
 			// Send photo data and photo to gateway
-			photo_data_->type = htons(photo_data_->type);
-			res = send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
-			if(sizeof(*photo_data_) >= res && res > 0) {
+			res = send(gw_socket, &photo_data_, sizeof(photo_data_), 0);
+			if(sizeof(photo_data_) >= res && res > 0) {
 				res = send(gw_socket, &photo_size, sizeof(photo_size), 0);
 				if(sizeof(photo_size) >= res && res > 0) {
 					send(gw_socket, buffer, size_buff, 0);
 				}
 			}
 
-			//free(buffer); ?????????????
+			//free(buffer); 
 		}
+		
 	}
 }
 

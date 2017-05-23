@@ -38,10 +38,10 @@
 typedef void *item;
 
 typedef struct photo_data_ {
-	uint32_t type;
+	int type;
 	char file_name[MESSAGE_SIZE];
-	uint32_t id_photo;
-	char keyword[MESSAGE_SIZE][10];
+	int id_photo;
+	char keyword[MESSAGE_SIZE];
 } photo_data;
 
 typedef struct peer_data_ {
