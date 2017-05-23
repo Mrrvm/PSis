@@ -16,32 +16,38 @@ void *handle_client(void * arg) {
 	while(1) {
 
 		res = recv(client_socket, &photo_data_, sizeof(photo_data_), 0);
+		if (res<=0){
+			break;
+		}
 		if(sizeof(photo_data_) >= res && res > 0) {
 
 			printf("%s\n", photo_data_.file_name);
 
+			res = send(gw_socket, &photo_data_, sizeof(photo_data_), 0);
+
 			if(ntohl(photo_data_.type) == ADD_PHOTO) {
 				res = recv(client_socket, &photo_size, sizeof(photo_size), 0);
-				if(sizeof(photo_size) >= res && res > 0) {
-					size_buff = ntohl(photo_size);
-					buffer = malloc(size_buff);
-					recv(client_socket, buffer, size_buff, 0);
-				}
-			}
-
-			// Send photo data and photo to gateway
-			res = send(gw_socket, &photo_data_, sizeof(photo_data_), 0);
-			if(sizeof(photo_data_) >= res && res > 0) {
 				res = send(gw_socket, &photo_size, sizeof(photo_size), 0);
-				if(sizeof(photo_size) >= res && res > 0) {
-					send(gw_socket, buffer, size_buff, 0);
+				size_buff = ntohl(photo_size);
+				buffer = malloc(size_buff);
+				if(buffer == NULL){
+					printf("buffer NULL;\n");
+					exit(0);
 				}
+				recv(client_socket, buffer, size_buff, 0);
+			
+				// Send photo data and photo to gateway
+				printf("sending photosize host(%d) network(%d)\n", 
+										size_buff, photo_size);
+				send(gw_socket, buffer, size_buff, 0);
+				free(buffer); 
+				
 			}
 
-			//free(buffer); 
 		}
-		
 	}
+	close(client_socket);
+	printf("exiting client Handling\n");
 }
 
 // Creates a new thread for each client

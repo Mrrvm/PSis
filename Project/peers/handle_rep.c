@@ -7,6 +7,8 @@ void handle_rep(int socket) {
     char *buffer;
     FILE *photo;
     int res;
+    // pthread_mutex_t lock;   
+    // pthread_mutex_init(&lock, NULL);
     
     while(1) {
         res = recv(socket, &photo_data_, sizeof(photo_data_), 0);
@@ -27,10 +29,13 @@ void handle_rep(int socket) {
                     if(photo_size >= res && res > 0) {
 
                         photo = fopen("photos/nude_received.jpg", "wb");
+                        //pthread_mutex_lock(&lock);
                         fwrite(buffer, 1, photo_size, photo);
+                        //pthread_mutex_unlock(&lock);
                         fclose(photo);
-                        //free(buffer); 
                     }
+                    free(buffer); 
+
                 }
                 
             }

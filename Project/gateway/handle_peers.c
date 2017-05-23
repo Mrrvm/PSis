@@ -24,11 +24,19 @@ void *handle_peer(void *arg) {
     while(1) {    
         char *buffer;
         res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
+        if (res<=0){
+            printf("PEER ERROR\n");
+            return -1;
+        }
         if(sizeof(photo_data_) >= res && res > 0) {
             
             if(ntohl(photo_data_.type) == ADD_PHOTO) {
 
                 res = recv(peer_sock, &photo_size, sizeof(photo_size), 0);
+        if (res<=0){
+            printf("PEER ERROR\n");
+            return -1;
+        }
                 if(sizeof(photo_size) >= res && res > 0) {
                     size_buff = ntohl(photo_size);
                     printf("size_buff %d photo_size %d\n", size_buff, photo_size );
@@ -45,7 +53,7 @@ void *handle_peer(void *arg) {
                 item_sock = peer_data_->sock_peer;
                 res = send(item_sock, &photo_data_, sizeof(photo_data_), 0);
                 if(sizeof(photo_data_) >= res && res > 0) {
-                    printf("Sent bytes: %d\n", photo_size);
+                    //printf("Sent bytes: %d\n", photo_size);
                     res = send(item_sock, &photo_size, sizeof(photo_size), 0);
                     if(sizeof(photo_size) >= res && res > 0) {
                        res = send(item_sock, buffer, size_buff, 0);
