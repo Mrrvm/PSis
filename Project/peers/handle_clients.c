@@ -19,7 +19,7 @@ void *handle_client(void * arg) {
 		if (res<=0){
 			break;
 		}
-		if(sizeof(photo_data_) >= res && res > 0) {
+		else if(sizeof(photo_data_) >= res && res > 0) {
 
 			printf("%s\n", photo_data_.file_name);
 
@@ -40,7 +40,7 @@ void *handle_client(void * arg) {
 				printf("sending photosize host(%d) network(%d)\n", 
 										size_buff, photo_size);
 				send(gw_socket, buffer, size_buff, 0);
-				free(buffer); 
+				//free(buffer); 
 				
 			}
 

@@ -20,10 +20,9 @@ void handle_rep(int socket) {
                 
                 res = recv(socket, &photo_size, sizeof(photo_size), 0);
                 if(sizeof(photo_size) >= res && res > 0) {
-
                     printf("%d\n", errno);
                     photo_size = ntohl(photo_size);
-                	printf("Received photo of size %d!\n", photo_size);
+                    printf("Received photo of size %d!\n", photo_size);
                     buffer = malloc(photo_size);
                     res = recv(socket, buffer, photo_size, 0);
                     if(photo_size >= res && res > 0) {
@@ -34,7 +33,7 @@ void handle_rep(int socket) {
                         //pthread_mutex_unlock(&lock);
                         fclose(photo);
                     }
-                    free(buffer); 
+                    //free(buffer); 
 
                 }
                 
