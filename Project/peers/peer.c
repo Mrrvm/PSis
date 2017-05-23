@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
         (*ssockets).gw_sock = sock_stream_gw;
         (*ssockets).client_sock = sock_stream_client;
 
-        Thread 1: Pings the gateway
+        // Thread 1: Pings the gateway
         error = pthread_create(&thr_ping_peer, NULL, handle_ping_peer, &sock_gw_ping);
         if(error != 0) {
             perror("Unable to create thread to handle pings.");
