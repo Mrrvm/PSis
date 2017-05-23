@@ -45,18 +45,15 @@ void *handle_ping_gw(void * arg){
             printf("Dead Peer: %d\n", ntohs(addr.sin_port));
             aux_node = curr_node;
             if(prev_node != NULL) {
-                printf("1\n");
                 set_next_node(prev_node, get_next_node(curr_node));
                 free_node(aux_node, free);
             }
             else if(get_next_node(curr_node) != NULL) {
-                printf("2\n");
                 set_head(servers_list, get_next_node(curr_node));
                 set_next_node(curr_node, NULL);
                 free_node(aux_node, free);
             }
             else {
-                printf("3\n");
                 set_head(servers_list, NULL);
                 free_node(aux_node, free);
             }
