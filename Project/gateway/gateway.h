@@ -8,4 +8,5 @@ void *handle_ping_gw(void * arg);
 typedef struct handle_peer_arg_ {
 	list *servers_list;
 	int peer_socket;
+	int id_counter;
 } handle_peer_arg;

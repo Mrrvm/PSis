@@ -12,7 +12,6 @@ void *handle_peer(void *arg) {
     int size_buff = 0;
     int photo_size = 0;
     int item_sock = 0;
-    int id_counter=1;
     int res;
     int type;
     int n_nodes = 0;
@@ -65,8 +64,8 @@ void *handle_peer(void *arg) {
                         else{break;}
 
                         // Manages the photo id - MUST HAVE LOCK
-                        photo_data_->id_photo = htonl(id_counter);
-                        id_counter++;
+                        photo_data_->id_photo = htonl((*thread_arg).id_counter);
+                        (*thread_arg).id_counter++;
 
                         // Sends to all the peers for replication!
                         curr_node = get_head(servers_list);
@@ -137,6 +136,7 @@ void *handle_peers(void * arg) {
 
     peer_data_ = malloc(sizeof(peer_data));
     thread_arg = malloc(sizeof(handle_peer_arg));
+    (*thread_arg).id_counter = 1;
 
     while(1) {
 
