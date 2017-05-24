@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
         // Thread 3: Waits for information requests from gw
 
         // Thread 4: Handles replication
-        handle_rep(sock_stream_gw);
+        handle_rep(sock_stream_gw, photo_data_list);
 
         pthread_join(thr_clients, (void*)&ret); 
         pthread_join(thr_ping_peer, (void*)&ret);

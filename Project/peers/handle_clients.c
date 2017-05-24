@@ -5,24 +5,24 @@ void *handle_client(void * arg) {
 	stream_sockets *ssockets = (stream_sockets *)arg;
 	int client_socket = (*ssockets).client_sock;
 	int gw_socket = (*ssockets).gw_sock;
-	photo_data photo_data_;
+	photo_data *photo_data_;
 	int photo_size = 0;
 	char *buffer;
 	int size_buff = 0;
 	int res;
 
 	printf("Handling client\n");
-
+	photo_data_ = malloc(sizeof(photo_data));
 	while(1) {
 
-		res = recv(client_socket, &photo_data_, sizeof(photo_data_), 0);
+		res = recv(client_socket, photo_data_, sizeof(*photo_data_), 0);
 		if (res<=0){
 			break;
 		}
 		else {
-			if(sizeof(photo_data_) >= res && res > 0) {
-				res = send(gw_socket, &photo_data_, sizeof(photo_data_), 0);
-				if(ntohl(photo_data_.type) == ADD_PHOTO) {
+			if(sizeof(*photo_data_) >= res && res > 0) {
+				res = send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
+				if(ntohl(photo_data_->type) == ADD_PHOTO) {
 					res = recv(client_socket, &photo_size, sizeof(photo_size), 0);
 					res = send(gw_socket, &photo_size, sizeof(photo_size), 0);
 					size_buff = ntohl(photo_size);
@@ -41,6 +41,7 @@ void *handle_client(void * arg) {
 			}
 		}
 	}
+	free(photo_data_);
 	//pthread_exit(arg);
 	close(client_socket);
 }

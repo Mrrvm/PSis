@@ -1,8 +1,14 @@
 #include "peer.h"
 
-void handle_rep(int socket) {
+void print_photo(item got_item) {
+    photo_data *photo_data_ = (photo_data *)got_item; 
+    printf("%d", photo_data_->id_photo);
+}
 
-    photo_data photo_data_;
+
+void handle_rep(int socket, list* photo_data_list) {
+
+    photo_data *photo_data_;
     int photo_size = 0;
     char *buffer;
     FILE *photo;
@@ -10,15 +16,23 @@ void handle_rep(int socket) {
     // pthread_mutex_t lock;   
     // pthread_mutex_init(&lock, NULL);
     int c = 0;
+
+    photo_data_ = malloc(sizeof(photo_data));
+
     while(1) {
-        res = recv(socket, &photo_data_, sizeof(photo_data_), 0);
-        printf("1 handle_ref %d\n", res);
+        res = recv(socket, photo_data_, sizeof(*photo_data_), 0);
         if(res == 0)
             return;
-        if(sizeof(photo_data_) >= res && res > 0) {
-            photo_data_.type = ntohl(photo_data_.type);
-            if(photo_data_.type == ADD_PHOTO) {
-                printf("%s\n", photo_data_.file_name);
+        if(sizeof(*photo_data_) >= res && res > 0) {
+            photo_data_->type = ntohl(photo_data_->type);
+            if(photo_data_->type == ADD_PHOTO) {
+
+                photo_data_->id_photo = ntohl(photo_data_->id_photo);
+                push_item_to_list(photo_data_list, photo_data_);
+                print_list(photo_data_list, print_photo);
+
+
+                printf("%s\n", photo_data_->file_name);
                 res = recv(socket, &photo_size, sizeof(photo_size), 0);
                 if(sizeof(photo_size) >= res && res > 0) {
                     printf("%d\n", errno);
@@ -41,4 +55,5 @@ void handle_rep(int socket) {
             }
         }
     }
+    free(photo_data_);
 }

@@ -53,17 +53,18 @@ int gallery_connect(char *host, in_port_t port) {
 
 uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	
-	photo_data photo_data_;
+	photo_data *photo_data_;
 	FILE *photo;
 	int photo_size, size_buff;
 	int res;
 
+	photo_data_ = malloc(sizeof(photo_data));
 	// Sends photo data
-	photo_data_.type = htonl(ADD_PHOTO);
-	strcpy(photo_data_.file_name, file_name);
-	photo_data_.id_photo = htonl(0);
-	res = send(peer_socket, &photo_data_, sizeof(photo_data_), 0);
-	if(sizeof(photo_data_) >= res && res > 0) {
+	photo_data_->type = htonl(ADD_PHOTO);
+	strcpy(photo_data_->file_name, file_name);
+	photo_data_->id_photo = htonl(0);
+	res = send(peer_socket, photo_data_, sizeof(*photo_data_), 0);
+	if(sizeof(*photo_data_) >= res && res > 0) {
 
 		// Opens photo
 		photo = fopen(file_name, "rb");
@@ -83,4 +84,5 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 		}
 		free(buffer);
 	}
+	free(photo_data_);
 } 

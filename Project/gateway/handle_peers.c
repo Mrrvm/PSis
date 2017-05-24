@@ -11,24 +11,29 @@ void *handle_peer(void *arg) {
     handle_peer_arg *thread_arg = (handle_peer_arg *)arg;
     list *servers_list = (*thread_arg).servers_list;
     int peer_sock = (*thread_arg).peer_socket; 
-    photo_data photo_data_;
+    photo_data *photo_data_;
     int photo_size = 0;
     FILE *photo;
     int size_buff = 0;
     node *curr_node = NULL;
     int item_sock = 0;
     peer_data *peer_data_;
+    int id_counter=1;
     int res;
     char *buffer;
+
+    photo_data_ = malloc(sizeof(photo_data));
     
-    while(1) {    
-        res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
+    while(1) {   
+
+        res = recv(peer_sock, photo_data_, sizeof(*photo_data_), 0);
         if (res<=0){
             break;
         }
         else {
-            if(sizeof(photo_data_) >= res && res > 0) {
-                if(ntohl(photo_data_.type) == ADD_PHOTO) {
+            if(sizeof(*photo_data_) >= res && res > 0) {
+                printf("%d\n", res);
+                if(ntohl(photo_data_->type) == ADD_PHOTO) {
                      printf("1 handle_ref %d\n", res);
                     res = recv(peer_sock, &photo_size, sizeof(photo_size), 0);
                     if (res<=0){
@@ -47,13 +52,18 @@ void *handle_peer(void *arg) {
                         }
                     }
 
+
+                    photo_data_->id_photo = htonl(id_counter);
+
+                    id_counter++;
+
                     // Sends to all the peers for replication!
                     curr_node = get_head(servers_list);
                     while(curr_node != NULL) {
                         peer_data_ = get_node_item(curr_node);
                         item_sock = peer_data_->sock_peer;
-                        res = send(item_sock, &photo_data_, sizeof(photo_data_), 0);
-                        if(sizeof(photo_data_) >= res && res > 0) {
+                        res = send(item_sock, photo_data_, sizeof(*photo_data_), 0);
+                        if(sizeof(*photo_data_) >= res && res > 0) {
                             res = send(item_sock, &photo_size, sizeof(photo_size), 0);
                             if(sizeof(photo_size) >= res && res > 0) {
                                res = send(item_sock, buffer, size_buff, 0);
@@ -67,6 +77,7 @@ void *handle_peer(void *arg) {
             }
         }
     }
+    free(photo_data_);
     close(peer_sock);
     //pthread_exit(arg);
 }
