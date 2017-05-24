@@ -48,6 +48,10 @@ typedef struct peer_data_ {
 	int counter;
 	int sock_peer;
 	struct sockaddr_in peer_addr;
+	int active;
 } peer_data;
+
+void print_photo(item got_item);
+void print_server(item got_item);
 
 #endif

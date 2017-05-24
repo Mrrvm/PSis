@@ -31,6 +31,10 @@ item get_node_item(node *got_node) {
     return got_node->this;
 }
 
+void set_item_as(node *got_node, void (*setter)(item)) {
+    setter(got_node->this);
+}
+
 node *get_next_node(node *got_node) {
     return got_node->next;
 }

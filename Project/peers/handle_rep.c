@@ -1,10 +1,5 @@
 #include "peer.h"
 
-void print_photo(item got_item) {
-    photo_data *photo_data_ = (photo_data *)got_item; 
-    printf("%d", photo_data_->id_photo);
-}
-
 void handle_rep(int socket, list* photo_data_list) {
 
     photo_data *photo_data_;
@@ -14,6 +9,7 @@ void handle_rep(int socket, list* photo_data_list) {
     int res;
     int c = 0;
     int type;
+    node *curr_node;
 
     photo_data_ = malloc(sizeof(photo_data));
 
@@ -53,7 +49,20 @@ void handle_rep(int socket, list* photo_data_list) {
 
             if(ntohl(type) == SEND_DATA) {
                 // Send data to new peer!
+                printf("Request to send existant data to the gateway!\n");
                 send(socket, &type, sizeof(int), 0);
+                int n_nodes = get_list_size(photo_data_list);
+                n_nodes = htonl(n_nodes);
+                send(socket, &n_nodes, sizeof(int), 0);
+
+                curr_node = get_head(photo_data_list);
+                while(curr_node != NULL) {
+                    photo_data_ = get_node_item(curr_node);
+                    photo_data_->id_photo = htonl(photo_data_->id_photo);
+                    send(socket, photo_data_, sizeof(*photo_data_), 0);
+                    curr_node = get_next_node(curr_node);
+                    photo_data_->id_photo = ntohl(photo_data_->id_photo);
+                }
             }
         }
         else {break;}

@@ -1,11 +1,5 @@
 #include "gateway.h"
 
-void print_server(item got_item) {
-    peer_data *peer_data_ = (peer_data *)got_item;
-    struct sockaddr_in peer_addr = peer_data_->peer_addr; 
-    printf("%d", ntohs(peer_addr.sin_port));
-}
-
 void *handle_peer(void *arg) {
  
     handle_peer_arg *thread_arg = (handle_peer_arg *)arg;
@@ -21,6 +15,8 @@ void *handle_peer(void *arg) {
     int id_counter=1;
     int res;
     int type;
+    int n_nodes = 0;
+    int i = 0;
     char *buffer;
 
     photo_data_ = malloc(sizeof(photo_data));
@@ -31,6 +27,28 @@ void *handle_peer(void *arg) {
         if(sizeof(int) >= res && res > 0) {
             if(ntohl(type) == SEND_DATA) {
                 // Send data to new peer! - MUST HAVE LOCK
+                printf("Request to send data to new-born peer!\n");
+                res = recv(peer_sock, &n_nodes, sizeof(n_nodes), 0);
+                if(sizeof(n_nodes) >= res && res > 0) {
+                    peer_data_ = get_node_item(get_head(servers_list));
+                    item_sock = peer_data_->sock_peer;
+                    send(item_sock, &n_nodes, sizeof(n_nodes), 0);
+                    while(i != ntohl(n_nodes)) {
+                        // Receive the information
+                        res = recv(peer_sock, photo_data_, sizeof(*photo_data_), 0);
+                        if(sizeof(*photo_data_) >= res && res > 0) {
+                            // Send new peer the existant information
+                            send(item_sock, photo_data_, sizeof(*photo_data_), 0);
+                            printf("Received %d bytes of photo data list\n", res);
+                            i++;
+                        }
+                        else {break;} //THIS WONT BREAK LOL
+                    }
+                    printf("Send %d nodes\n", ntohl(n_nodes));
+                    i = 0;
+                    peer_data_->active = 1;
+                }
+                
             }
             else {
                 res = recv(peer_sock, photo_data_, sizeof(*photo_data_), 0);
@@ -79,7 +97,6 @@ void *handle_peer(void *arg) {
     }
     free(photo_data_);
     close(peer_sock);
-
 }
 
 void *handle_peers(void * arg) {
@@ -92,11 +109,15 @@ void *handle_peers(void * arg) {
     int sock_peer = 0;
     int sock_peer_accepted = 0;
     int reuse_socket = 1;
+    int item_sock = 0;
     int error;
+    int type;
+    int n_nodes = 0;
     list *servers_list = (list *)arg;
-    peer_data *peer_data_;
+    peer_data *peer_data_, *head_peer;
     pthread_t thr_peer;
     handle_peer_arg *thread_arg = NULL;
+    node *head_server;
 
     // Creates datagram socket for peer entries
     sock_local = socket(AF_INET, SOCK_DGRAM, 0);
@@ -124,6 +145,21 @@ void *handle_peers(void * arg) {
 
         printf(KYEL"[Thread peer requests]"RESET" Accepting sock stream from peer\n");
         sock_peer_accepted = accept(sock_peer, NULL, NULL);
+
+        head_server = get_head(servers_list);
+        if(head_server != NULL) {
+            head_peer = get_node_item(head_server);
+            type = htonl(SEND_DATA);
+            item_sock = head_peer->sock_peer;
+            send(item_sock, &type, sizeof(int), 0);
+            peer_data_->active = 0;
+        }
+        else {
+            printf("There is 0 nodes to send.\n");
+            n_nodes = htonl(n_nodes);
+            send(sock_peer_accepted, &n_nodes, sizeof(int), 0);
+            peer_data_->active = 1;
+        }
         
         peer_data_->counter = 0;
         peer_data_->sock_peer = sock_peer_accepted;

@@ -9,6 +9,7 @@ typedef struct _vector vector;
 
 node *create_node(item new_item, node *next_node, int item_size_);
 item get_node_item(node *got_node);
+void set_item_as(node *got_node, void (*setter)(item));
 node *get_next_node(node *got_node);
 void set_next_node(node *got_node, node *next_node);
 void free_node(node *got_node, void (*free_item)(item));

@@ -35,14 +35,26 @@ void *handle_cli_requests(void * arg) {
             }
             if(curr_node != NULL){
                 peer_data_ = (peer_data *)get_node_item(curr_node);
-                peer_addr = peer_data_->peer_addr;
-                sendto(sock_cli,(const struct sockaddr *) &peer_addr, sizeof(peer_addr), 0,
+                while(peer_data_->active != 1) {
+                    curr_node = get_next_node(curr_node);  
+                    if(curr_node == NULL)
+                        break; 
+                    peer_data_ = (peer_data *)get_node_item(curr_node);
+                }
+                if(curr_node != NULL) {
+                    sendto(sock_cli, (const struct sockaddr *) &peer_data_->peer_addr, sizeof(peer_data_->peer_addr), 0,
+                        (const struct sockaddr *) &cli_addr, 
+                        sizeof(cli_addr));
+                    curr_node = get_next_node(curr_node);   
+                }
+                else {
+                    sendto(sock_cli, (const struct sockaddr *) &peer_addr, 0, 0,   //send message with size 0 so the return value of the receive is 0.
                     (const struct sockaddr *) &cli_addr, 
                     sizeof(cli_addr));
-                curr_node = get_next_node(curr_node);   
+                }
             }
             else {
-                sendto(sock_cli,(const struct sockaddr *) &peer_addr, 0, 0,   //send message with size 0 so the return value of the receive is 0.
+                sendto(sock_cli, (const struct sockaddr *) &peer_addr, 0, 0,   //send message with size 0 so the return value of the receive is 0.
                     (const struct sockaddr *) &cli_addr, 
                     sizeof(cli_addr));
             }
