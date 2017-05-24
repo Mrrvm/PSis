@@ -10,39 +10,42 @@ void *handle_client(void * arg) {
 	char *buffer;
 	int size_buff = 0;
 	int res;
+	int type;
 
 	printf("Handling client\n");
 	photo_data_ = malloc(sizeof(photo_data));
+
 	while(1) {
 
-		res = recv(client_socket, photo_data_, sizeof(*photo_data_), 0);
-		if (res<=0){
-			break;
-		}
-		else {
+		res = recv(client_socket, &type, sizeof(int), 0);
+		if(sizeof(int) >= res && res > 0) {
+			send(gw_socket, &type, sizeof(int), 0);
+			res = recv(client_socket, photo_data_, sizeof(*photo_data_), 0);
 			if(sizeof(*photo_data_) >= res && res > 0) {
-				res = send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
-				if(ntohl(photo_data_->type) == ADD_PHOTO) {
+				send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
+				// Checks which type of request it is:
+				if(ntohl(type) == ADD_PHOTO) {
 					res = recv(client_socket, &photo_size, sizeof(photo_size), 0);
-					res = send(gw_socket, &photo_size, sizeof(photo_size), 0);
-					size_buff = ntohl(photo_size);
-					buffer = malloc(size_buff);
-					if(buffer == NULL){
-						printf("buffer NULL;\n");
-						exit(0);
+					if(sizeof(photo_size) >= res && res > 0) {
+						send(gw_socket, &photo_size, sizeof(photo_size), 0);
+						size_buff = ntohl(photo_size);
+						buffer = malloc(size_buff);
+						if(buffer == NULL){
+							printf("Unable to alloc buffer\n");
+							exit(0);
+						}
+						recv(client_socket, buffer, size_buff, 0);
+						send(gw_socket, buffer, size_buff, 0);
+						free(buffer); 
 					}
-					recv(client_socket, buffer, size_buff, 0);
-					send(gw_socket, buffer, size_buff, 0);
-					free(buffer); 
+					else {break;}
 				}
 			}
-			else {
-				break;
-			}
+			else {break;}
 		}
+		else {break;}
 	}
 	free(photo_data_);
-	//pthread_exit(arg);
 	close(client_socket);
 }
 
