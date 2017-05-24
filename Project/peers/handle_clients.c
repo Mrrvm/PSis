@@ -67,10 +67,10 @@ void *handle_clients(void * arg) {
         
         error = pthread_create(&thr_client, NULL, handle_client, (void *)ssockets);
 
-        pthread_detach(thr_client);
 		if(error != 0) {
 			perror("Unable to create thread to handle clients.");
 			exit(-1);
 		}
+        pthread_detach(thr_client);
 	}
 }
