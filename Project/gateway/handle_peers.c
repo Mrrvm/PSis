@@ -13,51 +13,62 @@ void *handle_peer(void *arg) {
     int peer_sock = (*thread_arg).peer_socket; 
     photo_data photo_data_;
     int photo_size = 0;
-    //char *buffer;
     FILE *photo;
     int size_buff = 0;
     node *curr_node = NULL;
     int item_sock = 0;
     peer_data *peer_data_;
     int res;
+    char *buffer;
     
     while(1) {    
-        char *buffer;
         res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
-        if(sizeof(photo_data_) >= res && res > 0) {
-            
-            if(ntohl(photo_data_.type) == ADD_PHOTO) {
-
-                res = recv(peer_sock, &photo_size, sizeof(photo_size), 0);
-                if(sizeof(photo_size) >= res && res > 0) {
-                    size_buff = ntohl(photo_size);
-                    printf("size_buff %d photo_size %d\n", size_buff, photo_size );
-                    printf("Received photo size: %d\n", size_buff);
-                    buffer = malloc(size_buff);
-                    recv(peer_sock, buffer, size_buff, 0);
-                }
-            }
-
-            // Sends to all the peers for replication!
-            curr_node = get_head(servers_list);
-            while(curr_node != NULL) {
-                peer_data_ = get_node_item(curr_node);
-                item_sock = peer_data_->sock_peer;
-                res = send(item_sock, &photo_data_, sizeof(photo_data_), 0);
-                if(sizeof(photo_data_) >= res && res > 0) {
-                    printf("Sent bytes: %d\n", photo_size);
-                    res = send(item_sock, &photo_size, sizeof(photo_size), 0);
-                    if(sizeof(photo_size) >= res && res > 0) {
-                       res = send(item_sock, buffer, size_buff, 0);
-                       printf("%d\n", res);
+        if (res<=0){
+            break;
+        }
+        else {
+            if(sizeof(photo_data_) >= res && res > 0) {
+                if(ntohl(photo_data_.type) == ADD_PHOTO) {
+                     printf("1 handle_ref %d\n", res);
+                    res = recv(peer_sock, &photo_size, sizeof(photo_size), 0);
+                    if (res<=0){
+                        break;
                     }
-                }
-                curr_node = get_next_node(curr_node);
-            }
+                    else {
+                        if(sizeof(photo_size) >= res && res > 0) {
+                            size_buff = ntohl(photo_size);
+                            printf("size_buff %d photo_size %d\n", size_buff, photo_size );
+                            buffer = malloc(size_buff);
+                            res = recv(peer_sock, buffer, size_buff, 0);
+                            printf("recv %d\n", res);
+                        }
+                        else{
+                            break;
+                        }
+                    }
 
-            //free(buffer); 
+                    // Sends to all the peers for replication!
+                    curr_node = get_head(servers_list);
+                    while(curr_node != NULL) {
+                        peer_data_ = get_node_item(curr_node);
+                        item_sock = peer_data_->sock_peer;
+                        res = send(item_sock, &photo_data_, sizeof(photo_data_), 0);
+                        if(sizeof(photo_data_) >= res && res > 0) {
+                            res = send(item_sock, &photo_size, sizeof(photo_size), 0);
+                            if(sizeof(photo_size) >= res && res > 0) {
+                               res = send(item_sock, buffer, size_buff, 0);
+                               printf("sent %d\n", res);
+                            }
+                        }
+                        curr_node = get_next_node(curr_node);
+                    }
+                   free(buffer); 
+                }
+            }
         }
     }
+    close(peer_sock);
+    //pthread_exit(arg);
 }
 
 void *handle_peers(void * arg) {
@@ -117,6 +128,6 @@ void *handle_peers(void * arg) {
             perror("Unable to create thread to handle peers");
             exit(-1);
         }
-
+        pthread_detach(thr_peer);
     }
 }
