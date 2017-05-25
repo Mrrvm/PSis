@@ -19,12 +19,12 @@ void *handle_client(void * arg) {
 
 		res = recv(client_socket, &type, sizeof(int), 0);
 		if(sizeof(int) >= res && res > 0) {
-			send(gw_socket, &type, sizeof(int), 0);
-			res = recv(client_socket, photo_data_, sizeof(*photo_data_), 0);
-			if(sizeof(*photo_data_) >= res && res > 0) {
-				send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
-				// Checks which type of request it is:
-				if(ntohl(type) == ADD_PHOTO) {
+			if(ntohl(type) == ADD_PHOTO) {
+				send(gw_socket, &type, sizeof(int), 0);
+				res = recv(client_socket, photo_data_, sizeof(*photo_data_), 0);
+				if(sizeof(*photo_data_) >= res && res > 0) {
+					send(gw_socket, photo_data_, sizeof(*photo_data_), 0);
+					// Checks which type of request it is:
 					res = recv(client_socket, &photo_size, sizeof(photo_size), 0);
 					if(sizeof(photo_size) >= res && res > 0) {
 						send(gw_socket, &photo_size, sizeof(photo_size), 0);
@@ -40,8 +40,12 @@ void *handle_client(void * arg) {
 					}
 					else {break;}
 				}
+				
 			}
-			else {break;}
+			if(ntohl(type) == DEL_PHOTO) {
+				printf("Request to delete photo\n");
+			}
+			
 		}
 		else {break;}
 	}

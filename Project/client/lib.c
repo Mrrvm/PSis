@@ -97,6 +97,12 @@ int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos)
 
 int gallery_delete_photo(int peer_socket, uint32_t id_photo) {
 
+	int type = DEL_PHOTO;
+
+	printf("Sending delete photo\n");
+	type = htonl(type);
+	send(peer_socket, &type, sizeof(int), 0);
+
 }
 
 int gallery_get_photo_name(int peer_socket, uint32_t id_photo, char **photo_name) {

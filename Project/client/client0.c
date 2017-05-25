@@ -29,6 +29,8 @@ int main(int argc, char *argv[])
 		// Adds a new photo to the gallery
 		gallery_add_photo(connect_ret, "photos/nude2.png");
 
+		gallery_delete_photo(connect_ret, 1);
+
 	}
 	return 0;
 }
