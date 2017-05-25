@@ -10,6 +10,7 @@ void handle_rep(int socket, list* photo_data_list) {
     int c = 0;
     int type;
     node *curr_node;
+    char photo_name[100];
 
     photo_data_ = malloc(sizeof(photo_data));
 
@@ -33,9 +34,8 @@ void handle_rep(int socket, list* photo_data_list) {
                         buffer = malloc(photo_size);
                         res = recv(socket, buffer, photo_size, 0);
                         if(photo_size >= res && res > 0) {
-                            char nome[100];
-                            sprintf(nome, "photos/nude_received_%d.jpg", c++);
-                            photo = fopen(nome, "wb");
+                            sprintf(photo_name, "photos/id%d", photo_data_->id_photo);
+                            photo = fopen(photo_name, "wb");
                             fwrite(buffer, 1, photo_size, photo);
                             fclose(photo);
                         } 
