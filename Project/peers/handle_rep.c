@@ -2,7 +2,7 @@
 
 void handle_rep(int socket, list* photo_data_list) {
 
-    photo_data *photo_data_;
+    photo_data *recv_photo_data_, *send_photo_data_;
     int photo_size = 0;
     char *buffer;
     FILE *photo;
@@ -12,20 +12,21 @@ void handle_rep(int socket, list* photo_data_list) {
     node *curr_node;
     char photo_name[100];
 
-    photo_data_ = malloc(sizeof(photo_data));
+    recv_photo_data_ = malloc(sizeof(photo_data));
+    send_photo_data_ = malloc(sizeof(photo_data));
 
     while(1) {
         res = recv(socket, &type, sizeof(int), 0);
         if(sizeof(int) >= res && res > 0) {
 
             if(ntohl(type) == ADD_PHOTO) {
-                res = recv(socket, photo_data_, sizeof(*photo_data_), 0);
-                if(sizeof(*photo_data_) >= res && res > 0) {
+                res = recv(socket, recv_photo_data_, sizeof(*recv_photo_data_), 0);
+                if(sizeof(*recv_photo_data_) >= res && res > 0) {
                     // Add photos to list of photos
-                    photo_data_->id_photo = ntohl(photo_data_->id_photo);
-                    printf("%d\n", photo_data_->id_photo);
-                    printf("%s\n", photo_data_->file_name);
-                    push_item_to_list(photo_data_list, photo_data_);
+                    recv_photo_data_->id_photo = ntohl(recv_photo_data_->id_photo);
+                    printf("%d\n", recv_photo_data_->id_photo);
+                    printf("%s\n", recv_photo_data_->file_name);
+                    push_item_to_list(photo_data_list, recv_photo_data_);
                     print_list(photo_data_list, print_photo);
                     res = recv(socket, &photo_size, sizeof(photo_size), 0);
                     if(sizeof(photo_size) >= res && res > 0) {
@@ -34,7 +35,7 @@ void handle_rep(int socket, list* photo_data_list) {
                         buffer = malloc(photo_size);
                         res = recv(socket, buffer, photo_size, 0);
                         if(photo_size >= res && res > 0) {
-                            sprintf(photo_name, "photos/id%d", photo_data_->id_photo);
+                            sprintf(photo_name, "photos/id%d", recv_photo_data_->id_photo);
                             photo = fopen(photo_name, "wb");
                             fwrite(buffer, 1, photo_size, photo);
                             fclose(photo);
@@ -57,15 +58,16 @@ void handle_rep(int socket, list* photo_data_list) {
 
                 curr_node = get_head(photo_data_list);
                 while(curr_node != NULL) {
-                    photo_data_ = get_node_item(curr_node);
-                    photo_data_->id_photo = htonl(photo_data_->id_photo);
-                    send(socket, photo_data_, sizeof(*photo_data_), 0);
+                    send_photo_data_ = get_node_item(curr_node);
+                    send_photo_data_->id_photo = htonl(send_photo_data_->id_photo);
+                    send(socket, send_photo_data_, sizeof(*send_photo_data_), 0);
+                    send_photo_data_->id_photo = ntohl(send_photo_data_->id_photo);
                     curr_node = get_next_node(curr_node);
-                    photo_data_->id_photo = ntohl(photo_data_->id_photo);
                 }
             }
         }
         else {break;}
     }
-    free(photo_data_);
+    free(recv_photo_data_);
+    free(send_photo_data_);
 }
