@@ -1,9 +1,8 @@
 #include "gateway.h"
 
-void print_server1(item got_item) {
-    peer_data *peer_data_ = (peer_data *)got_item;
-    struct sockaddr_in peer_addr = peer_data_->peer_addr; 
-    printf("%d", ntohs(peer_addr.sin_port));
+void add_counter(item got_item) {
+     peer_data *peer_data_ = (peer_data *)got_item;
+     peer_data_->counter++;
 }
 
 void *handle_ping_gw(void * arg){
@@ -16,7 +15,7 @@ void *handle_ping_gw(void * arg){
     int size_sent, size_received;
     list *servers_list = (list*) arg;
     node *curr_node = NULL, *prev_node = NULL, *aux_node =  NULL;
-    peer_data *peer_data_ = NULL;
+    peer_data peer_data_;
 
 
     // Set datagram socket with peer for pings
@@ -29,8 +28,8 @@ void *handle_ping_gw(void * arg){
             curr_node = get_head(servers_list);
             prev_node = NULL;
         }
-        peer_data_ = (peer_data *)get_node_item(curr_node);
-        addr = peer_data_->peer_addr;
+        peer_data_ = *(peer_data *)get_node_item(curr_node);
+        addr = peer_data_.peer_addr;
 
         size_sent = sendto(sock_peer_ping , &buff, sizeof(buff), 0, (const struct sockaddr *) &addr, sizeof(addr));
         usleep(50000);
@@ -38,10 +37,10 @@ void *handle_ping_gw(void * arg){
 
         if (size_received == -1)
         {
-            peer_data_->counter++;
+            set_item_as(curr_node, add_counter);
         }
 
-        if(peer_data_->counter == 3){
+        if(peer_data_.counter == 3){
             printf("Dead Peer: %d\n", ntohs(addr.sin_port));
             aux_node = curr_node;
             if(prev_node != NULL) {
@@ -58,7 +57,7 @@ void *handle_ping_gw(void * arg){
                 free_node(aux_node, free);
             }
             decrement_list_size(servers_list);
-            print_list(servers_list, print_server1);
+            print_list(servers_list, print_server);
         }
         prev_node = curr_node;
         curr_node = get_next_node(curr_node);

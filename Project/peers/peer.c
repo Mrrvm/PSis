@@ -18,10 +18,8 @@ int main(int argc, char *argv[])
     pthread_t thr_clients;
     pthread_t thr_ping_peer;
     void *ret;
-    photo_data *photo_data_;
+    photo_data photo_data_;
     list *photo_data_list = create_list(sizeof(photo_data));
-
-    photo_data_ = malloc(sizeof(photo_data));
 
     if(argc != 2) {
         printf("Invalid execution. Please use:\n./program [hostname]\n");
@@ -74,10 +72,10 @@ int main(int argc, char *argv[])
             n_nodes = ntohl(n_nodes);
             printf("Ready to receive %d\n", n_nodes);
             while(i != n_nodes) {
-                res = recv(sock_stream_gw, photo_data_, sizeof(*photo_data_), 0);
-                if(sizeof(*photo_data_) >= res && res > 0) {
-                    photo_data_->id_photo = ntohl(photo_data_->id_photo);
-                    push_item_to_list(photo_data_list, photo_data_);
+                res = recv(sock_stream_gw, &photo_data_, sizeof(photo_data_), 0);
+                if(sizeof(photo_data_) >= res && res > 0) {
+                    photo_data_.id_photo = ntohl(photo_data_.id_photo);
+                    push_item_to_list(photo_data_list, &photo_data_);
                     print_list(photo_data_list, print_photo);
                     i++;
                 }
@@ -104,7 +102,6 @@ int main(int argc, char *argv[])
 
         pthread_join(thr_clients, (void*)&ret); 
         pthread_join(thr_ping_peer, (void*)&ret);
-        free(photo_data_);
     }
 
     exit(0);

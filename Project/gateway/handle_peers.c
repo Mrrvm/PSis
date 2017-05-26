@@ -1,14 +1,19 @@
 #include "gateway.h"
 
+void set_active(item got_item) {
+    peer_data *peer_data_ = (peer_data *)got_item;
+    peer_data_->active = 1;
+}
+
 void *handle_peer(void *arg) {
  
     handle_peer_arg *thread_arg = (handle_peer_arg *)arg;
     list *servers_list = (*thread_arg).servers_list;
     int peer_sock = (*thread_arg).peer_socket; 
-    photo_data *photo_data_;
+    photo_data photo_data_;
     FILE *photo;
     node *curr_node = NULL;
-    peer_data *peer_data_;
+    peer_data peer_data_;
     int size_buff = 0;
     int photo_size = 0;
     int item_sock = 0;
@@ -17,8 +22,6 @@ void *handle_peer(void *arg) {
     int n_nodes = 0;
     int i = 0;
     char *buffer;
-
-    photo_data_ = malloc(sizeof(photo_data));
     
     while(1) {   
 
@@ -29,15 +32,15 @@ void *handle_peer(void *arg) {
                 printf("Request to send data to new-born peer!\n");
                 res = recv(peer_sock, &n_nodes, sizeof(n_nodes), 0);
                 if(sizeof(n_nodes) >= res && res > 0) {
-                    peer_data_ = get_node_item(get_head(servers_list));
-                    item_sock = peer_data_->sock_peer;
+                    peer_data_ = *( peer_data *)get_node_item(get_head(servers_list));
+                    item_sock = peer_data_.sock_peer;
                     send(item_sock, &n_nodes, sizeof(n_nodes), 0);
                     while(i != ntohl(n_nodes)) {
                         // Receive the information
-                        res = recv(peer_sock, photo_data_, sizeof(*photo_data_), 0);
-                        if(sizeof(*photo_data_) >= res && res > 0) {
+                        res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
+                        if(sizeof(photo_data_) >= res && res > 0) {
                             // Send new peer the existant information
-                            send(item_sock, photo_data_, sizeof(*photo_data_), 0);
+                            send(item_sock, &photo_data_, sizeof(photo_data_), 0);
                             printf("Received %d bytes of photo data list\n", res);
                             i++;
                         }
@@ -45,13 +48,13 @@ void *handle_peer(void *arg) {
                     }
                     printf("Send %d nodes\n", ntohl(n_nodes));
                     i = 0;
-                    peer_data_->active = 1;
+                    set_item_as(get_head(servers_list), set_active);
                 }
                 
             }
             else {
-                res = recv(peer_sock, photo_data_, sizeof(*photo_data_), 0);
-                if(sizeof(*photo_data_) >= res && res > 0) {
+                res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
+                if(sizeof(photo_data_) >= res && res > 0) {
                     if(ntohl(type) == ADD_PHOTO) {
                         res = recv(peer_sock, &photo_size, sizeof(photo_size), 0);
                         if(sizeof(photo_size) >= res && res > 0) {
@@ -64,18 +67,18 @@ void *handle_peer(void *arg) {
                         else{break;}
 
                         // Manages the photo id - MUST HAVE LOCK
-                        photo_data_->id_photo = htonl((*thread_arg).id_counter);
+                        photo_data_.id_photo = htonl((*thread_arg).id_counter);
                         (*thread_arg).id_counter++;
 
                         // Sends to all the peers for replication!
                         curr_node = get_head(servers_list);
                         while(curr_node != NULL) {
-                            peer_data_ = get_node_item(curr_node);
-                            item_sock = peer_data_->sock_peer;
+                            peer_data_ = *(peer_data *)get_node_item(curr_node);
+                            item_sock = peer_data_.sock_peer;
                             res = send(item_sock, &type, sizeof(int), 0);
                             if(sizeof(int) >= res && res > 0) {
-                                send(item_sock, photo_data_, sizeof(*photo_data_), 0);
-                                if(sizeof(*photo_data_) >= res && res > 0) {
+                                send(item_sock, &photo_data_, sizeof(photo_data_), 0);
+                                if(sizeof(photo_data_) >= res && res > 0) {
                                     res = send(item_sock, &photo_size, sizeof(photo_size), 0);
                                     if(sizeof(photo_size) >= res && res > 0) {
                                        res = send(item_sock, buffer, size_buff, 0);;
@@ -94,7 +97,6 @@ void *handle_peer(void *arg) {
         }
         else {break;}
     }
-    free(photo_data_);
     close(peer_sock);
 }
 
@@ -113,7 +115,7 @@ void *handle_peers(void * arg) {
     int type;
     int n_nodes = 0;
     list *servers_list = (list *)arg;
-    peer_data *peer_data_, *head_peer;
+    peer_data peer_data_, head_peer;
     pthread_t thr_peer;
     handle_peer_arg *thread_arg = NULL;
     node *head_server;
@@ -134,7 +136,6 @@ void *handle_peers(void * arg) {
     bind(sock_peer, (struct sockaddr *)&local_addr_st, sizeof(local_addr_st));
     listen(sock_peer, 20);
 
-    peer_data_ = malloc(sizeof(peer_data));
     thread_arg = malloc(sizeof(handle_peer_arg));
     (*thread_arg).id_counter = 1;
 
@@ -148,23 +149,23 @@ void *handle_peers(void * arg) {
 
         head_server = get_head(servers_list);
         if(head_server != NULL) {
-            head_peer = get_node_item(head_server);
+            head_peer = *(peer_data *)get_node_item(head_server);
             type = htonl(SEND_DATA);
-            item_sock = head_peer->sock_peer;
+            item_sock = head_peer.sock_peer;
             send(item_sock, &type, sizeof(int), 0);
-            peer_data_->active = 0;
+            peer_data_.active = 0;
         }
         else {
             printf("There is 0 nodes to send.\n");
             n_nodes = htonl(n_nodes);
             send(sock_peer_accepted, &n_nodes, sizeof(int), 0);
-            peer_data_->active = 1;
+            peer_data_.active = 1;
         }
         
-        peer_data_->counter = 0;
-        peer_data_->sock_peer = sock_peer_accepted;
-        peer_data_->peer_addr = peer_addr;
-        push_item_to_list(servers_list, peer_data_);
+        peer_data_.counter = 0;
+        peer_data_.sock_peer = sock_peer_accepted;
+        peer_data_.peer_addr = peer_addr;
+        push_item_to_list(servers_list, &peer_data_);
         print_list(servers_list, print_server);
         
         (*thread_arg).peer_socket = sock_peer_accepted;

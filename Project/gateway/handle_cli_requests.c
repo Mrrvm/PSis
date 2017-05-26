@@ -5,7 +5,7 @@ void *handle_cli_requests(void * arg) {
     struct sockaddr_in local_addr;
     struct sockaddr_in cli_addr;
     struct sockaddr_in peer_addr;
-    peer_data *peer_data_ = NULL;
+    peer_data peer_data_;
     socklen_t size_addr;
     int sock_cli;
     uint16_t request;
@@ -34,15 +34,15 @@ void *handle_cli_requests(void * arg) {
                 curr_node = get_head(servers_list);
             }
             if(curr_node != NULL){
-                peer_data_ = (peer_data *)get_node_item(curr_node);
-                while(peer_data_->active != 1) {
+                peer_data_ = *(peer_data *)get_node_item(curr_node);
+                while(peer_data_.active != 1) {
                     curr_node = get_next_node(curr_node);  
                     if(curr_node == NULL)
                         break; 
-                    peer_data_ = (peer_data *)get_node_item(curr_node);
+                    peer_data_ = *(peer_data *)get_node_item(curr_node);
                 }
                 if(curr_node != NULL) {
-                    sendto(sock_cli, (const struct sockaddr *) &peer_data_->peer_addr, sizeof(peer_data_->peer_addr), 0,
+                    sendto(sock_cli, (const struct sockaddr *) &peer_data_.peer_addr, sizeof(peer_data_.peer_addr), 0,
                         (const struct sockaddr *) &cli_addr, 
                         sizeof(cli_addr));
                     curr_node = get_next_node(curr_node);   
