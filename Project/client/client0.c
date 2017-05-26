@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 		printf("Received id_photo: %d\n", id_photo);
 		//gallery_delete_photo(connect_ret, 1);
 		photo_name = malloc(sizeof(char *));
-		if(1 == gallery_get_photo(connect_ret, 20, photo_name)) 
+		if(1 == gallery_get_photo(connect_ret, id_photo, photo_name)) 
 			printf("Received %s\n", photo_name);
 		free(photo_name);
 	}
