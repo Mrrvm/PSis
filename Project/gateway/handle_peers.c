@@ -56,7 +56,10 @@ void *handle_peer(void *arg) {
                             free(buffer);
                             i++;
                         }   
-                        else {break;} //THIS WONT BREAK LOL
+                        else {
+                            close(peer_sock);
+                            return 0;
+                        } 
                     }
                     i = 0;
                     set_item_as(get_head(servers_list), set_active);
@@ -96,6 +99,7 @@ void *handle_peer(void *arg) {
         else {break;}
     }
     close(peer_sock);
+    pthread_exit(arg);
 }
 
 void *handle_peers(void * arg) {

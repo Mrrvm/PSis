@@ -32,7 +32,7 @@ void *handle_ping_gw(void * arg){
         addr = peer_data_.peer_addr;
 
         size_sent = sendto(sock_peer_ping , &buff, sizeof(buff), 0, (const struct sockaddr *) &addr, sizeof(addr));
-        usleep(50000);
+        usleep(5000);
         size_received = recv(sock_peer_ping, &buff, sizeof(buff), MSG_DONTWAIT);
 
         if (size_received == -1)

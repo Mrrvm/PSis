@@ -14,6 +14,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <ctype.h>
+#include <libgen.h>
 #include <pthread.h>
 
 #define KNRM  "\x1B[0m"

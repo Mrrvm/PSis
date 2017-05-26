@@ -72,7 +72,7 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	fseek(photo, 0L, SEEK_SET);
 	
 	// Sends photo data
-	snprintf(photo_data_.file_name, sizeof(photo_data_.file_name), "%s", file_name);
+	snprintf(photo_data_.file_name, sizeof(photo_data_.file_name), "%s", basename(file_name));
 	photo_data_.id_photo = htonl(0);
 	photo_data_.photo_size = htonl(photo_size);
 
@@ -87,7 +87,7 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	fclose(photo);
 	res = recv(peer_socket, &ret, sizeof(int), 0);
 	if(sizeof(res) >= res && res > 0) {
-		return ret;
+		return (uint32_t)ret;
 	}
 	return 0;
 } 
@@ -116,4 +116,44 @@ int gallery_get_photo_name(int peer_socket, uint32_t id_photo, char **photo_name
 
 int gallery_get_photo(int peer_socket, uint32_t id_photo, char *file_name) {
 	
+	int type = GET_PHOTO;
+	int id_photo_ = (int) id_photo;
+	int photo_size;
+	int res;
+	char *buffer;
+	FILE *photo;
+	char string_buff[MESSAGE_SIZE];
+
+	type = htonl(type);
+	send(peer_socket, &type, sizeof(int), 0);
+	send(peer_socket, &id_photo, sizeof(int), 0);
+
+	res = recv(peer_socket, &photo_size, sizeof(int), 0);
+	if(sizeof(int) >= res && res > 0) {
+		photo_size = ntohl(photo_size);
+		if(photo_size == 0) {
+			// There is no photo with that id
+			return 0;
+		}
+		res = recv(peer_socket, string_buff, sizeof(string_buff), 0);
+		if(sizeof(string_buff) >= res && res > 0) {
+			printf("Receiving photo: %s with size %d\n", string_buff, photo_size);
+
+			buffer = malloc(photo_size);
+			res = recv(peer_socket, buffer, photo_size, 0);
+			if(photo_size >= res && res > 0) {
+			    photo = fopen(string_buff, "wb");
+			    if(photo_size != fwrite(buffer, 1, photo_size, photo)) {
+			        fclose(photo);
+			        remove(string_buff);
+			        return -1;
+			    }
+			    fclose(photo);
+				strncpy(file_name, string_buff, strlen(string_buff));
+			    
+			    return 1;
+			}
+		}
+	}
+	return -1;
 }

@@ -12,7 +12,10 @@ void *handle_client(void * arg) {
 	int res;
 	int type;
 	int ret;
+	int id_photo;
 	node *curr_node = NULL;
+	char photo_name[100];
+	FILE *photo;
 
 	printf("Handling client\n");
 
@@ -39,7 +42,8 @@ void *handle_client(void * arg) {
 						printf("Received photo of size %d\n", photo_size);
 						send(gw_socket, buffer, photo_size, 0);
 						free(buffer);
-						usleep(48000);
+						usleep(4800); // Gives time for the photo to be replicated
+						// ^READ LOCK?
 						curr_node = get_head(photo_data_list);
 						if(curr_node != NULL) {
 							photo_data_ = *(photo_data *)get_node_item(curr_node);
@@ -61,11 +65,43 @@ void *handle_client(void * arg) {
 				printf("Request to delete photo\n");
 
 			}
-			
+
+			/************* GET PHOTO ****************/
+			if(ntohl(type) == GET_PHOTO) {
+				printf("Request to get photo\n");
+				recv(client_socket, &id_photo, sizeof(int), 0);
+				curr_node = get_head(photo_data_list);
+				while(curr_node != NULL) {
+					photo_data_ = *(photo_data *)get_node_item(curr_node);
+					if(photo_data_.id_photo == id_photo) {
+						
+						photo_size = htonl(photo_data_.photo_size);
+						send(client_socket, &photo_size, sizeof(photo_size), 0);
+						send(client_socket, photo_data_.file_name, sizeof(photo_data_.file_name), 0);
+						
+						printf("Sending photo: %s with size %d\n", photo_data_.file_name, photo_data_.photo_size);
+						buffer = malloc(photo_data_.photo_size);
+						sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
+						photo = fopen(photo_name, "rb");
+                    	fread(buffer, 1, photo_data_.photo_size, photo);
+                    	send(client_socket, buffer, photo_data_.photo_size, 0);
+                    	fclose(photo);
+						free(buffer);
+
+						break;
+					}
+					curr_node = get_next_node(curr_node);
+				}
+				if(curr_node == NULL) {
+					photo_size = htonl(0);
+					send(client_socket, &photo_size, sizeof(photo_size), 0);
+				}
+			}
 		}
 		else {break;}
 	}
 	close(client_socket);
+	pthread_exit(arg);
 }
 
 // Creates a new thread for each client
