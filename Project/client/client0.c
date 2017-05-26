@@ -5,6 +5,7 @@ int main(int argc, char *argv[])
 	char *host = NULL;
 	in_port_t port = 0;
 	int connect_ret = 1;
+	uint32_t id_photo;
 
 	// Checks if user inserted the write input
 	if(argc != 3) {
@@ -27,8 +28,8 @@ int main(int argc, char *argv[])
 	}
 	else {
 		// Adds a new photo to the gallery
-		gallery_add_photo(connect_ret, "photos/nude2.png");
-
+		id_photo = gallery_add_photo(connect_ret, "photos/nude2.png");
+		printf("Received id_photo: %d\n", id_photo);
 		gallery_delete_photo(connect_ret, 1);
 
 	}

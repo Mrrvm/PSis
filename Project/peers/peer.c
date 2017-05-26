@@ -15,9 +15,13 @@ int main(int argc, char *argv[])
     int res = 0;
     int i = 0;
     int n_nodes = 0;
+    int photo_size;
     pthread_t thr_clients;
     pthread_t thr_ping_peer;
     void *ret;
+    char *buffer;
+    char photo_name[100];
+    FILE *photo;
     photo_data photo_data_;
     list *photo_data_list = create_list(sizeof(photo_data));
 
@@ -62,10 +66,11 @@ int main(int argc, char *argv[])
         connect(sock_stream_gw, (const struct sockaddr *) &gateway_addr_st, sizeof(gateway_addr_st));
         
         // Creates a structure with stream sockets to send as a thread argument
-        stream_sockets *ssockets = NULL;
-        ssockets = malloc(sizeof(stream_sockets));
-        (*ssockets).gw_sock = sock_stream_gw;
-        (*ssockets).client_sock = sock_stream_client;
+        handle_client_arg *thread_arg = NULL;
+        thread_arg = malloc(sizeof(handle_client_arg));
+        (*thread_arg).gw_sock = sock_stream_gw;
+        (*thread_arg).client_sock = sock_stream_client;
+        (*thread_arg).photo_data_list = photo_data_list;
 
         res = recv(sock_stream_gw, &n_nodes, sizeof(n_nodes), 0);
         if(sizeof(n_nodes) >= res && res > 0) {
@@ -75,8 +80,22 @@ int main(int argc, char *argv[])
                 res = recv(sock_stream_gw, &photo_data_, sizeof(photo_data_), 0);
                 if(sizeof(photo_data_) >= res && res > 0) {
                     photo_data_.id_photo = ntohl(photo_data_.id_photo);
+                    photo_size = photo_data_.photo_size = ntohl(photo_data_.photo_size);
                     push_item_to_list(photo_data_list, &photo_data_);
                     print_list(photo_data_list, print_photo);
+
+                    printf("Mallocing buffer of size %d\n", photo_data_.photo_size);
+                    buffer = malloc(photo_size);
+                    res = recv(sock_stream_gw, buffer, photo_size, 0);
+                    if(photo_size >= res && res > 0) {
+                        printf("Received photo of size %d!\n", photo_data_.photo_size);
+                        sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
+                        photo = fopen(photo_name, "wb");
+                        fwrite(buffer, 1, photo_data_.photo_size, photo);
+                        fclose(photo);
+                    } 
+                    else {break;}
+                    free(buffer); 
                     i++;
                 }
             }
@@ -91,7 +110,7 @@ int main(int argc, char *argv[])
         }
 
         // Thread 2: Waits for clients
-        error = pthread_create(&thr_clients, NULL, handle_clients, (void *)ssockets);
+        error = pthread_create(&thr_clients, NULL, handle_clients, (void *)thread_arg);
         if(error != 0) {
             perror("Unable to create thread to handle clients.");
             exit(-1);

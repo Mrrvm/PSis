@@ -42,6 +42,7 @@ typedef struct photo_data_ {
 	char file_name[MESSAGE_SIZE];
 	int id_photo;
 	char keyword[MESSAGE_SIZE];
+	int photo_size;
 } photo_data;
 
 typedef struct peer_data_ {

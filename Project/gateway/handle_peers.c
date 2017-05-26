@@ -27,6 +27,8 @@ void *handle_peer(void *arg) {
 
         res = recv(peer_sock, &type, sizeof(int), 0);
         if(sizeof(int) >= res && res > 0) {
+
+            /************* SEND DATA ****************/
             if(ntohl(type) == SEND_DATA) {
                 // Send data to new peer! - MUST HAVE LOCK
                 printf("Request to send data to new-born peer!\n");
@@ -35,37 +37,41 @@ void *handle_peer(void *arg) {
                     peer_data_ = *( peer_data *)get_node_item(get_head(servers_list));
                     item_sock = peer_data_.sock_peer;
                     send(item_sock, &n_nodes, sizeof(n_nodes), 0);
+                    printf("Sent %d nodes\n", ntohl(n_nodes));
                     while(i != ntohl(n_nodes)) {
                         // Receive the information
                         res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
                         if(sizeof(photo_data_) >= res && res > 0) {
                             // Send new peer the existant information
                             send(item_sock, &photo_data_, sizeof(photo_data_), 0);
-                            printf("Received %d bytes of photo data list\n", res);
+                            printf("Sending photo with size %d\n", photo_data_.photo_size);
+                            // Receive and send the photo
+                            photo_size = ntohl(photo_data_.photo_size);
+                            buffer = malloc(photo_size);
+                            res = recv(peer_sock, buffer, photo_size, 0);
+                            if(photo_size >= res && res > 0) {
+                                send(item_sock, buffer, photo_size, 0);
+                            }
+                            else {break;}
+                            free(buffer);
                             i++;
-                        }
+                        }   
                         else {break;} //THIS WONT BREAK LOL
                     }
-                    printf("Send %d nodes\n", ntohl(n_nodes));
                     i = 0;
                     set_item_as(get_head(servers_list), set_active);
                 }
-                
+                else {break;}     
             }
-            else {
+
+            /************* ADD PHOTO ****************/
+            if(ntohl(type) == ADD_PHOTO) {
                 res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
                 if(sizeof(photo_data_) >= res && res > 0) {
-                    if(ntohl(type) == ADD_PHOTO) {
-                        res = recv(peer_sock, &photo_size, sizeof(photo_size), 0);
-                        if(sizeof(photo_size) >= res && res > 0) {
-                            size_buff = ntohl(photo_size);
-                            printf("size_buff %d photo_size %d\n", size_buff, photo_size );
-                            buffer = malloc(size_buff);
-                            res = recv(peer_sock, buffer, size_buff, 0);
-                            printf("recv %d\n", res);
-                        }
-                        else{break;}
-
+                    photo_size = ntohl(photo_data_.photo_size);
+                    buffer = malloc(photo_size);
+                    res = recv(peer_sock, buffer, photo_size, 0);
+                    if(photo_size >= res && res > 0) {
                         // Manages the photo id - MUST HAVE LOCK
                         photo_data_.id_photo = htonl((*thread_arg).id_counter);
                         (*thread_arg).id_counter++;
@@ -75,25 +81,17 @@ void *handle_peer(void *arg) {
                         while(curr_node != NULL) {
                             peer_data_ = *(peer_data *)get_node_item(curr_node);
                             item_sock = peer_data_.sock_peer;
-                            res = send(item_sock, &type, sizeof(int), 0);
-                            if(sizeof(int) >= res && res > 0) {
-                                send(item_sock, &photo_data_, sizeof(photo_data_), 0);
-                                if(sizeof(photo_data_) >= res && res > 0) {
-                                    res = send(item_sock, &photo_size, sizeof(photo_size), 0);
-                                    if(sizeof(photo_size) >= res && res > 0) {
-                                       res = send(item_sock, buffer, size_buff, 0);;
-                                    }
-                                    else {break;}
-                                }
-                                else {break;}
-                                curr_node = get_next_node(curr_node);
-                            }
-                            else {break;}
+                            send(item_sock, &type, sizeof(int), 0);
+                            send(item_sock, &photo_data_, sizeof(photo_data_), 0);
+                            send(item_sock, buffer, photo_size, 0);;
+                            curr_node = get_next_node(curr_node);
                         }
                         free(buffer); 
                     }
+                    else {break;}
                 }
-            }
+                else {break;}
+            }    
         }
         else {break;}
     }

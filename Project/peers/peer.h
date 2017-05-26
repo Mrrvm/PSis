@@ -5,7 +5,8 @@ void *handle_clients(void * arg);
 void handle_rep(int socket, list* photo_data_list);
 void *handle_ping_peer(void * arg);
 
-typedef struct stream_sockets_{
+typedef struct handle_client_arg_{
 	int client_sock;
 	int gw_sock;
-} stream_sockets;
+	list *photo_data_list;
+} handle_client_arg;

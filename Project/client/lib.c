@@ -53,36 +53,43 @@ int gallery_connect(char *host, in_port_t port) {
 
 uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	
-	photo_data photo_data_;
+	photo_data photo_data_;	
 	FILE *photo;
 	int photo_size, size_buff;
 	int res;
 	int type = ADD_PHOTO;
+	int ret;
 
 	// Sends type of data
 	send(peer_socket, &type, sizeof(int), 0);
+	
+	// Opens photo
+	photo = fopen(file_name, "rb");
+	
+	// Gets the photo size
+	fseek(photo, 0L, SEEK_END);
+	photo_size = ftell(photo);
+	fseek(photo, 0L, SEEK_SET);
+	
 	// Sends photo data
 	snprintf(photo_data_.file_name, sizeof(photo_data_.file_name), "%s", file_name);
 	photo_data_.id_photo = htonl(0);
+	photo_data_.photo_size = htonl(photo_size);
+
 	res = send(peer_socket, &photo_data_, sizeof(photo_data_), 0);
 	if(sizeof(photo_data_) >= res && res > 0) {
-		// Opens photo
-		photo = fopen(file_name, "rb");
-		// Gets the photo size
-		fseek(photo, 0L, SEEK_END);
-		photo_size = ftell(photo);
-		fseek(photo, 0L, SEEK_SET);
-		char *buffer= malloc(photo_size);
-		size_buff = htonl(photo_size);
-		// Sends photo size
-		res = send(peer_socket, &size_buff, sizeof(size_buff), 0);
-		if(sizeof(size_buff) >= res && res > 0) {
-			// Sends the photo in binary
-			fread(buffer, 1, photo_size, photo);
-		    send(peer_socket, buffer, photo_size, 0);
-		}
+		char *buffer = malloc(photo_size);
+		// Sends the photo in binary
+		fread(buffer, 1, photo_size, photo);
+	    send(peer_socket, buffer, photo_size, 0);
 		free(buffer);
 	}
+	fclose(photo);
+	res = recv(peer_socket, &ret, sizeof(int), 0);
+	if(sizeof(res) >= res && res > 0) {
+		return ret;
+	}
+	return 0;
 } 
 
 int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword) {
