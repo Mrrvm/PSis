@@ -77,8 +77,7 @@ void *handle_client(void * arg) {
 						
 						photo_size = htonl(photo_data_.photo_size);
 						send(client_socket, &photo_size, sizeof(photo_size), 0);
-						send(client_socket, photo_data_.file_name, sizeof(photo_data_.file_name), 0);
-						
+
 						printf("Sending photo: %s with size %d\n", photo_data_.file_name, photo_data_.photo_size);
 						buffer = malloc(photo_data_.photo_size);
 						sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
@@ -101,7 +100,6 @@ void *handle_client(void * arg) {
 		else {break;}
 	}
 	close(client_socket);
-	pthread_exit(arg);
 }
 
 // Creates a new thread for each client
