@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	if(argc != 3) {
 		printf("Invalid execution. Please use:\n./program [hostname] [port]\n");
 		exit(1);
-	}
+	}	
 
 	host = argv[1];
 	port = (in_port_t) atoi(argv[2]);
@@ -29,11 +29,14 @@ int main(int argc, char *argv[])
 	}
 	else {
 		// Adds a new photo to the gallery
-		id_photo = gallery_add_photo(connect_ret, "photos/nude2.png");
+		id_photo = gallery_add_photo(connect_ret, "photos/my_first_nude.jpg");
 		printf("Received id_photo: %d\n", id_photo);
 		//gallery_delete_photo(connect_ret, 1);
-		if(1 == gallery_get_photo(connect_ret, id_photo, "received_photo")) 
-			printf("Received photo\n");
+		photo_name = malloc(sizeof(char *));
+		strcpy(photo_name, "nude_recv");
+		if(1 == gallery_get_photo(connect_ret, id_photo, photo_name)) 
+			printf("Received %s\n", photo_name);
+		free(photo_name);
 	}
 	return 0;
 }

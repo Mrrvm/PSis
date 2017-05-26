@@ -146,9 +146,12 @@ int gallery_get_photo(int peer_socket, uint32_t id_photo, char *file_name) {
 		        remove(file_name);
 		        return -1;
 		    }
-		    fclose(photo);		    
+		    fclose(photo);
+			
+		    
 		    return 1;
 		}
+		
 	}
 	return -1;
 }

@@ -99,6 +99,7 @@ void *handle_peer(void *arg) {
         else {break;}
     }
     close(peer_sock);
+    pthread_exit(arg);
 }
 
 void *handle_peers(void * arg) {
