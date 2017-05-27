@@ -59,6 +59,11 @@ void *handle_client(void * arg) {
 				send(gw_socket, &ret, sizeof(int), 0);
 				break;
 			}
+
+			/************* GET PHOTO ****************/
+			if(ntohl(type) == ADD_KEYWORD) {
+				printf("Request to add keyword\n");
+			}
  
 			/************* DEL PHOTO ****************/
 			if(ntohl(type) == DEL_PHOTO) {
@@ -70,6 +75,7 @@ void *handle_client(void * arg) {
 			if(ntohl(type) == GET_NAME) {
 				printf("Request to get photo name\n");
 				recv(client_socket, &id_photo, sizeof(int), 0);
+				id_photo = ntohl(id_photo);
 				curr_node = get_head(photo_data_list);
 				while(curr_node != NULL) {
 					photo_data_ = *(photo_data *)get_node_item(curr_node);
@@ -91,6 +97,7 @@ void *handle_client(void * arg) {
 			if(ntohl(type) == GET_PHOTO) {
 				printf("Request to get photo\n");
 				recv(client_socket, &id_photo, sizeof(int), 0);
+				id_photo = ntohl(id_photo);
 				curr_node = get_head(photo_data_list);
 				while(curr_node != NULL) {
 					photo_data_ = *(photo_data *)get_node_item(curr_node);

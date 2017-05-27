@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
 	uint32_t id_photo;
 	char *photo_name;
 	char *photo_name_ptr;
+	char *keyword;
 
 	// Checks if user inserted the write input
 	if(argc != 3) {
@@ -30,15 +31,18 @@ int main(int argc, char *argv[])
 	}
 	else {
 		// Adds a new photo to the gallery
-		id_photo = gallery_add_photo(connect_ret, "photos/nude2.png");
+		id_photo = gallery_add_photo(connect_ret, "photos/my_first_nude.jpg");
 		printf("Received id_photo: %d\n", id_photo);
+		id_photo = gallery_add_photo(connect_ret, "photos/my_first_nude.jpg");
 		//gallery_delete_photo(connect_ret, 1);
 
-		usleep(50000); // Replace with mutex
-		if(1 == gallery_get_photo(connect_ret, id_photo, "recv_nude")) 
+		//usleep(50000); // Replace with mutex
+		if(1 == gallery_get_photo(connect_ret, 2, "recv_nude")) 
 		 	printf("Received photo\n");
-		if(1 == gallery_get_photo_name(connect_ret, id_photo, &photo_name_ptr))
+		if(1 == gallery_get_photo_name(connect_ret, 2, &photo_name_ptr))
 			printf("%s\n", photo_name_ptr);
+
+		gallery_add_keyword(connect_ret, 2, "keyword");
 	}
 	return 0;
 }

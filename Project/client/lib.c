@@ -63,7 +63,7 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	int ret;
 
 	// Sends type of data
-	send(peer_socket, &type, sizeof(int), 0);
+	send(peer_socket, &type, sizeof(type), 0);
 	
 	// Opens photo
 	photo = fopen(file_name, "rb");
@@ -87,7 +87,7 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 		free(buffer);
 	}
 	fclose(photo);
-	res = recv(peer_socket, &ret, sizeof(int), 0);
+	res = recv(peer_socket, &ret, sizeof(ret), 0);
 	if(sizeof(res) >= res && res > 0) {
 		return (uint32_t)ret;
 	}
@@ -96,6 +96,10 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 
 int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword) {
 
+	int type = ADD_KEYWORD;
+
+	type = htonl(type);
+	send(peer_socket, &type, sizeof(type), 0);
 }
 
 int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos) {
@@ -108,7 +112,7 @@ int gallery_delete_photo(int peer_socket, uint32_t id_photo) {
 
 	printf("Sending delete photo\n");
 	type = htonl(type);
-	send(peer_socket, &type, sizeof(int), 0);
+	send(peer_socket, &type, sizeof(type), 0);
 
 }
 
@@ -120,8 +124,9 @@ int gallery_get_photo_name(int peer_socket, uint32_t id_photo, char **photo_name
 	char buffer[MESSAGE_SIZE];
 
 	type = htonl(type);
-	send(peer_socket, &type, sizeof(int), 0);
-	send(peer_socket, &id_photo, sizeof(int), 0);
+	send(peer_socket, &type, sizeof(type), 0);
+	id_photo = htonl(id_photo);
+	send(peer_socket, &id_photo, sizeof(id_photo), 0);
 
 	res = recv(peer_socket, buffer, sizeof(buffer), 0);
 	if(sizeof(buffer) >= res && res > 0) {
@@ -147,8 +152,9 @@ int gallery_get_photo(int peer_socket, uint32_t id_photo, char *file_name) {
 	FILE *photo;
 
 	type = htonl(type);
-	send(peer_socket, &type, sizeof(int), 0);
-	send(peer_socket, &id_photo, sizeof(int), 0);
+	send(peer_socket, &type, sizeof(type), 0);
+	id_photo = htonl(id_photo);
+	send(peer_socket, &id_photo, sizeof(id_photo), 0);
 
 	res = recv(peer_socket, &photo_size, sizeof(int), 0);
 	if(sizeof(int) >= res && res > 0) {
