@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     local_addr.sin_family = AF_INET;
     local_addr.sin_port = htons(local_port);
     inet_aton(argv[1], &local_addr.sin_addr);
+    setsockopt(sock_stream_client, SOL_SOCKET, SO_REUSEADDR, &reuse_socket, sizeof(int));
     bind(sock_stream_client, (struct sockaddr *)&local_addr, sizeof(local_addr));
 
     // Set stream socket for gateway

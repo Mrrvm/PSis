@@ -66,6 +66,27 @@ void *handle_client(void * arg) {
 
 			}
 
+			/********** GET PHOTO NAME **************/
+			if(ntohl(type) == GET_NAME) {
+				printf("Request to get photo name\n");
+				recv(client_socket, &id_photo, sizeof(int), 0);
+				curr_node = get_head(photo_data_list);
+				while(curr_node != NULL) {
+					photo_data_ = *(photo_data *)get_node_item(curr_node);
+					if(photo_data_.id_photo == id_photo) {
+						send(client_socket, photo_data_.file_name, sizeof(photo_data_.file_name), 0);
+						printf("Sending photo name: %s", photo_data_.file_name);
+						break;
+					}
+					curr_node = get_next_node(curr_node);
+				}
+				if(curr_node == NULL) {
+					snprintf(photo_data_.file_name, sizeof(photo_data_.file_name), "%s", "\0");
+					send(client_socket, photo_data_.file_name, sizeof(photo_data_.file_name), 0);
+				}
+
+			}
+
 			/************* GET PHOTO ****************/
 			if(ntohl(type) == GET_PHOTO) {
 				printf("Request to get photo\n");

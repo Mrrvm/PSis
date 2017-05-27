@@ -8,6 +8,7 @@ int gallery_connect(char *host, in_port_t port) {
     int sock_gw = 0;
     uint16_t request;
     long int ret;
+    int reuse_socket = 1;
 
     // Gateway settings
     sock_gw = socket(AF_INET, SOCK_DGRAM, 0);
@@ -29,6 +30,7 @@ int gallery_connect(char *host, in_port_t port) {
 			
 			// Creates connection with peer
 			sock_peer = socket(AF_INET, SOCK_STREAM, 0);
+    		setsockopt(sock_peer, SOL_SOCKET, SO_REUSEADDR, &reuse_socket, sizeof(int));
 			if(0 == connect(sock_peer, 
 				(const struct sockaddr *) &peer_addr, 
 				sizeof(peer_addr))) {
@@ -112,6 +114,27 @@ int gallery_delete_photo(int peer_socket, uint32_t id_photo) {
 
 int gallery_get_photo_name(int peer_socket, uint32_t id_photo, char **photo_name) {
 
+	int type = GET_NAME;
+	int id_photo_ = (int) id_photo;
+	int res;
+	char buffer[MESSAGE_SIZE];
+
+	type = htonl(type);
+	send(peer_socket, &type, sizeof(int), 0);
+	send(peer_socket, &id_photo, sizeof(int), 0);
+
+	res = recv(peer_socket, buffer, sizeof(buffer), 0);
+	if(sizeof(buffer) >= res && res > 0) {
+		if(strncmp(buffer, "\0", 1) != 0) {
+    		*photo_name = malloc(strlen(buffer));
+    		memcpy(*photo_name, buffer, strlen(buffer));
+			return 1;
+		}
+		return 0;
+	}
+	else {
+		return -1;
+	}
 }
 
 int gallery_get_photo(int peer_socket, uint32_t id_photo, char *file_name) {
@@ -146,12 +169,9 @@ int gallery_get_photo(int peer_socket, uint32_t id_photo, char *file_name) {
 		        remove(file_name);
 		        return -1;
 		    }
-		    fclose(photo);
-			
-		    
+		    fclose(photo); 
 		    return 1;
 		}
-		
 	}
 	return -1;
 }

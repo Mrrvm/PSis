@@ -27,7 +27,7 @@ void *handle_peer(void *arg) {
 
         res = recv(peer_sock, &type, sizeof(int), 0);
         if(sizeof(int) >= res && res > 0) {
-
+            
             /************* SEND DATA ****************/
             if(ntohl(type) == SEND_DATA) {
                 // Send data to new peer! - MUST HAVE LOCK
