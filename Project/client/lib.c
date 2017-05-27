@@ -172,6 +172,7 @@ int gallery_get_photo(int peer_socket, uint32_t id_photo, char *file_name) {
 		    fclose(photo); 
 		    return 1;
 		}
+		free(buffer);
 	}
 	return -1;
 }
