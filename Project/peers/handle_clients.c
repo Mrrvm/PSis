@@ -83,13 +83,13 @@ void *handle_client(void * arg) {
 					ret = 0;
 				}
 				else {
+					usleep(49000); // MUTEX?
 					curr_node = get_head(photo_data_list);
 					while(curr_node != NULL) {
 						photo_data_ = *(photo_data *)get_node_item(curr_node);
 						if(photo_data_.id_photo == ntohl(id_photo)) {
 							printf("HERE: %s %s\n", photo_data_.keyword, keyword);
 							if(NULL != strstr(photo_data_.keyword, keyword)) {
-								printf("here\n");
 								ret = 1;
 							}
 							else {

@@ -112,6 +112,7 @@ int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword) {
 	printf("Sending keyword: %s\n", keyword_);
 	send(peer_socket, keyword_, sizeof(keyword_), 0);
 	recv(peer_socket, &ret, sizeof(ret), 0);
+	printf("%d\n", ret);
 	return ret;
 }
 
