@@ -41,7 +41,7 @@ void *handle_ping_gw(void * arg){
         }
 
         if(peer_data_.counter == 3){
-            printf("Dead Peer: %d\n", ntohs(addr.sin_port));
+            printf(KRED"[Thread ping]"RESET" Dead Peer: %d\n", ntohs(addr.sin_port));
             aux_node = curr_node;
             if(prev_node != NULL) {
                 set_next_node(prev_node, get_next_node(curr_node));

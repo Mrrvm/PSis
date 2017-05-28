@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
         res = recv(sock_stream_gw, &n_nodes, sizeof(n_nodes), 0);
         if(sizeof(n_nodes) >= res && res > 0) {
             n_nodes = ntohl(n_nodes);
-            printf("Ready to receive %d\n", n_nodes);
+            printf("Ready to receive %d nodes\n", n_nodes);
             while(i != n_nodes) {
                 res = recv(sock_stream_gw, &photo_data_, sizeof(photo_data_), 0);
                 if(sizeof(photo_data_) >= res && res > 0) {

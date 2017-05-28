@@ -33,20 +33,20 @@ void *handle_peer(void *arg) {
             /************* SEND DATA ****************/
             if(ntohl(type) == SEND_DATA) {
                 // Send data to new peer! - MUST HAVE LOCK
-                printf("Request to send data to new-born peer!\n");
+                printf(KYEL"[Thread peer]"RESET" Request to send data to new-born peer!\n");
                 res = recv(peer_sock, &n_nodes, sizeof(n_nodes), 0);
                 if(sizeof(n_nodes) >= res && res > 0) {
                     peer_data_ = *( peer_data *)get_node_item(get_head(servers_list));
                     item_sock = peer_data_.sock_peer;
                     send(item_sock, &n_nodes, sizeof(n_nodes), 0);
-                    printf("Sent %d nodes\n", ntohl(n_nodes));
+                    printf(KYEL"[Thread peer]"RESET" Sent %d nodes\n", ntohl(n_nodes));
                     while(i != ntohl(n_nodes)) {
                         // Receive the information
                         res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
                         if(sizeof(photo_data_) >= res && res > 0) {
                             // Send new peer the existant information
                             send(item_sock, &photo_data_, sizeof(photo_data_), 0);
-                            printf("Sending photo with size %d\n", photo_data_.photo_size);
+                            printf(KYEL"[Thread peer]"RESET" Sending photo with size %d\n", photo_data_.photo_size);
                             // Receive and send the photo
                             photo_size = ntohl(photo_data_.photo_size);
                             buffer = malloc(photo_size);
@@ -102,7 +102,7 @@ void *handle_peer(void *arg) {
             if(ntohl(type) == ADD_KEYWORD) {    
                 recv(peer_sock, &id_photo, sizeof(id_photo), 0);
                 recv(peer_sock, keyword, sizeof(keyword), 0);
-                printf("Redirecting keyword: %s\n", keyword);
+                printf(KYEL"[Thread peer]"RESET" Redirecting keyword: %s\n", keyword);
                 // Sends to all the peers for replication!
                 curr_node = get_head(servers_list);
                 while(curr_node != NULL) {
@@ -177,7 +177,7 @@ void *handle_peers(void * arg) {
             peer_data_.active = 0;
         }
         else {
-            printf("There is 0 nodes to send.\n");
+            printf(KYEL"[Thread peer requests]"RESET" There is 0 nodes to send.\n");
             n_nodes = htonl(n_nodes);
             send(sock_peer_accepted, &n_nodes, sizeof(int), 0);
             peer_data_.active = 1;

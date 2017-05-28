@@ -36,7 +36,7 @@ void handle_rep(int socket, list* photo_data_list) {
                     buffer = malloc(photo_size);
                     res = recv(socket, buffer, photo_size, 0);
                     if(photo_size >= res && res > 0) {
-                        printf("Received photo of size %d!\n", photo_size);
+                        printf(KYEL"[Thread rep]"RESET" Received photo of size %d!\n", photo_size);
                         sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
                         photo = fopen(photo_name, "wb");
                         if(photo_size == fwrite(buffer, 1, photo_size, photo)) {
@@ -56,7 +56,7 @@ void handle_rep(int socket, list* photo_data_list) {
             /************* SEND DATA ****************/
             if(ntohl(type) == SEND_DATA) {
                 // Send data to new peer!
-                printf("Request to send existant data to the gateway!\n");
+                printf(KYEL"[Thread rep]"RESET" Request to send existant data to the gateway!\n");
                 send(socket, &type, sizeof(int), 0);
                 int n_nodes = get_list_size(photo_data_list);
                 n_nodes = htonl(n_nodes);
@@ -68,7 +68,7 @@ void handle_rep(int socket, list* photo_data_list) {
                     photo_size = photo_data_.photo_size;
                     sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
 
-                    printf("Sending photo with size %d\n", photo_data_.photo_size);
+                    printf(KYEL"[Thread rep]"RESET" Sending photo with size %d\n", photo_data_.photo_size);
                     photo_data_.id_photo = htonl(photo_data_.id_photo);
                     photo_data_.photo_size = htonl(photo_data_.photo_size);
                     send(socket, &photo_data_, sizeof(photo_data_), 0);
@@ -77,7 +77,6 @@ void handle_rep(int socket, list* photo_data_list) {
                     photo = fopen(photo_name, "rb");
                     fread(buffer, 1, photo_size, photo);
                     send(socket, buffer, photo_size, 0);
-                    printf("Sent!\n");
                     fclose(photo);
                     free(buffer);
 
@@ -98,7 +97,7 @@ void handle_rep(int socket, list* photo_data_list) {
                         if(unwritten_len > strlen(keyword)+1) {
                             set_item_as(curr_node, add_keyword, keyword);
                             photo_data_ = *(photo_data *)get_node_item(curr_node);
-                            printf("Keyword updated to: %s\n", photo_data_.keyword);
+                            printf(KYEL"[Thread rep]"RESET" Keyword updated to: %s\n", photo_data_.keyword);
                         }
                         break;
                     }

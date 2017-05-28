@@ -18,7 +18,7 @@ void *handle_client(void * arg) {
 	char keyword[MESSAGE_SIZE];
 	FILE *photo;
 
-	printf("Handling client\n");
+	printf(KBLU"[Thread client]"RESET" Handling client\n");
 
 	while(1) {
 
@@ -35,12 +35,12 @@ void *handle_client(void * arg) {
 					photo_size = ntohl(photo_data_.photo_size);			
 					buffer = malloc(photo_size);
 					if(buffer == NULL){
-						printf("Unable to alloc buffer\n");
+						printf(KBLU"[Thread client]"RESET" Unable to alloc buffer\n");
 						exit(0);
 					}
 					res = recv(client_socket, buffer, photo_size, 0);
 					if(photo_size >= res && res > 0) {
-						printf("Received photo of size %d\n", photo_size);
+						printf(KBLU"[Thread client]"RESET" Received photo of size %d\n", photo_size);
 						send(gw_socket, buffer, photo_size, 0);
 						free(buffer);
 						usleep(4000); // Gives time for the photo to be replicated
@@ -64,17 +64,23 @@ void *handle_client(void * arg) {
 
 			/************* ADD KEYWORD ****************/
 			if(ntohl(type) == ADD_KEYWORD) {
-				printf("Request to add keyword\n");
+				ret = -1;
+				printf(KBLU"[Thread client]"RESET" Request to add keyword\n");
 				recv(client_socket, &id_photo, sizeof(id_photo), 0);
+				recv(client_socket, keyword, sizeof(keyword), 0);
 				curr_node = get_head(photo_data_list);
 				while(curr_node != NULL) {
 					photo_data_ = *(photo_data *)get_node_item(curr_node);
 					if(photo_data_.id_photo == ntohl(id_photo)) {
-						send(gw_socket, &type, sizeof(int), 0);
-						send(gw_socket, &id_photo, sizeof(id_photo), 0);
-						recv(client_socket, keyword, sizeof(keyword), 0);
-						send(gw_socket, keyword, sizeof(keyword), 0);
-						printf("Received keyword: %s\n", keyword);
+						if(NULL != strstr(photo_data_.keyword, keyword)) {
+							ret = 1;
+						}
+						else {
+							send(gw_socket, &type, sizeof(int), 0);
+							send(gw_socket, &id_photo, sizeof(id_photo), 0);
+							send(gw_socket, keyword, sizeof(keyword), 0);
+							printf(KBLU"[Thread client]"RESET" Received keyword: %s\n", keyword);
+						}
 						break;
 					}
 					curr_node = get_next_node(curr_node);
@@ -82,13 +88,13 @@ void *handle_client(void * arg) {
 				if(curr_node == NULL) {
 					ret = 0;
 				}
-				else {
-					usleep(49000); // MUTEX?
+				else if(ret != 1){
+					usleep(90000); // MUTEX?
 					curr_node = get_head(photo_data_list);
 					while(curr_node != NULL) {
 						photo_data_ = *(photo_data *)get_node_item(curr_node);
 						if(photo_data_.id_photo == ntohl(id_photo)) {
-							printf("HERE: %s %s\n", photo_data_.keyword, keyword);
+							printf(KBLU"[Thread client]"RESET" Finding: %s in %s\n", keyword, photo_data_.keyword);
 							if(NULL != strstr(photo_data_.keyword, keyword)) {
 								ret = 1;
 							}
@@ -100,12 +106,13 @@ void *handle_client(void * arg) {
 						curr_node = get_next_node(curr_node);
 					}	
 				}
+				ret = htonl(ret);
 				send(client_socket, &ret, sizeof(ret), 0);
 			}
 
 			/************* SEARCH PHOTO ****************/
 			if(ntohl(type) == SEARCH_PHOTO) {
-				printf("Request to search photo\n");
+				printf(KBLU"[Thread client]"RESET" Request to search photo\n");
 			}
  
 			/************* DEL PHOTO ****************/
@@ -116,7 +123,7 @@ void *handle_client(void * arg) {
 
 			/********** GET PHOTO NAME **************/
 			if(ntohl(type) == GET_NAME) {
-				printf("Request to get photo name\n");
+				printf(KBLU"[Thread client]"RESET" Request to get photo name\n");
 				res = recv(client_socket, &id_photo, sizeof(id_photo), 0);
 				id_photo = ntohl(id_photo);
 				curr_node = get_head(photo_data_list);
@@ -124,7 +131,7 @@ void *handle_client(void * arg) {
 					photo_data_ = *(photo_data *)get_node_item(curr_node);
 					if(photo_data_.id_photo == id_photo) {
 						send(client_socket, photo_data_.file_name, sizeof(photo_data_.file_name), 0);
-						printf("Sending photo name: %s\n", photo_data_.file_name);
+						printf(KBLU"[Thread client]"RESET" Sending photo name: %s\n", photo_data_.file_name);
 						break;
 					}
 					curr_node = get_next_node(curr_node);
@@ -137,7 +144,7 @@ void *handle_client(void * arg) {
 
 			/************* GET PHOTO ****************/
 			if(ntohl(type) == GET_PHOTO) {
-				printf("Request to get photo\n");
+				printf(KBLU"[Thread client]"RESET" Request to get photo\n");
 				recv(client_socket, &id_photo, sizeof(int), 0);
 				id_photo = ntohl(id_photo);
 				curr_node = get_head(photo_data_list);
@@ -148,7 +155,7 @@ void *handle_client(void * arg) {
 						photo_size = htonl(photo_data_.photo_size);
 						send(client_socket, &photo_size, sizeof(photo_size), 0);
 						
-						printf("Sending photo: %s with size %d\n", photo_data_.file_name, photo_data_.photo_size);
+						printf(KBLU"[Thread client]"RESET" Sending photo: %s with size %d\n", photo_data_.file_name, photo_data_.photo_size);
 						buffer = malloc(photo_data_.photo_size);
 						sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
 						photo = fopen(photo_name, "rb");
@@ -185,18 +192,18 @@ void *handle_clients(void * arg) {
 	int ret;
 
 	listen(sock_stream, 20);
-	printf("In clients thread\n");
+	printf(KBLU"[Thread clients]"RESET" In clients thread\n");
 
 	while(1) {
         
-        printf("Waiting connection from client...\n");
+        printf(KBLU"[Thread clients]"RESET" Waiting connection from client...\n");
 
         (*thread_arg).client_sock = accept(sock_stream, NULL, NULL);
         
         error = pthread_create(&thr_client, NULL, handle_client, (void *)thread_arg);
 
 		if(error != 0) {
-			perror("Unable to create thread to handle clients.");
+			perror(KBLU"[Thread clients]"RESET" Unable to create thread to handle clients.");
 			exit(-1);
 		}
         pthread_detach(thr_client);
