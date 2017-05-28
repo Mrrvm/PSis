@@ -15,6 +15,7 @@ void *handle_client(void * arg) {
 	int id_photo;
 	node *curr_node = NULL;
 	char photo_name[100];
+	char keyword[MESSAGE_SIZE];
 	FILE *photo;
 
 	printf("Handling client\n");
@@ -42,7 +43,7 @@ void *handle_client(void * arg) {
 						printf("Received photo of size %d\n", photo_size);
 						send(gw_socket, buffer, photo_size, 0);
 						free(buffer);
-						usleep(4800); // Gives time for the photo to be replicated
+						usleep(4000); // Gives time for the photo to be replicated
 						// ^READ LOCK?
 						curr_node = get_head(photo_data_list);
 						if(curr_node != NULL) {
@@ -60,9 +61,51 @@ void *handle_client(void * arg) {
 				break;
 			}
 
-			/************* GET PHOTO ****************/
+
+			/************* ADD KEYWORD ****************/
 			if(ntohl(type) == ADD_KEYWORD) {
 				printf("Request to add keyword\n");
+				recv(client_socket, &id_photo, sizeof(id_photo), 0);
+				curr_node = get_head(photo_data_list);
+				while(curr_node != NULL) {
+					photo_data_ = *(photo_data *)get_node_item(curr_node);
+					if(photo_data_.id_photo == ntohl(id_photo)) {
+						send(gw_socket, &type, sizeof(int), 0);
+						send(gw_socket, &id_photo, sizeof(id_photo), 0);
+						recv(client_socket, keyword, sizeof(keyword), 0);
+						send(gw_socket, keyword, sizeof(keyword), 0);
+						printf("Received keyword: %s\n", keyword);
+						break;
+					}
+					curr_node = get_next_node(curr_node);
+				}
+				if(curr_node == NULL) {
+					ret = 0;
+				}
+				else {
+					curr_node = get_head(photo_data_list);
+					while(curr_node != NULL) {
+						photo_data_ = *(photo_data *)get_node_item(curr_node);
+						if(photo_data_.id_photo == ntohl(id_photo)) {
+							printf("HERE: %s %s\n", photo_data_.keyword, keyword);
+							if(NULL != strstr(photo_data_.keyword, keyword)) {
+								printf("here\n");
+								ret = 1;
+							}
+							else {
+								ret = -1;
+							}
+							break;
+						}
+						curr_node = get_next_node(curr_node);
+					}	
+				}
+				send(client_socket, &ret, sizeof(ret), 0);
+			}
+
+			/************* SEARCH PHOTO ****************/
+			if(ntohl(type) == SEARCH_PHOTO) {
+				printf("Request to search photo\n");
 			}
  
 			/************* DEL PHOTO ****************/
@@ -74,14 +117,14 @@ void *handle_client(void * arg) {
 			/********** GET PHOTO NAME **************/
 			if(ntohl(type) == GET_NAME) {
 				printf("Request to get photo name\n");
-				recv(client_socket, &id_photo, sizeof(int), 0);
+				res = recv(client_socket, &id_photo, sizeof(id_photo), 0);
 				id_photo = ntohl(id_photo);
 				curr_node = get_head(photo_data_list);
 				while(curr_node != NULL) {
 					photo_data_ = *(photo_data *)get_node_item(curr_node);
 					if(photo_data_.id_photo == id_photo) {
 						send(client_socket, photo_data_.file_name, sizeof(photo_data_.file_name), 0);
-						printf("Sending photo name: %s", photo_data_.file_name);
+						printf("Sending photo name: %s\n", photo_data_.file_name);
 						break;
 					}
 					curr_node = get_next_node(curr_node);
@@ -90,7 +133,6 @@ void *handle_client(void * arg) {
 					snprintf(photo_data_.file_name, sizeof(photo_data_.file_name), "%s", "\0");
 					send(client_socket, photo_data_.file_name, sizeof(photo_data_.file_name), 0);
 				}
-
 			}
 
 			/************* GET PHOTO ****************/

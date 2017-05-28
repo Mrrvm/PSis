@@ -1,5 +1,11 @@
 #include "peer.h"
 
+void add_keyword(item got_item, item setting) {
+     photo_data *photo_data_ = (photo_data *)got_item;
+     char *keyword = (char *)setting;
+     strcat(photo_data_->keyword, keyword);
+}
+
 void handle_rep(int socket, list* photo_data_list) {
 
     photo_data photo_data_;
@@ -8,8 +14,11 @@ void handle_rep(int socket, list* photo_data_list) {
     FILE *photo;
     int res;
     int type;
+    int id_photo;
+    char keyword[MESSAGE_SIZE];
     node *curr_node;
     char photo_name[100];
+    int unwritten_len;
 
     while(1) {
         res = recv(socket, &type, sizeof(int), 0);
@@ -74,6 +83,28 @@ void handle_rep(int socket, list* photo_data_list) {
 
                     curr_node = get_next_node(curr_node);
                 }
+            }
+
+            /************* ADD KEYWORD ****************/
+            if(ntohl(type) == ADD_KEYWORD) {   
+                recv(socket, &id_photo, sizeof(id_photo), 0);
+                recv(socket, keyword, sizeof(keyword), 0);
+                id_photo = ntohl(id_photo);
+                curr_node = get_head(photo_data_list);
+                while(curr_node != NULL) {
+                    photo_data_ = *(photo_data *)get_node_item(curr_node);
+                    if(photo_data_.id_photo == id_photo) {
+                        unwritten_len = MESSAGE_SIZE-strlen(photo_data_.keyword);
+                        if(unwritten_len > strlen(keyword)+1) {
+                            set_item_as(curr_node, add_keyword, keyword);
+                            photo_data_ = *(photo_data *)get_node_item(curr_node);
+                            printf("Keyword updated to: %s\n", photo_data_.keyword);
+                        }
+                        break;
+                    }
+                    curr_node = get_next_node(curr_node);
+                }
+
             }
         }
     }

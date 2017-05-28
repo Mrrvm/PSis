@@ -35,7 +35,7 @@
 #define GET_PHOTO 5
 #define SEND_DATA 6
 
-#define MESSAGE_SIZE 30
+#define MESSAGE_SIZE 100
 
 typedef void *item;
 

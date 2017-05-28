@@ -42,7 +42,9 @@ int main(int argc, char *argv[])
 		if(1 == gallery_get_photo_name(connect_ret, 2, &photo_name_ptr))
 			printf("%s\n", photo_name_ptr);
 
-		gallery_add_keyword(connect_ret, 2, "keyword");
+		if(1 == gallery_add_keyword(connect_ret, 2, "trump"))
+			if(1 == gallery_add_keyword(connect_ret, 2, "hot"))
+				gallery_add_keyword(connect_ret, 2, "nude");
 	}
 	return 0;
 }

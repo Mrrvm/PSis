@@ -1,6 +1,6 @@
 #include "gateway.h"
 
-void set_active(item got_item) {
+void set_active(item got_item, item setting) {
     peer_data *peer_data_ = (peer_data *)got_item;
     peer_data_->active = 1;
 }
@@ -21,7 +21,9 @@ void *handle_peer(void *arg) {
     int type;
     int n_nodes = 0;
     int i = 0;
+    int id_photo;
     char *buffer;
+    char keyword[MESSAGE_SIZE];
     
     while(1) {   
 
@@ -62,7 +64,7 @@ void *handle_peer(void *arg) {
                         } 
                     }
                     i = 0;
-                    set_item_as(get_head(servers_list), set_active);
+                    set_item_as(get_head(servers_list), set_active, NULL);
                 }
                 else {break;}     
             }
@@ -94,7 +96,24 @@ void *handle_peer(void *arg) {
                     else {break;}
                 }
                 else {break;}
-            }    
+            }
+
+            /************* ADD KEYWORD ****************/
+            if(ntohl(type) == ADD_KEYWORD) {    
+                recv(peer_sock, &id_photo, sizeof(id_photo), 0);
+                recv(peer_sock, keyword, sizeof(keyword), 0);
+                printf("Redirecting keyword: %s\n", keyword);
+                // Sends to all the peers for replication!
+                curr_node = get_head(servers_list);
+                while(curr_node != NULL) {
+                    peer_data_ = *(peer_data *)get_node_item(curr_node);
+                    item_sock = peer_data_.sock_peer;
+                    send(item_sock, &type, sizeof(int), 0);
+                    send(item_sock, &id_photo, sizeof(id_photo), 0);
+                    send(item_sock, keyword, sizeof(keyword), 0);
+                    curr_node = get_next_node(curr_node);
+                }
+            }
         }
         else {break;}
     }
