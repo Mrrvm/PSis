@@ -13,6 +13,7 @@ void handle_rep(int socket, list* photo_data_list) {
     char *buffer;
     FILE *photo;
     int res;
+    int ret;
     int type;
     int id_photo;
     char keyword[MESSAGE_SIZE];
@@ -26,12 +27,14 @@ void handle_rep(int socket, list* photo_data_list) {
 
             /************* ADD PHOTO ****************/
             if(ntohl(type) == ADD_PHOTO) {
+                ret = 0;
                 res = recv(socket, &photo_data_, sizeof(photo_data_), 0);
                 if(sizeof(photo_data_) >= res && res > 0) {
                     // Add photos to list of photos
                     photo_data_.photo_size = ntohl(photo_data_.photo_size);
                     photo_data_.id_photo = ntohl(photo_data_.id_photo);
-                    
+                    photo_data_.cli_sock = ntohl(photo_data_.cli_sock);
+                    photo_data_.peer_pid = ntohl(photo_data_.peer_pid);
                     photo_size = photo_data_.photo_size;
                     buffer = malloc(photo_size);
                     res = recv(socket, buffer, photo_size, 0);
@@ -43,13 +46,17 @@ void handle_rep(int socket, list* photo_data_list) {
                             push_item_to_list(photo_data_list, &photo_data_);
                             print_list(photo_data_list, print_photo);
                             fclose(photo);
+                            ret = photo_data_.id_photo;
                         }
                         else {
                             fclose(photo);
                             remove(photo_name);
                         }
                     } 
-                    free(buffer); 
+                    free(buffer);
+                }
+                if(getpid() == photo_data_.peer_pid) {
+                    send(photo_data_.cli_sock, &ret, sizeof(ret), 0); 
                 }
             }
 

@@ -30,6 +30,8 @@ void *handle_client(void * arg) {
 				send(gw_socket, &type, sizeof(int), 0);
 				res = recv(client_socket, &photo_data_, sizeof(photo_data_), 0);
 				if(sizeof(photo_data_) >= res && res > 0) {
+					photo_data_.cli_sock = htonl(client_socket);
+					photo_data_.peer_pid = htonl(getpid());
 					send(gw_socket, &photo_data_, sizeof(photo_data_), 0);
 					// Checks which type of request it is:	
 					photo_size = ntohl(photo_data_.photo_size);			
@@ -43,22 +45,10 @@ void *handle_client(void * arg) {
 						printf(KBLU"[Thread client]"RESET" Received photo of size %d\n", photo_size);
 						send(gw_socket, buffer, photo_size, 0);
 						free(buffer);
-						usleep(4000); // Gives time for the photo to be replicated
-						// ^READ LOCK?
-						curr_node = get_head(photo_data_list);
-						if(curr_node != NULL) {
-							photo_data_ = *(photo_data *)get_node_item(curr_node);
-							ret = photo_data_.id_photo; 
-							if(ret >= 0) {
-								send(client_socket, &ret, sizeof(int), 0);
-								continue;
-							}
-						}
 					}
+					else{break;}
 				}				
-				ret = 0;
-				send(gw_socket, &ret, sizeof(int), 0);
-				break;
+				else{break;}
 			}
 
 
