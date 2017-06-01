@@ -1,6 +1,6 @@
 #include "gateway.h"
 
-void add_counter(item got_item) {
+void add_counter(item got_item, item got_setting) {
      peer_data *peer_data_ = (peer_data *)got_item;
      peer_data_->counter++;
 }
@@ -32,16 +32,16 @@ void *handle_ping_gw(void * arg){
         addr = peer_data_.peer_addr;
 
         size_sent = sendto(sock_peer_ping , &buff, sizeof(buff), 0, (const struct sockaddr *) &addr, sizeof(addr));
-        usleep(5000);
+        usleep(50000);
         size_received = recv(sock_peer_ping, &buff, sizeof(buff), MSG_DONTWAIT);
 
         if (size_received == -1)
         {
-            set_item_as(curr_node, add_counter);
+            set_item_as(curr_node, add_counter, NULL);
         }
 
         if(peer_data_.counter == 3){
-            printf("Dead Peer: %d\n", ntohs(addr.sin_port));
+            printf(KRED"[Thread ping]"RESET" Dead Peer: %d\n", ntohs(addr.sin_port));
             aux_node = curr_node;
             if(prev_node != NULL) {
                 set_next_node(prev_node, get_next_node(curr_node));

@@ -7,6 +7,8 @@ int main(int argc, char *argv[])
 	int connect_ret = 1;
 	uint32_t id_photo;
 	char *photo_name;
+	char *photo_name_ptr;
+	char *keyword;
 
 	// Checks if user inserted the write input
 	if(argc != 3) {
@@ -29,11 +31,12 @@ int main(int argc, char *argv[])
 	}
 	else {
 		// Adds a new photo to the gallery
-		//id_photo = gallery_add_photo(connect_ret, "photos/my_first_nude.jpg");
+		id_photo = gallery_add_photo(connect_ret, "photos/my_first_nude.jpg");
 		printf("Received id_photo: %d\n", id_photo);
-		gallery_delete_photo(connect_ret, 1);
-		// if(1 == gallery_get_photo(connect_ret, id_photo, "nude_recv")) 
-		// 	printf("Received photo\n");
+
+		id_photo = gallery_delete_photo(connect_ret, 7);
+		printf("Received id_photo: %d\n", id_photo);
+
 	}
 	return 0;
 }

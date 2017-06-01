@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     local_addr.sin_family = AF_INET;
     local_addr.sin_port = htons(local_port);
     inet_aton(argv[1], &local_addr.sin_addr);
+    setsockopt(sock_stream_client, SOL_SOCKET, SO_REUSEADDR, &reuse_socket, sizeof(int));
     bind(sock_stream_client, (struct sockaddr *)&local_addr, sizeof(local_addr));
 
     // Set stream socket for gateway
@@ -75,7 +76,7 @@ int main(int argc, char *argv[])
         res = recv(sock_stream_gw, &n_nodes, sizeof(n_nodes), 0);
         if(sizeof(n_nodes) >= res && res > 0) {
             n_nodes = ntohl(n_nodes);
-            printf("Ready to receive %d\n", n_nodes);
+            printf("Ready to receive %d nodes\n", n_nodes);
             while(i != n_nodes) {
                 res = recv(sock_stream_gw, &photo_data_, sizeof(photo_data_), 0);
                 if(sizeof(photo_data_) >= res && res > 0) {
