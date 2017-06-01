@@ -10,8 +10,8 @@ void *handle_peer(void *arg) {
     handle_peer_arg *thread_arg = (handle_peer_arg *)arg;
     list *servers_list = (*thread_arg).servers_list;
     int peer_sock = (*thread_arg).peer_socket; 
-    int size_buff = 0, photo_size = 0, item_sock = 0, res = 0, 
-        id_photo = 0, type = 0, n_nodes = 0, i = 0;
+    int size_buff = 0, photo_size = 0, item_sock = 0, res = 0; 
+    int id_photo = 0, type = 0, n_nodes = 0, i = 0;
     char keyword[MESSAGE_SIZE], *buffer;
     FILE *photo;
     photo_data photo_data_;
@@ -79,6 +79,27 @@ void *handle_peer(void *arg) {
                 }
             }
 
+            /************* DEL PHOTO ****************/
+            if(ntohl(type) == DEL_PHOTO){
+                res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
+                if(res == sizeof(photo_data_)) {
+                    curr_node = get_head(servers_list);
+                    while(curr_node != NULL){
+                        peer_data_ = *(peer_data *)get_node_item(curr_node);
+                        item_sock = peer_data_.sock_peer;
+                        send(item_sock, &type, sizeof(type), 0);
+                        send(item_sock, &photo_data_, sizeof(photo_data_), 0);
+                        curr_node = get_next_node(curr_node);
+
+                    }
+                }
+                else {
+                    perror(KRED"[Thread peer]"RESET);
+                    break;
+                }
+
+            }
+
             /************* SEND DATA ****************/
             if(ntohl(type) == SEND_DATA) {
                 // Send data to new peer! - MUST HAVE LOCK
@@ -116,24 +137,6 @@ void *handle_peer(void *arg) {
                     set_item_as(get_head(servers_list), set_active, NULL);
                 }
                 else {break;}     
-            }
-            /************* DEL PHOTO ****************/
-            if(ntohl(type) == DEL_PHOTO){
-
-                recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
-
-                curr_node = get_head(servers_list);
-
-                while(curr_node != NULL){
-                    peer_data_ = *(peer_data *)get_node_item(curr_node);
-                    item_sock = peer_data_.sock_peer;
-                    send(item_sock, &type, sizeof(type), 0);
-                    send(item_sock, &photo_data_, sizeof(photo_data_), 0);
-                    curr_node = get_next_node(curr_node);
-
-                }
-
-
             }
 
 

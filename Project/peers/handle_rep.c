@@ -8,16 +8,16 @@ void add_keyword(item got_item, item setting) {
 
 void handle_rep(int socket, list* photo_data_list) {
 
-    int res = 0, ret = 0, type = 0, id_photo = 0, cli_sock = 0, peer_pid = 0,
-        unwritten_len = 0, photo_size = 0;
+    int res = 0, ret = 0, type = 0, id_photo = 0, cli_sock = 0;
+    int peer_pid = 0, unwritten_len = 0, photo_size = 0;
     char photo_name[100], keyword[MESSAGE_SIZE], *buffer;
-    node *curr_node = NULL, *aux_node = NULL, *prev_node = NULL;
+    node *curr_node = NULL, *prev_node = NULL;
     FILE *photo;
     photo_data photo_data_;
 
     while(1) {
         res = recv(socket, &type, sizeof(int), 0);
-        if(sizeof(int) >= res && res > 0) {
+        if(sizeof(type) == res) {
 
             /************* ADD PHOTO ****************/
             if(ntohl(type) == ADD_PHOTO) {
@@ -91,54 +91,35 @@ void handle_rep(int socket, list* photo_data_list) {
             /************* DEL PHOTO ****************/
             if(ntohl(type) == DEL_PHOTO){
                 ret = 0;
-                recv(socket, &photo_data_, sizeof(photo_data_), 0);
-                id_photo = ntohl(photo_data_.id_photo);
-                cli_sock = ntohl(photo_data_.cli_sock);
-                peer_pid = ntohl(photo_data_.peer_pid);
-
-                printf("Request to delete photo of id %d\n", id_photo);
-
-                prev_node = NULL;
-                curr_node = get_head(photo_data_list);
-
-                while(curr_node != NULL){
-                    photo_data_ = *(photo_data *)get_node_item(curr_node);
-
-                    if(id_photo == photo_data_.id_photo){
-
-                        aux_node = curr_node;
-
-                        if(prev_node != NULL) {
-                            set_next_node(prev_node, get_next_node(curr_node));
-                            free_node(aux_node, free);
+                res = recv(socket, &photo_data_, sizeof(photo_data_), 0);
+                if(res == sizeof(photo_data_)) {
+                    id_photo = ntohl(photo_data_.id_photo);
+                    cli_sock = ntohl(photo_data_.cli_sock);
+                    peer_pid = ntohl(photo_data_.peer_pid);
+                    
+                    prev_node = NULL;
+                    curr_node = get_head(photo_data_list);
+                    while(curr_node != NULL){
+                        photo_data_ = *(photo_data *)get_node_item(curr_node);
+                        if(id_photo == photo_data_.id_photo){
+                            delete_node_from_list(prev_node, curr_node, photo_data_list);
+                            sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
+                            remove(photo_name);
+                            print_list(photo_data_list, print_photo);
+                            ret = 1;
+                            break;
                         }
-                        else if(get_next_node(curr_node) != NULL) {
-                            set_head(photo_data_list, get_next_node(curr_node));
-                            set_next_node(curr_node, NULL);
-                            free_node(aux_node, free);
-                        }
-                        else {
-                            set_head(photo_data_list, NULL);
-                            free_node(aux_node, free);
-                        }
-                        decrement_list_size(photo_data_list);
-                        sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
-                        remove(photo_name);
-                        print_list(photo_data_list, print_photo);
-                        ret = 1;
-                        break;
-
+                        prev_node = curr_node;
+                        curr_node = get_next_node(curr_node);
                     }
-                    prev_node = curr_node;
-                    curr_node = get_next_node(curr_node);
-                }
-                if(ret == 1)
-                    printf("Photo Deleted\n");
-                if(ret == 0)
-                    printf("Photo not found\n");
+                    if(ret == 1)
+                        printf(KYEL"[Thread rep]"RESET": Photo Deleted\n");
+                    if(ret == 0)
+                        printf(KYEL"[Thread rep]"RESET": Photo not found\n");
 
-                if(getpid() == peer_pid) {
-                    send(cli_sock, &ret, sizeof(ret), 0); 
+                    if(getpid() == peer_pid) {
+                        send(cli_sock, &ret, sizeof(ret), 0); 
+                    }
                 }
                     
             }

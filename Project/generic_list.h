@@ -17,11 +17,11 @@ void free_node(node *got_node, void (*free_item)(item));
 list *create_list(int item_size);
 node *get_head(list *got_list);
 void set_head(list *got_list, node *got_head);
+void decrement_list_size(list *got_list);
 void push_item_to_list(list *got_list, item new_item);
 size_t get_list_size(list *got_list);
 void print_list(list *got_list, void (*print_item)(item));
 void free_list(list *got_list, void (*free_item)(item));
-
-void decrement_list_size(list *got_list);
+void delete_node_from_list(node *prev_node, node *curr_node, list *got_list);
 
 #endif

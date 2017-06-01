@@ -6,6 +6,7 @@ int main(int argc, char *argv[])
 	in_port_t port = 0;
 	int connect_ret = 1;
 	uint32_t id_photo;
+	uint32_t *id_photos[100] = {0};
 	char *photo_name;
 	char *photo_name_ptr;
 	char *keyword;
@@ -34,10 +35,16 @@ int main(int argc, char *argv[])
 		id_photo = gallery_add_photo(connect_ret, "photos/my_first_nude.jpg");
 		printf("Received id_photo: %d\n", id_photo);
 
-		id_photo = gallery_add_photo(connect_ret, "photos/nude2.png");
-		printf("Received id_photo: %d\n", id_photo);
 		gallery_add_keyword(connect_ret, id_photo, "trump");
 		gallery_add_keyword(connect_ret, id_photo, "hot");
+
+		id_photo = gallery_add_photo(connect_ret, "photos/nude2.png");
+		printf("Received id_photo: %d\n", id_photo);
+		
+		gallery_add_keyword(connect_ret, id_photo, "trump");
+		gallery_add_keyword(connect_ret, id_photo, "hot");
+
+		gallery_search_photo(connect_ret, "hot", id_photos);
 		
 		usleep(50000);
 		if(1 == gallery_get_photo(connect_ret, id_photo, "recv_nude"));

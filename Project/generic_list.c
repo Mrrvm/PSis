@@ -136,3 +136,22 @@ void free_list(list *got_list, void (*free_item)(item)) {
     free(got_list);
     return;
 }
+
+void delete_node_from_list(node *prev_node, node *curr_node, list *got_list) {
+    node *aux_node;
+    aux_node = curr_node;
+    if(prev_node != NULL) {
+        set_next_node(prev_node, get_next_node(curr_node));
+        free_node(aux_node, free);
+    }
+    else if(get_next_node(curr_node) != NULL) {
+        set_head(got_list, get_next_node(curr_node));
+        set_next_node(curr_node, NULL);
+        free_node(aux_node, free);
+    }
+    else {
+        set_head(got_list, NULL);
+        free_node(aux_node, free);
+    }
+    decrement_list_size(got_list);
+}

@@ -35,28 +35,13 @@ void *handle_ping_gw(void * arg){
         usleep(50000);
         size_received = recv(sock_peer_ping, &buff, sizeof(buff), MSG_DONTWAIT);
 
-        if (size_received == -1)
-        {
+        if (size_received == -1) {
             set_item_as(curr_node, add_counter, NULL);
         }
 
         if(peer_data_.counter == 3){
             printf(KRED"[Thread ping]"RESET" Dead Peer: %d\n", ntohs(addr.sin_port));
-            aux_node = curr_node;
-            if(prev_node != NULL) {
-                set_next_node(prev_node, get_next_node(curr_node));
-                free_node(aux_node, free);
-            }
-            else if(get_next_node(curr_node) != NULL) {
-                set_head(servers_list, get_next_node(curr_node));
-                set_next_node(curr_node, NULL);
-                free_node(aux_node, free);
-            }
-            else {
-                set_head(servers_list, NULL);
-                free_node(aux_node, free);
-            }
-            decrement_list_size(servers_list);
+            delete_node_from_list(prev_node, curr_node, servers_list);
             print_list(servers_list, print_server);
         }
         prev_node = curr_node;
