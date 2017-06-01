@@ -12,16 +12,16 @@ void *handle_peer(void *arg) {
     int peer_sock = (*thread_arg).peer_socket; 
     photo_data photo_data_;
     FILE *photo;
-    node *curr_node = NULL;
+    node *curr_node = NULL, *aux_node = NULL, *prev_node = NULL;
     peer_data peer_data_;
     int size_buff = 0;
     int photo_size = 0;
     int item_sock = 0;
     int res;
+    int id_photo;
     int type;
     int n_nodes = 0;
     int i = 0;
-    int id_photo;
     char *buffer;
     char keyword[MESSAGE_SIZE];
     
@@ -68,6 +68,27 @@ void *handle_peer(void *arg) {
                 }
                 else {break;}     
             }
+            /************* DEL PHOTO ****************/
+            if(ntohl(type) == DEL_PHOTO){
+
+                recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
+
+                curr_node = get_head(servers_list);
+
+                while(curr_node != NULL){
+                    peer_data_ = *(peer_data *)get_node_item(curr_node);
+                    item_sock = peer_data_.sock_peer;
+                    send(item_sock, &type, sizeof(type), 0);
+                    perror("send type:");
+                    send(item_sock, &photo_data_, sizeof(photo_data_), 0);
+                    perror("send photo_data_:");
+                    curr_node = get_next_node(curr_node);
+
+                }
+
+
+            }
+
 
             /************* ADD PHOTO ****************/
             if(ntohl(type) == ADD_PHOTO) {

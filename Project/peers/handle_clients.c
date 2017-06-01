@@ -98,7 +98,14 @@ void *handle_client(void * arg) {
  
 			/************* DEL PHOTO ****************/
 			if(ntohl(type) == DEL_PHOTO) {
-				printf("Request to delete photo\n");
+				recv(client_socket, &id_photo, sizeof(id_photo), 0);
+				photo_data_.cli_sock = htonl(client_socket);
+				photo_data_.peer_pid = htonl(getpid());
+				photo_data_.id_photo = id_photo;
+
+				send(gw_socket, &type, sizeof(type), 0);
+				send(gw_socket, &photo_data_, sizeof(photo_data_), 0);
+
 
 			}
 

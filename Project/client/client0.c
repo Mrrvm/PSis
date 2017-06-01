@@ -33,22 +33,21 @@ int main(int argc, char *argv[])
 		// Adds a new photo to the gallery
 		id_photo = gallery_add_photo(connect_ret, "photos/my_first_nude.jpg");
 		printf("Received id_photo: %d\n", id_photo);
+
 		id_photo = gallery_add_photo(connect_ret, "photos/nude2.png");
 		printf("Received id_photo: %d\n", id_photo);
 		gallery_add_keyword(connect_ret, id_photo, "trump");
 		gallery_add_keyword(connect_ret, id_photo, "hot");
-		// if(id_photo != 1 && id_photo != 0) {
+		
+		usleep(50000);
+		if(1 == gallery_get_photo(connect_ret, id_photo, "recv_nude"));
+			printf("Received photo\n");
 
-		// 	usleep(50000); // Replace with mutex
-		// 	if(1 == gallery_get_photo(connect_ret, id_photo, "recv_nude")) 
-		// 	 	printf("Received photo\n");
-		// 	if(1 == gallery_get_photo_name(connect_ret, id_photo, &photo_name_ptr))
-		// 		printf("%s\n", photo_name_ptr);
+		if(1 == gallery_get_photo_name(connect_ret, id_photo, &photo_name_ptr))
+			printf("Received name %s\n", photo_name_ptr);
 
-		// 	gallery_add_keyword(connect_ret, id_photo, "trump");
-		// 	gallery_add_keyword(connect_ret, id_photo, "hot");
-		// 	gallery_add_keyword(connect_ret, id_photo, "nude");
-		// }
+		if( 1 == gallery_delete_photo(connect_ret, id_photo))
+			printf("Deleted id_photo: %d\n", id_photo);
 
 	}
 	return 0;

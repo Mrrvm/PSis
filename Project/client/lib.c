@@ -122,10 +122,20 @@ int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos)
 int gallery_delete_photo(int peer_socket, uint32_t id_photo) {
 
 	int type = DEL_PHOTO;
-
+	int ret = -1;
+	int res;
+	
 	printf("Sending delete photo\n");
 	type = htonl(type);
-	send(peer_socket, &type, sizeof(type), 0);
+	id_photo = htonl(id_photo);
+	send(peer_socket, &type, sizeof(int), 0);
+	send(peer_socket, &id_photo, sizeof(id_photo), 0);
+
+	res = recv(peer_socket, &ret, sizeof(ret), 0);
+	if(sizeof(res) >= res && res > 0) {
+		return ret;
+	}
+
 
 }
 
