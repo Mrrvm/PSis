@@ -10,6 +10,8 @@ int main(int argc, char *argv[])
 	char *photo_name_ptr;
 	char *keyword;
 
+
+
 	// Checks if user inserted the write input
 	if(argc != 3) {
 		printf("Invalid execution. Please use:\n./program [hostname] [port]\n");
@@ -34,9 +36,11 @@ int main(int argc, char *argv[])
 		id_photo = gallery_add_photo(connect_ret, "photos/my_first_nude.jpg");
 		printf("Received id_photo: %d\n", id_photo);
 
-		id_photo = gallery_delete_photo(connect_ret, 7);
-		printf("Received id_photo: %d\n", id_photo);
+		gallery_add_keyword( connect_ret, id_photo, "puta");
+		gallery_add_keyword( connect_ret, id_photo, "caralho");
+		gallery_add_keyword( connect_ret, id_photo, "merda");
+		gallery_add_keyword( connect_ret, id_photo, "puta");
 
-	}
+		}
 	return 0;
 }

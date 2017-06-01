@@ -118,6 +118,17 @@ int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword) {
 
 int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos) {
 
+	int type = SEARCH_PHOTO;
+	int id_photo = (int) id_photo;
+	char keyword_[MESSSAGE_SIZE];
+
+	id_photo_ = htonl(id_photo_);
+	type = htonl(type);
+	
+	send(peer_socket, &type, sizeof(type), 0);
+
+
+
 }
 
 int gallery_delete_photo(int peer_socket, uint32_t id_photo) {
