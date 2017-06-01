@@ -143,6 +143,35 @@ int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword) {
 
 int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos) {
 
+	int type = SEARCH_PHOTO;
+	char keyword_[MESSAGE_SIZE];
+	int i, j, id;
+
+	snprintf(keyword_, sizeof(keyword_), "%s", keyword);
+
+	id_photos = calloc(100, sizeof(uint32_t));
+
+	type = htonl(type);
+	
+	send(peer_socket, &type, sizeof(type), 0);
+	send(peer_socket, keyword_, sizeof(keyword_), 0);
+	recv(peer_socket, &i, sizeof(i), 0);
+	i = ntohl(i);
+
+	for(j=0; j != i; j++){
+		recv(peer_socket, &id, sizeof(id), 0);
+		id = ntohl(id);
+		id_photos[j] = (uint32_t) id;
+		printf("%d\n", id_photos[j]);
+
+	}
+
+	for(i=0; id_photos[i] != 0; i++){
+		printf("1:%d\n", id_photos[i]);
+	}
+
+	return j;
+
 }
 
 int gallery_delete_photo(int peer_socket, uint32_t id_photo) {

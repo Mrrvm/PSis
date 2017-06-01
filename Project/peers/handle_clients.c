@@ -5,7 +5,8 @@ void *handle_client(void * arg) {
 	handle_client_arg *thread_arg = (handle_client_arg *)arg;
 	int client_socket = (*thread_arg).client_sock;
 	int gw_socket = (*thread_arg).gw_sock;
-	int res = 0, ret = 0, type = 0, id_photo = 0, photo_size = 0;
+	int res = 0, ret = 0, type = 0, id_photo = 0, photo_size = 0, i = 0, j = 0;
+	int id_array[100] = {0};
 	char photo_name[100], keyword[MESSAGE_SIZE], *buffer;
 	node *curr_node = NULL;
 	list *photo_data_list = (*thread_arg).photo_data_list;
@@ -99,7 +100,29 @@ void *handle_client(void * arg) {
 
 			/************* SEARCH PHOTO ****************/
 			if(ntohl(type) == SEARCH_PHOTO) {
-				printf(KBLU"[Thread client]"RESET" Request to search photo\n");
+				recv(client_socket, keyword, sizeof(keyword), 0);
+				printf(KBLU"[Thread client]"RESET": Request to search photo %s\n", keyword);
+
+				i=0;
+				curr_node = get_head(photo_data_list);
+				while(curr_node != NULL) {
+					photo_data_ = *(photo_data *)get_node_item(curr_node);
+					if(NULL != strstr(photo_data_.keyword, keyword)){
+						id_array[i] = (uint32_t) photo_data_.id_photo;
+						i++;
+					}
+					curr_node = get_next_node(curr_node);
+
+				}
+				
+				i = htonl(i);
+				send(client_socket, &i, sizeof(i), 0);
+				i = ntohl(i);
+				
+				for(j=0; j != i; j++) {
+					id_array[j] = htonl(id_array[j]);
+					send(client_socket, &id_array[j], sizeof(id_array[j]), 0);
+				}
 			}
  
 			/************* DEL PHOTO ****************/
