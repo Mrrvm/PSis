@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
 		id_photo = gallery_add_photo(connect_ret, "photos/nude2.png");
 		printf("Received id_photo: %d\n", id_photo);
 		gallery_add_keyword(connect_ret, id_photo, "trump");
+		gallery_add_keyword(connect_ret, id_photo, "hot");
 		// if(id_photo != 1 && id_photo != 0) {
 
 		// 	usleep(50000); // Replace with mutex

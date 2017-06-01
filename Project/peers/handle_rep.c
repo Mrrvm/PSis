@@ -92,10 +92,13 @@ void handle_rep(int socket, list* photo_data_list) {
             }
 
             /************* ADD KEYWORD ****************/
-            if(ntohl(type) == ADD_KEYWORD) {   
-                recv(socket, &id_photo, sizeof(id_photo), 0);
-                recv(socket, keyword, sizeof(keyword), 0);
-                id_photo = ntohl(id_photo);
+            if(ntohl(type) == ADD_KEYWORD) {  
+                ret = 0; 
+                recv(socket, &photo_data_, sizeof(photo_data_), 0);
+                photo_data_.cli_sock = ntohl(photo_data_.cli_sock);
+                photo_data_.peer_pid = ntohl(photo_data_.peer_pid);
+                id_photo = ntohl(photo_data_.id_photo);
+                snprintf(keyword, sizeof(keyword), "%s", photo_data_.keyword);
                 curr_node = get_head(photo_data_list);
                 while(curr_node != NULL) {
                     photo_data_ = *(photo_data *)get_node_item(curr_node);
@@ -105,10 +108,15 @@ void handle_rep(int socket, list* photo_data_list) {
                             set_item_as(curr_node, add_keyword, keyword);
                             photo_data_ = *(photo_data *)get_node_item(curr_node);
                             printf(KYEL"[Thread rep]"RESET" Keyword updated to: %s\n", photo_data_.keyword);
+                            ret = 1;
                         }
                         break;
                     }
                     curr_node = get_next_node(curr_node);
+                }
+                if(getpid() == photo_data_.peer_pid) {
+                    ret = ntohl(ret);
+                    send(photo_data_.cli_sock, &ret, sizeof(ret), 0); 
                 }
 
             }

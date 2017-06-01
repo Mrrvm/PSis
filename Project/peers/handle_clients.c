@@ -6,7 +6,7 @@ void *handle_client(void * arg) {
 	int client_socket = (*thread_arg).client_sock;
 	int gw_socket = (*thread_arg).gw_sock;
 	list *photo_data_list = (*thread_arg).photo_data_list;
-	photo_data photo_data_;
+	photo_data photo_data_, photo_data_aux;
 	int photo_size = 0;
 	char *buffer;
 	int res;
@@ -54,50 +54,41 @@ void *handle_client(void * arg) {
 
 			/************* ADD KEYWORD ****************/
 			if(ntohl(type) == ADD_KEYWORD) {
-				ret = -1;
-				printf(KBLU"[Thread client]"RESET" Request to add keyword\n");
-				recv(client_socket, &id_photo, sizeof(id_photo), 0);
-				recv(client_socket, keyword, sizeof(keyword), 0);
-				curr_node = get_head(photo_data_list);
-				while(curr_node != NULL) {
-					photo_data_ = *(photo_data *)get_node_item(curr_node);
-					if(photo_data_.id_photo == ntohl(id_photo)) {
-						if(NULL != strstr(photo_data_.keyword, keyword)) {
-							ret = 1;
-						}
-						else {
-							send(gw_socket, &type, sizeof(int), 0);
-							send(gw_socket, &id_photo, sizeof(id_photo), 0);
-							send(gw_socket, keyword, sizeof(keyword), 0);
-							printf(KBLU"[Thread client]"RESET" Received keyword: %s\n", keyword);
-						}
-						break;
-					}
-					curr_node = get_next_node(curr_node);
-				}
-				if(curr_node == NULL) {
-					ret = 0;
-				}
-				else if(ret != 1){
-					usleep(90000); // MUTEX?
+				res = recv(client_socket, &photo_data_aux, sizeof(photo_data_aux), 0);
+				if(sizeof(photo_data_) >= res && res > 0) {
+					id_photo = ntohl(photo_data_aux.id_photo);
+					snprintf(keyword, sizeof(keyword), "%s", photo_data_aux.keyword);
+					printf(KBLU"[Thread client]"RESET" Request to add keyword %s\n", photo_data_.keyword);
 					curr_node = get_head(photo_data_list);
 					while(curr_node != NULL) {
 						photo_data_ = *(photo_data *)get_node_item(curr_node);
-						if(photo_data_.id_photo == ntohl(id_photo)) {
-							printf(KBLU"[Thread client]"RESET" Finding: %s in %s\n", keyword, photo_data_.keyword);
+						if(photo_data_.id_photo == id_photo) {
 							if(NULL != strstr(photo_data_.keyword, keyword)) {
 								ret = 1;
 							}
 							else {
-								ret = -1;
+								send(gw_socket, &type, sizeof(int), 0);
+								photo_data_aux.cli_sock = htonl(client_socket);
+								photo_data_aux.peer_pid = htonl(getpid());
+								send(gw_socket, &photo_data_aux, sizeof(photo_data_aux), 0);
+								printf(KBLU"[Thread client]"RESET" Received keyword: %s\n", photo_data_.keyword);
 							}
 							break;
 						}
 						curr_node = get_next_node(curr_node);
-					}	
+					}
+					if(curr_node == NULL) {
+						ret = 0;
+						ret = htonl(ret);
+						send(client_socket, &ret, sizeof(ret), 0);
+					}
+
 				}
-				ret = htonl(ret);
-				send(client_socket, &ret, sizeof(ret), 0);
+				else {
+					ret = -1;
+					ret = htonl(ret);
+					send(client_socket, &ret, sizeof(ret), 0);
+				}
 			}
 
 			/************* SEARCH PHOTO ****************/

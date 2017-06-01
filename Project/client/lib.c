@@ -98,21 +98,20 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword) {
 
 	int type = ADD_KEYWORD;
-	int id_photo_ = (int) id_photo;
+	photo_data photo_data_;
 	int res;
 	int ret;
-	char keyword_[MESSAGE_SIZE];
 
 	type = htonl(type);
 	send(peer_socket, &type, sizeof(type), 0);
-	id_photo_ = htonl(id_photo_);
-	send(peer_socket, &id_photo_, sizeof(id_photo_), 0);
-	
-	strcpy(keyword_, keyword);
-	printf("Sending keyword: %s\n", keyword_);
-	send(peer_socket, keyword_, sizeof(keyword_), 0);
+
+	photo_data_.id_photo = htonl((int)id_photo);
+	snprintf(photo_data_.keyword, sizeof(photo_data_.keyword), "%s", keyword);
+	printf("Sending keyword: %s\n", photo_data_.keyword);
+	send(peer_socket, &photo_data_, sizeof(photo_data_), 0);
+
 	recv(peer_socket, &ret, sizeof(ret), 0);
-	printf("%d\n", ntohl(ret));
+	printf("Return value is %d\n", ntohl(ret));
 	return ntohl(ret);
 }
 

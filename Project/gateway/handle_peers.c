@@ -100,17 +100,15 @@ void *handle_peer(void *arg) {
 
             /************* ADD KEYWORD ****************/
             if(ntohl(type) == ADD_KEYWORD) {    
-                recv(peer_sock, &id_photo, sizeof(id_photo), 0);
-                recv(peer_sock, keyword, sizeof(keyword), 0);
-                printf(KYEL"[Thread peer]"RESET" Redirecting keyword: %s\n", keyword);
+                recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
+                printf(KYEL"[Thread peer]"RESET" Redirecting keyword: %s\n", photo_data_.keyword);
                 // Sends to all the peers for replication!
                 curr_node = get_head(servers_list);
                 while(curr_node != NULL) {
                     peer_data_ = *(peer_data *)get_node_item(curr_node);
                     item_sock = peer_data_.sock_peer;
                     send(item_sock, &type, sizeof(int), 0);
-                    send(item_sock, &id_photo, sizeof(id_photo), 0);
-                    send(item_sock, keyword, sizeof(keyword), 0);
+                    send(item_sock, &photo_data_, sizeof(photo_data_), 0);
                     curr_node = get_next_node(curr_node);
                 }
             }
