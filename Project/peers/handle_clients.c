@@ -5,60 +5,65 @@ void *handle_client(void * arg) {
 	handle_client_arg *thread_arg = (handle_client_arg *)arg;
 	int client_socket = (*thread_arg).client_sock;
 	int gw_socket = (*thread_arg).gw_sock;
+	int res = 0, ret = 0, type = 0, id_photo = 0, photo_size = 0;
+	char photo_name[100], keyword[MESSAGE_SIZE], *buffer;
+	node *curr_node = NULL;
 	list *photo_data_list = (*thread_arg).photo_data_list;
 	photo_data photo_data_, photo_data_aux;
-	int photo_size = 0;
-	char *buffer;
-	int res;
-	int type;
-	int ret;
-	int id_photo;
-	node *curr_node = NULL;
-	char photo_name[100];
-	char keyword[MESSAGE_SIZE];
 	FILE *photo;
 
-	printf(KBLU"[Thread client]"RESET" Handling client\n");
+	printf(KBLU"[Thread client]"RESET": Handling client\n");
 
 	while(1) {
-
+		// Receives type and executes it
 		res = recv(client_socket, &type, sizeof(int), 0);
-		if(sizeof(int) >= res && res > 0) {
+		if(sizeof(type) == res) {
 			
 			/************* ADD PHOTO ****************/
 			if(ntohl(type) == ADD_PHOTO) {
-				send(gw_socket, &type, sizeof(int), 0);
+				// Sends type to the gateway
 				res = recv(client_socket, &photo_data_, sizeof(photo_data_), 0);
-				if(sizeof(photo_data_) >= res && res > 0) {
-					photo_data_.cli_sock = htonl(client_socket);
-					photo_data_.peer_pid = htonl(getpid());
-					send(gw_socket, &photo_data_, sizeof(photo_data_), 0);
-					// Checks which type of request it is:	
+				if(sizeof(photo_data_) == res) {
+					// Receives and sends photo and photo data
 					photo_size = ntohl(photo_data_.photo_size);			
 					buffer = malloc(photo_size);
 					if(buffer == NULL){
-						printf(KBLU"[Thread client]"RESET" Unable to alloc buffer\n");
+						printf(KBLU"[Thread client]"RESET": Unable to alloc buffer\n");
 						exit(0);
 					}
 					res = recv(client_socket, buffer, photo_size, 0);
-					if(photo_size >= res && res > 0) {
-						printf(KBLU"[Thread client]"RESET" Received photo of size %d\n", photo_size);
+					if(photo_size == res) {
+						printf(KBLU"[Thread client]"RESET": Redirecting photo of size %d\n", photo_size);
+						// Sends type and photo data to the gateway
+						photo_data_.cli_sock = htonl(client_socket);
+						photo_data_.peer_pid = htonl(getpid());
+						send(gw_socket, &type, sizeof(int), 0);
+						send(gw_socket, &photo_data_, sizeof(photo_data_), 0);
 						send(gw_socket, buffer, photo_size, 0);
 						free(buffer);
 					}
-					else{break;}
+					else {
+						ret = -1;
+						send(client_socket, &ret, sizeof(ret), 0);
+						perror(KRED"[Thread client]"RESET);
+						break;
+					}
 				}				
-				else{break;}
+				else {
+					ret = -1;
+					send(client_socket, &ret, sizeof(ret), 0);
+					perror(KRED"[Thread client]"RESET);
+					break;
+				}
 			}
-
 
 			/************* ADD KEYWORD ****************/
 			if(ntohl(type) == ADD_KEYWORD) {
 				res = recv(client_socket, &photo_data_aux, sizeof(photo_data_aux), 0);
-				if(sizeof(photo_data_) >= res && res > 0) {
+				if(sizeof(photo_data_) == res) {
 					id_photo = ntohl(photo_data_aux.id_photo);
 					snprintf(keyword, sizeof(keyword), "%s", photo_data_aux.keyword);
-					printf(KBLU"[Thread client]"RESET" Request to add keyword %s\n", photo_data_.keyword);
+					// Checks if keyword already exists in the photo
 					curr_node = get_head(photo_data_list);
 					while(curr_node != NULL) {
 						photo_data_ = *(photo_data *)get_node_item(curr_node);
@@ -71,12 +76,13 @@ void *handle_client(void * arg) {
 								photo_data_aux.cli_sock = htonl(client_socket);
 								photo_data_aux.peer_pid = htonl(getpid());
 								send(gw_socket, &photo_data_aux, sizeof(photo_data_aux), 0);
-								printf(KBLU"[Thread client]"RESET" Received keyword: %s\n", photo_data_.keyword);
+								printf(KBLU"[Thread client]"RESET": Redirecting keyword: %s\n", photo_data_aux.keyword);
 							}
 							break;
 						}
 						curr_node = get_next_node(curr_node);
 					}
+					// Did not find the photo
 					if(curr_node == NULL) {
 						ret = 0;
 						ret = htonl(ret);

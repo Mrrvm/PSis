@@ -10,26 +10,75 @@ void *handle_peer(void *arg) {
     handle_peer_arg *thread_arg = (handle_peer_arg *)arg;
     list *servers_list = (*thread_arg).servers_list;
     int peer_sock = (*thread_arg).peer_socket; 
-    photo_data photo_data_;
+    int size_buff = 0, photo_size = 0, item_sock = 0, res = 0, 
+        id_photo = 0, type = 0, n_nodes = 0, i = 0;
+    char keyword[MESSAGE_SIZE], *buffer;
     FILE *photo;
+    photo_data photo_data_;
     node *curr_node = NULL, *aux_node = NULL, *prev_node = NULL;
     peer_data peer_data_;
-    int size_buff = 0;
-    int photo_size = 0;
-    int item_sock = 0;
-    int res;
-    int id_photo;
-    int type;
-    int n_nodes = 0;
-    int i = 0;
-    char *buffer;
-    char keyword[MESSAGE_SIZE];
     
     while(1) {   
 
         res = recv(peer_sock, &type, sizeof(int), 0);
         if(sizeof(int) >= res && res > 0) {
             
+            /************* ADD PHOTO ****************/
+            if(ntohl(type) == ADD_PHOTO) {
+                res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
+                if(sizeof(photo_data_) == res) {
+                    photo_size = ntohl(photo_data_.photo_size);
+                    buffer = malloc(photo_size);
+                    res = recv(peer_sock, buffer, photo_size, 0);
+                    if(photo_size == res) {
+                        // Manages the photo id - MUST HAVE LOCK
+                        photo_data_.id_photo = htonl((*thread_arg).id_counter);
+                        (*thread_arg).id_counter++;
+
+                        // Sends to all the peers for replication!
+                        curr_node = get_head(servers_list);
+                        while(curr_node != NULL) {
+                            peer_data_ = *(peer_data *)get_node_item(curr_node);
+                            item_sock = peer_data_.sock_peer;
+                            send(item_sock, &type, sizeof(int), 0);
+                            send(item_sock, &photo_data_, sizeof(photo_data_), 0);
+                            send(item_sock, buffer, photo_size, 0);;
+                            curr_node = get_next_node(curr_node);
+                        }
+                        free(buffer); 
+                    }
+                    else {
+                        perror(KRED"[Thread peer]"RESET);
+                        break;
+                    }
+                }
+                else {
+                    perror(KRED"[Thread peer]"RESET);
+                    break;
+                }
+            }
+
+            /************* ADD KEYWORD ****************/
+            if(ntohl(type) == ADD_KEYWORD) {    
+                res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
+                if(res == sizeof(photo_data_)) {
+                    printf(KYEL"[Thread peer]"RESET": Redirecting keyword: %s\n", photo_data_.keyword);
+                    // Sends to all the peers for replication!
+                    curr_node = get_head(servers_list);
+                    while(curr_node != NULL) {
+                        peer_data_ = *(peer_data *)get_node_item(curr_node);
+                        item_sock = peer_data_.sock_peer;
+                        send(item_sock, &type, sizeof(int), 0);
+                        send(item_sock, &photo_data_, sizeof(photo_data_), 0);
+                        curr_node = get_next_node(curr_node);
+                    }
+                }
+                else {
+                    perror(KRED"[Thread peer]"RESET);
+                    break;
+                }
+            }
+
             /************* SEND DATA ****************/
             if(ntohl(type) == SEND_DATA) {
                 // Send data to new peer! - MUST HAVE LOCK
@@ -79,60 +128,16 @@ void *handle_peer(void *arg) {
                     peer_data_ = *(peer_data *)get_node_item(curr_node);
                     item_sock = peer_data_.sock_peer;
                     send(item_sock, &type, sizeof(type), 0);
-                    perror("send type:");
-                    send(item_sock, &photo_data_, sizeof(photo_data_), 0);
-                    perror("send photo_data_:");
-                    curr_node = get_next_node(curr_node);
-
-                }
-
-
-            }
-
-
-            /************* ADD PHOTO ****************/
-            if(ntohl(type) == ADD_PHOTO) {
-                res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
-                if(sizeof(photo_data_) >= res && res > 0) {
-                    photo_size = ntohl(photo_data_.photo_size);
-                    buffer = malloc(photo_size);
-                    res = recv(peer_sock, buffer, photo_size, 0);
-                    if(photo_size >= res && res > 0) {
-                        // Manages the photo id - MUST HAVE LOCK
-                        photo_data_.id_photo = htonl((*thread_arg).id_counter);
-                        (*thread_arg).id_counter++;
-
-                        // Sends to all the peers for replication!
-                        curr_node = get_head(servers_list);
-                        while(curr_node != NULL) {
-                            peer_data_ = *(peer_data *)get_node_item(curr_node);
-                            item_sock = peer_data_.sock_peer;
-                            send(item_sock, &type, sizeof(int), 0);
-                            send(item_sock, &photo_data_, sizeof(photo_data_), 0);
-                            send(item_sock, buffer, photo_size, 0);;
-                            curr_node = get_next_node(curr_node);
-                        }
-                        free(buffer); 
-                    }
-                    else {break;}
-                }
-                else {break;}
-            }
-
-            /************* ADD KEYWORD ****************/
-            if(ntohl(type) == ADD_KEYWORD) {    
-                recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
-                printf(KYEL"[Thread peer]"RESET" Redirecting keyword: %s\n", photo_data_.keyword);
-                // Sends to all the peers for replication!
-                curr_node = get_head(servers_list);
-                while(curr_node != NULL) {
-                    peer_data_ = *(peer_data *)get_node_item(curr_node);
-                    item_sock = peer_data_.sock_peer;
-                    send(item_sock, &type, sizeof(int), 0);
                     send(item_sock, &photo_data_, sizeof(photo_data_), 0);
                     curr_node = get_next_node(curr_node);
+
                 }
+
+
             }
+
+
+
         }
         else {break;}
     }

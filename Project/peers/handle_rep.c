@@ -8,20 +8,12 @@ void add_keyword(item got_item, item setting) {
 
 void handle_rep(int socket, list* photo_data_list) {
 
-    photo_data photo_data_;
-    int photo_size = 0;
-    char *buffer;
-    FILE *photo;
-    int res;
-    int ret;
-    int type;
-    int id_photo;
-    int cli_sock;
-    int peer_pid;
+    int res = 0, ret = 0, type = 0, id_photo = 0, cli_sock = 0, peer_pid = 0,
+        unwritten_len = 0, photo_size = 0;
+    char photo_name[100], keyword[MESSAGE_SIZE], *buffer;
     node *curr_node = NULL, *aux_node = NULL, *prev_node = NULL;
-    char keyword[MESSAGE_SIZE];
-    char photo_name[100];
-    int unwritten_len;
+    FILE *photo;
+    photo_data photo_data_;
 
     while(1) {
         res = recv(socket, &type, sizeof(int), 0);
@@ -31,7 +23,7 @@ void handle_rep(int socket, list* photo_data_list) {
             if(ntohl(type) == ADD_PHOTO) {
                 ret = 0;
                 res = recv(socket, &photo_data_, sizeof(photo_data_), 0);
-                if(sizeof(photo_data_) >= res && res > 0) {
+                if(sizeof(photo_data_) == res) {
                     // Add photos to list of photos
                     photo_data_.photo_size = ntohl(photo_data_.photo_size);
                     photo_data_.id_photo = ntohl(photo_data_.id_photo);
@@ -41,24 +33,58 @@ void handle_rep(int socket, list* photo_data_list) {
                     buffer = malloc(photo_size);
                     res = recv(socket, buffer, photo_size, 0);
                     if(photo_size >= res && res > 0) {
-                        printf(KYEL"[Thread rep]"RESET" Received photo of size %d!\n", photo_size);
+                        printf(KYEL"[Thread rep]"RESET": ADD_PHOTO - Received photo of size %d!\n", photo_size);
                         sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
                         photo = fopen(photo_name, "wb");
                         if(photo_size == fwrite(buffer, 1, photo_size, photo)) {
                             push_item_to_list(photo_data_list, &photo_data_);
                             print_list(photo_data_list, print_photo);
-                            fclose(photo);
                             ret = photo_data_.id_photo;
                         }
                         else {
-                            fclose(photo);
                             remove(photo_name);
                         }
+                        fclose(photo);
                     } 
                     free(buffer);
                 }
+                else {
+                    perror(KRED"[Thread rep]"RESET);
+                }
+                // Sends the return value to client
                 if(getpid() == photo_data_.peer_pid) {
                     send(photo_data_.cli_sock, &ret, sizeof(ret), 0); 
+                }
+            }
+
+            /************* ADD KEYWORD ****************/
+            if(ntohl(type) == ADD_KEYWORD) {  
+                ret = 0; 
+                res = recv(socket, &photo_data_, sizeof(photo_data_), 0);
+                if(res == sizeof(photo_data_)) {
+                    photo_data_.cli_sock = ntohl(photo_data_.cli_sock);
+                    photo_data_.peer_pid = ntohl(photo_data_.peer_pid);
+                    id_photo = ntohl(photo_data_.id_photo);
+                    snprintf(keyword, sizeof(keyword), "%s", photo_data_.keyword);
+                    curr_node = get_head(photo_data_list);
+                    while(curr_node != NULL) {
+                        photo_data_ = *(photo_data *)get_node_item(curr_node);
+                        if(photo_data_.id_photo == id_photo) {
+                            unwritten_len = MESSAGE_SIZE-strlen(photo_data_.keyword);
+                            if(unwritten_len > strlen(keyword)+1) {
+                                set_item_as(curr_node, add_keyword, keyword);
+                                photo_data_ = *(photo_data *)get_node_item(curr_node);
+                                printf(KYEL"[Thread rep]"RESET": Keyword updated to: %s\n", photo_data_.keyword);
+                                ret = 1;
+                            }
+                            break;
+                        }
+                        curr_node = get_next_node(curr_node);
+                    }
+                    if(getpid() == photo_data_.peer_pid) {
+                        ret = ntohl(ret);
+                        send(photo_data_.cli_sock, &ret, sizeof(ret), 0); 
+                    }
                 }
             }
 
@@ -149,35 +175,6 @@ void handle_rep(int socket, list* photo_data_list) {
                 }
             }
 
-            /************* ADD KEYWORD ****************/
-            if(ntohl(type) == ADD_KEYWORD) {  
-                ret = 0; 
-                recv(socket, &photo_data_, sizeof(photo_data_), 0);
-                photo_data_.cli_sock = ntohl(photo_data_.cli_sock);
-                photo_data_.peer_pid = ntohl(photo_data_.peer_pid);
-                id_photo = ntohl(photo_data_.id_photo);
-                snprintf(keyword, sizeof(keyword), "%s", photo_data_.keyword);
-                curr_node = get_head(photo_data_list);
-                while(curr_node != NULL) {
-                    photo_data_ = *(photo_data *)get_node_item(curr_node);
-                    if(photo_data_.id_photo == id_photo) {
-                        unwritten_len = MESSAGE_SIZE-strlen(photo_data_.keyword);
-                        if(unwritten_len > strlen(keyword)+1) {
-                            set_item_as(curr_node, add_keyword, keyword);
-                            photo_data_ = *(photo_data *)get_node_item(curr_node);
-                            printf(KYEL"[Thread rep]"RESET" Keyword updated to: %s\n", photo_data_.keyword);
-                            ret = 1;
-                        }
-                        break;
-                    }
-                    curr_node = get_next_node(curr_node);
-                }
-                if(getpid() == photo_data_.peer_pid) {
-                    ret = ntohl(ret);
-                    send(photo_data_.cli_sock, &ret, sizeof(ret), 0); 
-                }
-
-            }
         }
     }
 }
