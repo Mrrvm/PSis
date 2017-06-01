@@ -8,7 +8,8 @@ void handle_rep(int socket, list* photo_data_list) {
     FILE *photo;
     int res;
     int type;
-    node *curr_node;
+    int id_photo;
+    node *curr_node = NULL, *aux_node = NULL, *prev_node = NULL;
     char photo_name[100];
 
     while(1) {
@@ -43,6 +44,46 @@ void handle_rep(int socket, list* photo_data_list) {
                     free(buffer); 
                 }
             }
+
+            /************* DEL PHOTO ****************/
+            if(ntohl(type) == DEL_PHOTO){
+                recv(socket, &id_photo, sizeof(id_photo), 0);
+                printf("Request to delete photo of id %d\n", ntohl(id_photo));
+
+                curr_node = get_head(photo_data_list);
+
+                while(curr_node != NULL){
+                    photo_data_ = *(photo_data *)get_node_item(curr_node);
+
+                    if(ntohl(id_photo) == photo_data_.id_photo){
+
+                        aux_node = curr_node;
+
+                        if(prev_node != NULL) {
+                            set_next_node(prev_node, get_next_node(curr_node));
+                            free_node(aux_node, free);
+                        }
+                        else if(get_next_node(curr_node) != NULL) {
+                            set_head(photo_data_list, get_next_node(curr_node));
+                            set_next_node(curr_node, NULL);
+                            free_node(aux_node, free);
+                        }
+                        else {
+                            set_head(photo_data_list, NULL);
+                            free_node(aux_node, free);
+                        }
+                        decrement_list_size(photo_data_list);
+                        print_list(photo_data_list, print_photo);
+                        sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
+                        remove(photo_name);
+
+                    }
+                    prev_node = curr_node;
+                    curr_node = get_next_node(curr_node);
+                }
+                    
+            }
+
 
             /************* SEND DATA ****************/
             if(ntohl(type) == SEND_DATA) {

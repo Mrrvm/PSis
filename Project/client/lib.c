@@ -106,7 +106,9 @@ int gallery_delete_photo(int peer_socket, uint32_t id_photo) {
 
 	printf("Sending delete photo\n");
 	type = htonl(type);
+	id_photo = htonl(id_photo);
 	send(peer_socket, &type, sizeof(int), 0);
+	send(peer_socket, &id_photo, sizeof(id_photo), 0);
 
 }
 
