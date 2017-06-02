@@ -78,18 +78,12 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	FILE *photo =  NULL;
 	char *buffer;
 
-	// Sends type of data
-	send(peer_socket, &type, sizeof(type), 0);
 	// Opens photo
 	photo = fopen(file_name, "rb");
 	if(photo == NULL) {
 		printf(KRED"[gallery_add_photo]"RESET": Invalid file name\n");
 		return 0;
 	}
-	// Gets the photo size
-	fseek(photo, 0L, SEEK_END);
-	photo_size = ftell(photo);
-	fseek(photo, 0L, SEEK_SET);
 
 	// Sends photo data in network format
 	if(snprintf(photo_data_.file_name, sizeof(photo_data_.file_name), "%s", basename(file_name)) 
@@ -97,6 +91,13 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 		printf(KRED"[gallery_add_photo]"RESET": Invalid file name\n");
 		return 0;
 	}
+	
+	// Sends type of data
+	send(peer_socket, &type, sizeof(type), 0);
+	// Gets the photo size
+	fseek(photo, 0L, SEEK_END);
+	photo_size = ftell(photo);
+	fseek(photo, 0L, SEEK_SET);
 	photo_data_.id_photo = htonl(0);
 	photo_data_.photo_size = htonl(photo_size);
 	bzero(photo_data_.keyword, sizeof(photo_data_.keyword));
