@@ -1,5 +1,5 @@
 # PSis Project
-<p>This is the implemented architcture for the <a href="https://github.com/Mrrvm/PSis/blob/master/Project_statement.pdf">assignment</a>:
+<p>This is the implemented architcture for the <a href="https://github.com/Mrrvm/PSis/blob/master/Project_statement.pdf" target="_blank">assignment</a>:
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 
 5 - New peer sends its address to the gateway.
 
-For better understanding read our <a href="https://github.com/Mrrvm/PSis/blob/master/report80856_81164_grupo19.pdf">report</a> (in portuguese).
+For better understanding read our <a href="https://github.com/Mrrvm/PSis/blob/master/report80856_81164_grupo19.pdf" target="_blank">report</a> (in portuguese).
 
 <hr>
 
