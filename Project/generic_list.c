@@ -97,7 +97,8 @@ void push_node_to_list(list *got_list, node *got_node) {
 }
 
 void decrement_list_size(list *got_list){
-    got_list->size --;
+    if(got_list->size != 0)
+        got_list->size --;
 }
 
 void push_item_to_list(list *got_list, item new_item) {

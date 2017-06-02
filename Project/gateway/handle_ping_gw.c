@@ -5,6 +5,11 @@ void add_counter(item got_item, item got_setting) {
      peer_data_->counter++;
 }
 
+void set_counter(item got_item, item got_setting) {
+    peer_data *peer_data_ = (peer_data *)got_item;
+    peer_data_->counter = *(int *) got_setting;
+}
+
 void handle_ping_gw(list *servers_list){
 
     int sock_peer_ping = 0;
@@ -34,6 +39,11 @@ void handle_ping_gw(list *servers_list){
         if (size_received == -1) {
             set_item_as(curr_node, add_counter, NULL);
         }
+        else if(peer_data_.counter > 0) {
+            printf("efe\n");
+            set_item_as(curr_node, set_counter, 0);   
+        }
+        
         if(peer_data_.counter == 3){
             printf(KRED"[Thread ping]"RESET" Dead Peer: %d\n", ntohs(addr.sin_port));
             delete_node_from_list(prev_node, curr_node, servers_list);
@@ -42,8 +52,4 @@ void handle_ping_gw(list *servers_list){
         prev_node = curr_node;
         curr_node = get_next_node(curr_node);
     }
-
-
-
-
 }
