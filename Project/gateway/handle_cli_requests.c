@@ -8,6 +8,7 @@ void *handle_cli_requests(void * arg) {
     peer_data peer_data_;
     socklen_t size_addr;
     int sock_cli;
+    int list_size;
     uint16_t request;
 
     list *servers_list = (list *)arg;
@@ -30,9 +31,17 @@ void *handle_cli_requests(void * arg) {
         request = ntohs(request);
         if(request == 1) {
             printf(KBLU"[Thread cli requests]"RESET": Request received! Sending peer...\n");
+
+            if(list_size > get_list_size(servers_list)){
+                curr_node = get_head(servers_list);
+            }
+
             if (curr_node == NULL) {
                 curr_node = get_head(servers_list);
             }
+
+            list_size = get_list_size(servers_list);
+
             if(curr_node != NULL){
                 peer_data_ = *(peer_data *)get_node_item(curr_node);
                 while(peer_data_.active != 1) {
