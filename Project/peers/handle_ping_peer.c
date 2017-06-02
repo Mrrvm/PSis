@@ -1,6 +1,5 @@
 #include "peer.h"
 
-
 void *handle_ping_peer(void * arg){
 
 	struct sockaddr_in gateway_addr_ping;

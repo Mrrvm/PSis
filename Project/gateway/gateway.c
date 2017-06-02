@@ -8,7 +8,6 @@ int main() {
 
 	pthread_t thr_cli;
 	pthread_t thr_peers;
-	pthread_t thr_ping_gw;
 	int error;
 	void *ret;
 
@@ -30,15 +29,10 @@ int main() {
 	}
 
 	// Thread 3: Pings the peers
-	error = pthread_create(&thr_ping_gw, NULL, handle_ping_gw, servers_list);
-	if(error != 0) {
-		perror("Unable to create thread to handle pings.");
-		exit(-1);
-	}
+	handle_ping_gw(servers_list);
 
 	pthread_join(thr_cli, (void*)&ret);
 	pthread_join(thr_peers, (void*)&ret);
-	pthread_join(thr_ping_gw, (void*)&ret);
 
 	exit(0);
 }

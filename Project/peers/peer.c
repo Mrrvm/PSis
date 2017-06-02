@@ -5,22 +5,13 @@ int main(int argc, char *argv[])
     struct sockaddr_in local_addr;
     struct sockaddr_in gateway_addr;
     struct sockaddr_in gateway_addr_st;
-    int sock_gw_ping = 0;
-    int sock_gw = 0;
-    int sock_stream_client = 0;
-    int sock_stream_gw = 0;
-    int reuse_socket = 1;
+    int sock_gw_ping = 0, sock_gw = 0, sock_stream_client = 0, sock_stream_gw = 0;
+    int reuse_socket = 1, error = 0, res = 0, i = 0, n_nodes = 0, photo_size = 0;
     int local_port = 3000+getpid();
-    int error;
-    int res = 0;
-    int i = 0;
-    int n_nodes = 0;
-    int photo_size;
     pthread_t thr_clients;
     pthread_t thr_ping_peer;
     void *ret;
-    char *buffer;
-    char photo_name[100];
+    char photo_name[100], *buffer;
     FILE *photo;
     photo_data photo_data_;
     list *photo_data_list = create_list(sizeof(photo_data));
@@ -73,31 +64,41 @@ int main(int argc, char *argv[])
         (*thread_arg).client_sock = sock_stream_client;
         (*thread_arg).photo_data_list = photo_data_list;
 
+        // Retrieves previous data on the system
         res = recv(sock_stream_gw, &n_nodes, sizeof(n_nodes), 0);
-        if(sizeof(n_nodes) >= res && res > 0) {
+        if(sizeof(n_nodes) == res) {
             n_nodes = ntohl(n_nodes);
-            printf("Ready to receive %d nodes\n", n_nodes);
+            printf("Ready to receive %d previous list nodes\n", n_nodes);
             while(i != n_nodes) {
                 res = recv(sock_stream_gw, &photo_data_, sizeof(photo_data_), 0);
-                if(sizeof(photo_data_) >= res && res > 0) {
+                if(sizeof(photo_data_) == res) {
                     photo_data_.id_photo = ntohl(photo_data_.id_photo);
                     photo_size = photo_data_.photo_size = ntohl(photo_data_.photo_size);
                     push_item_to_list(photo_data_list, &photo_data_);
                     print_list(photo_data_list, print_photo);
-
-                    printf("Mallocing buffer of size %d\n", photo_data_.photo_size);
                     buffer = malloc(photo_size);
+                    if(buffer == NULL) {
+                        printf("Unable to alloc buffer\n");
+                        exit(-1);
+                    }
                     res = recv(sock_stream_gw, buffer, photo_size, 0);
-                    if(photo_size >= res && res > 0) {
+                    if(photo_size == res) {
                         printf("Received photo of size %d!\n", photo_data_.photo_size);
                         sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
                         photo = fopen(photo_name, "wb");
                         fwrite(buffer, 1, photo_data_.photo_size, photo);
                         fclose(photo);
                     } 
-                    else {break;}
+                    else {
+                        printf("Unable to retrieve previous data.\n");
+                        exit(1);
+                    }
                     free(buffer); 
                     i++;
+                }
+                else {
+                    printf("Unable to retrieve previous data.\n");
+                    exit(1);
                 }
             }
             i = 0;

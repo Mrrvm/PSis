@@ -22,14 +22,14 @@ void *handle_cli_requests(void * arg) {
     bind(sock_cli, (struct sockaddr *)&local_addr, sizeof(local_addr));
     while(1) {
         // Waits for client requests
-        printf(KBLU"[Thread cli requests]"RESET" Waiting for client requests...\n");
+        printf(KBLU"[Thread cli requests]"RESET": Waiting for client requests...\n");
         size_addr = sizeof(cli_addr);
         recvfrom(sock_cli, &request, sizeof(request), 0, 
               (struct sockaddr *) &cli_addr, &size_addr);
 
         request = ntohs(request);
         if(request == 1) {
-            printf(KBLU"[Thread cli requests]"RESET" Request received! Sending peer...\n");
+            printf(KBLU"[Thread cli requests]"RESET": Request received! Sending peer...\n");
             if (curr_node == NULL) {
                 curr_node = get_head(servers_list);
             }

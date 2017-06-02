@@ -9,7 +9,7 @@ void add_keyword(item got_item, item setting) {
 void handle_rep(int socket, list* photo_data_list) {
 
     int res = 0, ret = 0, type = 0, id_photo = 0, cli_sock = 0;
-    int peer_pid = 0, unwritten_len = 0, photo_size = 0;
+    int peer_pid = 0, unwritten_len = 0, photo_size = 0, n_nodes = 0;
     char photo_name[100], keyword[MESSAGE_SIZE], *buffer;
     node *curr_node = NULL, *prev_node = NULL;
     FILE *photo;
@@ -128,9 +128,8 @@ void handle_rep(int socket, list* photo_data_list) {
             /************* SEND DATA ****************/
             if(ntohl(type) == SEND_DATA) {
                 // Send data to new peer!
-                printf(KYEL"[Thread rep]"RESET" Request to send existant data to the gateway!\n");
                 send(socket, &type, sizeof(int), 0);
-                int n_nodes = get_list_size(photo_data_list);
+                n_nodes = get_list_size(photo_data_list);
                 n_nodes = htonl(n_nodes);
                 send(socket, &n_nodes, sizeof(int), 0);
 
@@ -139,13 +138,15 @@ void handle_rep(int socket, list* photo_data_list) {
                     photo_data_ = *(photo_data *)get_node_item(curr_node);
                     photo_size = photo_data_.photo_size;
                     sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
-
-                    printf(KYEL"[Thread rep]"RESET" Sending photo with size %d\n", photo_data_.photo_size);
                     photo_data_.id_photo = htonl(photo_data_.id_photo);
                     photo_data_.photo_size = htonl(photo_data_.photo_size);
                     send(socket, &photo_data_, sizeof(photo_data_), 0);
 
-                    char *buffer = malloc(photo_size);
+                    buffer = malloc(photo_size);
+                    if(buffer == NULL) {
+                        printf(KYEL"[Thread rep]"RESET": Unable to alloc buffer.\n");
+                        exit(-1);
+                    }
                     photo = fopen(photo_name, "rb");
                     fread(buffer, 1, photo_size, photo);
                     send(socket, buffer, photo_size, 0);
@@ -155,7 +156,6 @@ void handle_rep(int socket, list* photo_data_list) {
                     curr_node = get_next_node(curr_node);
                 }
             }
-
         }
     }
 }

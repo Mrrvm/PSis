@@ -102,26 +102,24 @@ void *handle_peer(void *arg) {
 
             /************* SEND DATA ****************/
             if(ntohl(type) == SEND_DATA) {
-                // Send data to new peer! - MUST HAVE LOCK
-                printf(KYEL"[Thread peer]"RESET" Request to send data to new-born peer!\n");
+                // Send data to new peer! 
                 res = recv(peer_sock, &n_nodes, sizeof(n_nodes), 0);
-                if(sizeof(n_nodes) >= res && res > 0) {
+                if(sizeof(n_nodes) == res) {
                     peer_data_ = *( peer_data *)get_node_item(get_head(servers_list));
                     item_sock = peer_data_.sock_peer;
                     send(item_sock, &n_nodes, sizeof(n_nodes), 0);
-                    printf(KYEL"[Thread peer]"RESET" Sent %d nodes\n", ntohl(n_nodes));
+                    printf(KYEL"[Thread peer]"RESET": Sent previous %d list nodes\n", ntohl(n_nodes));
                     while(i != ntohl(n_nodes)) {
                         // Receive the information
                         res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
-                        if(sizeof(photo_data_) >= res && res > 0) {
+                        if(sizeof(photo_data_) == res) {
                             // Send new peer the existant information
                             send(item_sock, &photo_data_, sizeof(photo_data_), 0);
-                            printf(KYEL"[Thread peer]"RESET" Sending photo with size %d\n", photo_data_.photo_size);
                             // Receive and send the photo
                             photo_size = ntohl(photo_data_.photo_size);
                             buffer = malloc(photo_size);
                             res = recv(peer_sock, buffer, photo_size, 0);
-                            if(photo_size >= res && res > 0) {
+                            if(photo_size == res) {
                                 send(item_sock, buffer, photo_size, 0);
                             }
                             else {break;}
@@ -138,9 +136,6 @@ void *handle_peer(void *arg) {
                 }
                 else {break;}     
             }
-
-
-
         }
         else {break;}
     }
@@ -153,15 +148,8 @@ void *handle_peers(void * arg) {
     struct sockaddr_in local_addr;
     struct sockaddr_in local_addr_st;
     struct sockaddr_in peer_addr;
-    int sock_gw_ping= 0;
-    int sock_local = 0;
-    int sock_peer = 0;
-    int sock_peer_accepted = 0;
-    int reuse_socket = 1;
-    int item_sock = 0;
-    int error;
-    int type;
-    int n_nodes = 0;
+    int sock_gw_ping = 0, sock_local = 0, sock_peer = 0, sock_peer_accepted = 0;
+    int reuse_socket = 1, item_sock = 0, error = 0, type = 0, n_nodes = 0;
     list *servers_list = (list *)arg;
     peer_data peer_data_, head_peer;
     pthread_t thr_peer;
@@ -189,12 +177,13 @@ void *handle_peers(void * arg) {
 
     while(1) {
 
-        printf(KYEL"[Thread peer requests]"RESET" Waiting for peers to connect...\n");
+        printf(KYEL"[Thread peer requests]"RESET": Waiting for peers to connect...\n");
         recv(sock_local, (struct sockaddr *) &peer_addr, sizeof(peer_addr), 0);
 
-        printf(KYEL"[Thread peer requests]"RESET" Accepting sock stream from peer\n");
+        printf(KYEL"[Thread peer requests]"RESET": Accepting sock stream from peer\n");
         sock_peer_accepted = accept(sock_peer, NULL, NULL);
 
+        // Asks for the existant photos to another peer
         head_server = get_head(servers_list);
         if(head_server != NULL) {
             head_peer = *(peer_data *)get_node_item(head_server);
@@ -204,7 +193,7 @@ void *handle_peers(void * arg) {
             peer_data_.active = 0;
         }
         else {
-            printf(KYEL"[Thread peer requests]"RESET" There is 0 nodes to send.\n");
+            printf(KYEL"[Thread peer requests]"RESET": There is no previous data.\n");
             n_nodes = htonl(n_nodes);
             send(sock_peer_accepted, &n_nodes, sizeof(int), 0);
             peer_data_.active = 1;
@@ -221,7 +210,7 @@ void *handle_peers(void * arg) {
 
         error = pthread_create(&thr_peer, NULL, handle_peer, (void *)thread_arg);
         if(error != 0) {
-            perror("Unable to create thread to handle peers");
+            perror(KYEL"[Thread peer requests]"RESET": Unable to create thread to handle peers.");
             exit(-1);
         }
         pthread_detach(thr_peer);

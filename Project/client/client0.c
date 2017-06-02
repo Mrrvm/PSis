@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 		id_photo = gallery_add_photo(connect_ret, "photos/my_first_nude.jpg");
 		printf("Received id_photo: %d\n", id_photo);
 
-		gallery_add_keyword(connect_ret, id_photo, "trump");
+		gallery_add_keyword(connect_ret, id_photo, "nude");
 		gallery_add_keyword(connect_ret, id_photo, "hot");
 
 		id_photo = gallery_add_photo(connect_ret, "photos/nude2.png");
