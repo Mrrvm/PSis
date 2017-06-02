@@ -1,5 +1,11 @@
 #include "lib.h"
 
+int intsocket;
+void intHandler() {
+    close(intsocket);
+    exit(0);
+}
+
 /************************************************************************
  gallery_connect: Connects the client with a peer.
  Returns:
@@ -21,6 +27,8 @@ int gallery_connect(char *host, in_port_t port) {
     gateway_addr.sin_family = AF_INET;
     gateway_addr.sin_port = htons(port);
     inet_aton(host, &gateway_addr.sin_addr);
+    intsocket = sock_gw;
+    signal(SIGINT, intHandler);
 
     request = htons(1);
  	// Send the request to the gateway
@@ -67,13 +75,17 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	int type = ADD_PHOTO;
 	int res = 0, ret = 0, photo_size = 0;
 	photo_data photo_data_;	
-	FILE *photo;
+	FILE *photo =  NULL;
 	char *buffer;
 
 	// Sends type of data
 	send(peer_socket, &type, sizeof(type), 0);
 	// Opens photo
 	photo = fopen(file_name, "rb");
+	if(photo == NULL) {
+		printf(KRED"[gallery_add_photo]"RESET": Invalid file name\n");
+		return 0;
+	}
 	// Gets the photo size
 	fseek(photo, 0L, SEEK_END);
 	photo_size = ftell(photo);
@@ -82,7 +94,7 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name) {
 	// Sends photo data in network format
 	if(snprintf(photo_data_.file_name, sizeof(photo_data_.file_name), "%s", basename(file_name)) 
 		!= strlen(photo_data_.file_name)) {
-		printf(KRED"[gallery_add_photo]"RESET": Invalid file_name\n");
+		printf(KRED"[gallery_add_photo]"RESET": Invalid file name\n");
 		return 0;
 	}
 	photo_data_.id_photo = htonl(0);

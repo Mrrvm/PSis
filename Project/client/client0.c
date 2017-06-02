@@ -6,10 +6,9 @@ int main(int argc, char *argv[])
 	in_port_t port = 0;
 	int connect_ret = 1;
 	int fcn_number = 0;
-	char *photo_name;
-
-
 	uint32_t id_photo;
+	char photo_name[30];
+
 	uint32_t *id_photos[100] = {0};
 	char *photo_name_ptr;
 	char *keyword;
@@ -35,16 +34,19 @@ int main(int argc, char *argv[])
 	}
 	else {
 		while(1) {
-			printf("1 - ADD PHOTO\n2 - ADD KEYWORD\n3 - SEARCH PHOTO\n4 - DELETE PHOTO\n5 - GET PHOTO NAME\n6 - GET PHOTO\n");
-			printf("Insert the function number: ");
+			printf("\n1 - ADD PHOTO\n2 - ADD KEYWORD\n3 - SEARCH PHOTO\n4 - DELETE PHOTO\n5 - GET PHOTO NAME\n6 - GET PHOTO\n");
+			printf("[Insert the function number]: ");
 			scanf("%d", &fcn_number);
 			if(fcn_number == 1) {
-				printf("Insert file name: ");
+				printf("[Insert file name]: ");
 				scanf("%s", photo_name);
-				printf("%s\n", photo_name);
+				// Adds a new photo to the gallery
+				id_photo = gallery_add_photo(connect_ret, photo_name);
+				printf("\nReceived id is: %d\n", id_photo);
 			}
 			else if(fcn_number == 2) {
-				
+				printf("[Insert keyword]: ");
+				gallery_add_keyword(connect_ret, id_photo, "nude");
 			}
 			else if(fcn_number == 3) {
 				
@@ -63,11 +65,8 @@ int main(int argc, char *argv[])
 				exit(-1);
 			}
 		}
-		// Adds a new photo to the gallery
-		id_photo = gallery_add_photo(connect_ret, "photos/my_first_nude.jpg");
 		printf("Received id_photo: %d\n", id_photo);
 
-		gallery_add_keyword(connect_ret, id_photo, "nude");
 		gallery_add_keyword(connect_ret, id_photo, "hot");
 
 		id_photo = gallery_add_photo(connect_ret, "photos/nude2.png");

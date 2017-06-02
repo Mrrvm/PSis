@@ -12,6 +12,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <arpa/inet.h>
+#include <signal.h>
 #include <string.h>
 #include <ctype.h>
 #include <libgen.h>
