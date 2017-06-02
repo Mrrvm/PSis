@@ -40,7 +40,7 @@ void handle_rep(int socket, list* photo_data_list) {
                     }
                     if(photo_size >= n && n > 0) {
                         printf(KYEL"[Thread rep]"RESET": ADD_PHOTO - Received photo of size %d!\n", photo_size);
-                        sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
+                        sprintf(photo_name, "id%d", photo_data_.id_photo);
                         photo = fopen(photo_name, "wb");
                         if(photo_size == fwrite(buffer, 1, photo_size, photo)) {
 
@@ -87,7 +87,7 @@ void handle_rep(int socket, list* photo_data_list) {
                             if(unwritten_len > strlen(keyword)+1) {
                                 set_item_as(curr_node, add_keyword, keyword);
                                 photo_data_ = *(photo_data *)get_node_item(curr_node);
-                                printf(KYEL"[Thread rep]"RESET": Keyword updated to: %s\n", photo_data_.keyword);
+                                printf(KYEL"[Thread rep]"RESET": ADD KEYWORD - Keyword updated to: %s\n", photo_data_.keyword);
                                 ret = 1;
                             }
                             break;
@@ -120,7 +120,7 @@ void handle_rep(int socket, list* photo_data_list) {
                         photo_data_ = *(photo_data *)get_node_item(curr_node);
                         if(id_photo == photo_data_.id_photo){
                             delete_node_from_list(prev_node, curr_node, photo_data_list);
-                            sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
+                            sprintf(photo_name, "id%d", photo_data_.id_photo);
                             remove(photo_name);
                             print_list(photo_data_list, print_photo);
                             ret = 1;
@@ -132,9 +132,9 @@ void handle_rep(int socket, list* photo_data_list) {
                     pthread_mutex_unlock(&mux_photos);
 
                     if(ret == 1)
-                        printf(KYEL"[Thread rep]"RESET": Photo Deleted\n");
+                        printf(KYEL"[Thread rep]"RESET": DELETE PHOTO - Photo Deleted\n");
                     if(ret == 0)
-                        printf(KYEL"[Thread rep]"RESET": Photo not found\n");
+                        printf(KYEL"[Thread rep]"RESET": DELETE PHOTO - Photo not found\n");
 
                     if(getpid() == peer_pid) {
                         send(cli_sock, &ret, sizeof(ret), 0); 
@@ -158,7 +158,7 @@ void handle_rep(int socket, list* photo_data_list) {
                 while(curr_node != NULL) {
                     photo_data_ = *(photo_data *)get_node_item(curr_node);
                     photo_size = photo_data_.photo_size;
-                    sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
+                    sprintf(photo_name, "id%d", photo_data_.id_photo);
                     photo_data_.id_photo = htonl(photo_data_.id_photo);
                     photo_data_.photo_size = htonl(photo_data_.photo_size);
                     send(socket, &photo_data_, sizeof(photo_data_), 0);

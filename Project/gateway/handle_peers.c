@@ -74,7 +74,7 @@ void *handle_peer(void *arg) {
             if(ntohl(type) == ADD_KEYWORD) {    
                 res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
                 if(res == sizeof(photo_data_)) {
-                    printf(KYEL"[Thread peer]"RESET": Redirecting keyword: %s\n", photo_data_.keyword);
+                    printf(KYEL"[Thread peer]"RESET": ADD_KEYWORD - Redirecting keyword: %s\n", photo_data_.keyword);
 
                     pthread_mutex_lock(&mux_peers);
 
@@ -132,7 +132,7 @@ void *handle_peer(void *arg) {
 
                     item_sock = peer_data_.sock_peer;
                     send(item_sock, &n_nodes, sizeof(n_nodes), 0);
-                    printf(KYEL"[Thread peer]"RESET": Sent previous %d list nodes\n", ntohl(n_nodes));
+                    printf(KYEL"[Thread peer]"RESET": SEND DATA - Sent previous %d list nodes\n", ntohl(n_nodes));
                     while(i != ntohl(n_nodes)) {
                         // Receive the information
                         res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);

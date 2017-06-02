@@ -39,7 +39,7 @@ void *handle_client(void * arg) {
 						n += res;
 					}
 					if(photo_size == n) {
-						printf(KBLU"[Thread client]"RESET": Redirecting photo of size %d\n", photo_size);
+						printf(KBLU"[Thread client]"RESET": ADD PHOTO - Redirecting photo of size %d\n", photo_size);
 						// Sends type and photo data to the gateway
 						photo_data_.cli_sock = htonl(client_socket);
 						photo_data_.peer_pid = htonl(getpid());
@@ -85,7 +85,7 @@ void *handle_client(void * arg) {
 								photo_data_aux.cli_sock = htonl(client_socket);
 								photo_data_aux.peer_pid = htonl(getpid());
 								send(gw_socket, &photo_data_aux, sizeof(photo_data_aux), 0);
-								printf(KBLU"[Thread client]"RESET": Redirecting keyword: %s\n", photo_data_aux.keyword);
+								printf(KBLU"[Thread client]"RESET": ADD KEYWORD - Redirecting keyword: %s\n", photo_data_aux.keyword);
 							}
 							break;
 						}
@@ -113,7 +113,7 @@ void *handle_client(void * arg) {
 				num_found = 0;
 				res = recv(client_socket, keyword, sizeof(keyword), 0);
 				if(res == sizeof(keyword)) {
-					printf(KBLU"[Thread client]"RESET": Searching photo %s\n", keyword);
+					printf(KBLU"[Thread client]"RESET": SEARCH PHOTO - Searching photo %s\n", keyword);
 
 					pthread_mutex_lock(&mux_photos);
 
@@ -170,7 +170,6 @@ void *handle_client(void * arg) {
 			/********** GET PHOTO NAME **************/
 			if(ntohl(type) == GET_NAME) {
 				res = recv(client_socket, &id_photo, sizeof(id_photo), 0);
-				perror("RECEIVING ID OF PHOTO TO GET NAME:");
 				if(res == sizeof(id_photo)) {
 					id_photo = ntohl(id_photo);
 
@@ -181,7 +180,7 @@ void *handle_client(void * arg) {
 						photo_data_ = *(photo_data *)get_node_item(curr_node);
 						if(photo_data_.id_photo == id_photo) {
 							send(client_socket, photo_data_.file_name, sizeof(photo_data_.file_name), 0);
-							printf(KBLU"[Thread client]"RESET": Sending photo name: %s\n", photo_data_.file_name);
+							printf(KBLU"[Thread client]"RESET": GET PHOTO NAME - Sending photo name: %s\n", photo_data_.file_name);
 							break;
 						}
 						curr_node = get_next_node(curr_node);
@@ -213,9 +212,9 @@ void *handle_client(void * arg) {
 						if(photo_data_.id_photo == id_photo) {
 							photo_size = htonl(photo_data_.photo_size);
 							send(client_socket, &photo_size, sizeof(photo_size), 0);
-							printf(KBLU"[Thread client]"RESET": Sending photo: %s with size %d\n", photo_data_.file_name, photo_data_.photo_size);
+							printf(KBLU"[Thread client]"RESET": GET PHOTO - Sending photo: %s with size %d\n", photo_data_.file_name, photo_data_.photo_size);
 							buffer = malloc(photo_data_.photo_size);
-							sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
+							sprintf(photo_name, "id%d", photo_data_.id_photo);
 							photo = fopen(photo_name, "rb");
 	                    	fread(buffer, 1, photo_data_.photo_size, photo);
 
@@ -224,8 +223,6 @@ void *handle_client(void * arg) {
 	                    		res = send(client_socket, buffer+n, photo_data_.photo_size-n, 0);
 	                    		n += res;
 	                    	}
-	                    	printf("Size sent: %d\n", res);
-
 	                    	fclose(photo);
 							free(buffer);
 							break;
