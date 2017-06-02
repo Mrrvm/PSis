@@ -43,10 +43,10 @@ int main(int argc, char *argv[])
 				scanf("%s", photo_name);
 				// Adds a new photo to the gallery
 				ret = gallery_add_photo(connect_ret, photo_name);
-				if(ret == 0){
+				if(ret == 0) {
 					printf("\nAn error ocurred\n");
 				}
-				else{
+				else {
 					printf("\nAdded photo with id %d\n", ret);
 				}
 			}
@@ -54,13 +54,13 @@ int main(int argc, char *argv[])
 				printf("[Insert photo id and keyword]: ");
 				scanf("%d %s", &id_photo, keyword);
 				ret = gallery_add_keyword(connect_ret, id_photo, keyword);
-				if(ret == 1){
+				if(ret == 1) {
 					printf("\nKeyword added successfully\n");
 				}
-				else if(ret == 0){
+				else if(ret == 0) {
 					printf("\nNo photo found with this id\n");
 				}
-				else if(ret == -1){
+				else if(ret == -1) {
 					printf("\nAn error ocurred\n");
 				}
 
@@ -69,10 +69,10 @@ int main(int argc, char *argv[])
 				printf("[Insert keyword]: ");
 				scanf("%s", keyword);
 				ret = gallery_search_photo(connect_ret, keyword, id_photos);
-				if(ret == -1){
+				if(ret == -1) {
 					printf("\nAn error ocurred\n");
 				}
-				else if(ret == 0){
+				else if(ret == 0) {
 					printf("\nFound 0 photos with this keyword\n");
 				}
 				else{
@@ -90,13 +90,13 @@ int main(int argc, char *argv[])
 				printf("[Insert photo id]: ");
 				scanf("%u", &id_photo);
 				ret = gallery_delete_photo(connect_ret, id_photo);
-				if(ret == -1){
+				if(ret == -1) {
 					printf("\nAn error ocurred\n");
 				}
-				else if(ret == 0){
+				else if(ret == 0) {
 					printf("\nNo photos found with this id\n");
 				}
-				else if(ret == 1){
+				else if(ret == 1) {
 					printf("\nPhoto removed successfully\n");
 				}
 			}
@@ -105,13 +105,13 @@ int main(int argc, char *argv[])
 				printf("[Insert photo id]: ");
 				scanf("%u", &id_photo);
 				ret = gallery_get_photo_name(connect_ret, id_photo, &photo_name_ptr);
-				if(ret == -1){
+				if(ret == -1) {
 					printf("\nAn error ocurred\n");
 				}
-				else if(ret == 0){
+				else if(ret == 0) {
 					printf("\nNo photo found with this id\n");
 				}
-				else if(ret == 1){
+				else if(ret == 1) {
 					printf("\nReceived photo name: %s\n", photo_name_ptr);	
 				}
 			}
@@ -120,14 +120,13 @@ int main(int argc, char *argv[])
 					scanf("%d %s", &id_photo, photo_name);
 					//downloads foto
 					ret = gallery_get_photo(connect_ret, id_photo, photo_name);
-					if(ret == 1)
-					{
+					if(ret == 1) {
 						printf("\nPhoto downloaded successfully!\n");
 					}
-					else if(ret == 0){
+					else if(ret == 0) {
 						printf("\nNo photos found with this id\n");
 					}
-					else if(ret == -1){
+					else if(ret == -1) {
 						printf("\nAn error ocurred\n");
 					}
 
