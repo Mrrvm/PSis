@@ -43,8 +43,12 @@ void handle_rep(int socket, list* photo_data_list) {
                         sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
                         photo = fopen(photo_name, "wb");
                         if(photo_size == fwrite(buffer, 1, photo_size, photo)) {
+
+                            pthread_mutex_lock(&mux_photos);
                             push_item_to_list(photo_data_list, &photo_data_);
                             print_list(photo_data_list, print_photo);
+                            pthread_mutex_unlock(&mux_photos);
+
                             ret = photo_data_.id_photo;
                         }
                         else {
@@ -72,6 +76,9 @@ void handle_rep(int socket, list* photo_data_list) {
                     photo_data_.peer_pid = ntohl(photo_data_.peer_pid);
                     id_photo = ntohl(photo_data_.id_photo);
                     snprintf(keyword, sizeof(keyword), "%s", photo_data_.keyword);
+
+                    pthread_mutex_lock(&mux_photos);
+
                     curr_node = get_head(photo_data_list);
                     while(curr_node != NULL) {
                         photo_data_ = *(photo_data *)get_node_item(curr_node);
@@ -87,6 +94,8 @@ void handle_rep(int socket, list* photo_data_list) {
                         }
                         curr_node = get_next_node(curr_node);
                     }
+                    pthread_mutex_unlock(&mux_photos);
+
                     if(getpid() == photo_data_.peer_pid) {
                         ret = ntohl(ret);
                         send(photo_data_.cli_sock, &ret, sizeof(ret), 0); 
@@ -103,6 +112,8 @@ void handle_rep(int socket, list* photo_data_list) {
                     cli_sock = ntohl(photo_data_.cli_sock);
                     peer_pid = ntohl(photo_data_.peer_pid);
                     
+                    pthread_mutex_lock(&mux_photos);
+
                     prev_node = NULL;
                     curr_node = get_head(photo_data_list);
                     while(curr_node != NULL){
@@ -118,6 +129,8 @@ void handle_rep(int socket, list* photo_data_list) {
                         prev_node = curr_node;
                         curr_node = get_next_node(curr_node);
                     }
+                    pthread_mutex_unlock(&mux_photos);
+
                     if(ret == 1)
                         printf(KYEL"[Thread rep]"RESET": Photo Deleted\n");
                     if(ret == 0)
@@ -138,6 +151,8 @@ void handle_rep(int socket, list* photo_data_list) {
                 n_nodes = get_list_size(photo_data_list);
                 n_nodes = htonl(n_nodes);
                 send(socket, &n_nodes, sizeof(int), 0);
+
+                pthread_mutex_lock(&mux_photos);
 
                 curr_node = get_head(photo_data_list);
                 while(curr_node != NULL) {
@@ -161,6 +176,7 @@ void handle_rep(int socket, list* photo_data_list) {
 
                     curr_node = get_next_node(curr_node);
                 }
+                pthread_mutex_unlock(&mux_photos);
             }
         }
     }

@@ -149,7 +149,7 @@ void delete_node_from_list(node *prev_node, node *curr_node, list *got_list) {
         set_head(got_list, get_next_node(curr_node));
         set_next_node(curr_node, NULL);
         free_node(aux_node, free);
-    }
+    }   
     else {
         set_head(got_list, NULL);
         free_node(aux_node, free);
