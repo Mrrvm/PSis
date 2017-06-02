@@ -11,6 +11,16 @@ int main() {
 	int error;
 	void *ret;
 
+	if(pthread_mutex_init(&mux_peers, NULL) != 0){
+		printf("Mutex init peers failed\n");
+		return 0;
+	}
+
+	if(pthread_mutex_init(&mux_idcount, NULL) != 0){
+		printf("Mutex init idcount failed\n");
+		return 0;
+	}
+
 	list *servers_list = create_list(sizeof(peer_data));
 
 	// Thread 1: Resolves client requests in client socket

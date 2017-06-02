@@ -58,4 +58,8 @@ typedef struct peer_data_ {
 void print_photo(item got_item);
 void print_server(item got_item);
 
+pthread_mutex_t mux_photos;
+pthread_mutex_t mux_peers;
+pthread_mutex_t mux_idcount;
+
 #endif

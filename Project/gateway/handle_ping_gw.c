@@ -37,17 +37,23 @@ void handle_ping_gw(list *servers_list){
         size_received = recv(sock_peer_ping, &buff, sizeof(buff), MSG_DONTWAIT);
 
         if (size_received == -1) {
+            pthread_mutex_lock(&mux_peers);
             set_item_as(curr_node, add_counter, NULL);
+            pthread_mutex_unlock(&mux_peers);
         }
         else if(peer_data_.counter > 0) {
             printf("efe\n");
+            pthread_mutex_lock(&mux_peers);
             set_item_as(curr_node, set_counter, 0);   
+            pthread_mutex_unlock(&mux_peers);
         }
         
         if(peer_data_.counter == 3){
             printf(KRED"[Thread ping]"RESET" Dead Peer: %d\n", ntohs(addr.sin_port));
+            pthread_mutex_lock(&mux_peers);
             delete_node_from_list(prev_node, curr_node, servers_list);
             print_list(servers_list, print_server);
+            pthread_mutex_unlock(&mux_peers);
         }
         prev_node = curr_node;
         curr_node = get_next_node(curr_node);

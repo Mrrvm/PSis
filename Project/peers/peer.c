@@ -22,6 +22,11 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    if(pthread_mutex_init(&mux_photos, NULL) != 0){
+        printf("Mutex init photos failed\n");
+        return 0;
+    }
+
     printf("Created server: %d\n", local_port);
 
     // Set datagram socket with gateway
@@ -75,8 +80,12 @@ int main(int argc, char *argv[])
                 if(sizeof(photo_data_) == res) {
                     photo_data_.id_photo = ntohl(photo_data_.id_photo);
                     photo_size = photo_data_.photo_size = ntohl(photo_data_.photo_size);
+
+                    pthread_mutex_lock(&mux_photos);
                     push_item_to_list(photo_data_list, &photo_data_);
                     print_list(photo_data_list, print_photo);
+                    pthread_mutex_unlock(&mux_photos);
+
                     buffer = malloc(photo_size);
                     if(buffer == NULL) {
                         printf("Unable to alloc buffer\n");

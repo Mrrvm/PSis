@@ -32,6 +32,8 @@ void *handle_cli_requests(void * arg) {
         if(request == 1) {
             printf(KBLU"[Thread cli requests]"RESET": Request received! Sending peer...\n");
 
+            pthread_mutex_lock(&mux_peers);
+
             if(list_size > get_list_size(servers_list)){
                 curr_node = get_head(servers_list);
             }
@@ -67,6 +69,7 @@ void *handle_cli_requests(void * arg) {
                     (const struct sockaddr *) &cli_addr, 
                     sizeof(cli_addr));
             }
+            pthread_mutex_unlock(&mux_peers);
         }
     }
 }

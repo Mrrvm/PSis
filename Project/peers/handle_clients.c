@@ -70,6 +70,9 @@ void *handle_client(void * arg) {
 					id_photo = ntohl(photo_data_aux.id_photo);
 					snprintf(keyword, sizeof(keyword), "%s", photo_data_aux.keyword);
 					// Checks if keyword already exists in the photo
+
+					pthread_mutex_lock(&mux_photos);
+
 					curr_node = get_head(photo_data_list);
 					while(curr_node != NULL) {
 						photo_data_ = *(photo_data *)get_node_item(curr_node);
@@ -88,6 +91,7 @@ void *handle_client(void * arg) {
 						}
 						curr_node = get_next_node(curr_node);
 					}
+					pthread_mutex_unlock(&mux_photos);
 					// Did not find the photo
 					if(curr_node == NULL) {
 						ret = 0;
@@ -110,6 +114,9 @@ void *handle_client(void * arg) {
 				res = recv(client_socket, keyword, sizeof(keyword), 0);
 				if(res == sizeof(keyword)) {
 					printf(KBLU"[Thread client]"RESET": Searching photo %s\n", keyword);
+
+					pthread_mutex_lock(&mux_photos);
+
 					curr_node = get_head(photo_data_list);
 					while(curr_node != NULL) {
 						photo_data_ = *(photo_data *)get_node_item(curr_node);
@@ -120,6 +127,9 @@ void *handle_client(void * arg) {
 						curr_node = get_next_node(curr_node);
 
 					}
+
+					pthread_mutex_unlock(&mux_photos);
+
 					// Sends the number of found photos with the keyword
 					num_found = htonl(num_found);
 					send(client_socket, &num_found, sizeof(num_found), 0);
@@ -163,6 +173,9 @@ void *handle_client(void * arg) {
 				perror("RECEIVING ID OF PHOTO TO GET NAME:");
 				if(res == sizeof(id_photo)) {
 					id_photo = ntohl(id_photo);
+
+					pthread_mutex_lock(&mux_photos);
+
 					curr_node = get_head(photo_data_list);
 					while(curr_node != NULL) {
 						photo_data_ = *(photo_data *)get_node_item(curr_node);
@@ -173,6 +186,9 @@ void *handle_client(void * arg) {
 						}
 						curr_node = get_next_node(curr_node);
 					}
+
+					pthread_mutex_unlock(&mux_photos);
+
 					if(curr_node == NULL) {
 						snprintf(photo_data_.file_name, sizeof(photo_data_.file_name), "%s", "\0");
 						send(client_socket, photo_data_.file_name, sizeof(photo_data_.file_name), 0);
@@ -188,6 +204,9 @@ void *handle_client(void * arg) {
 				res = recv(client_socket, &id_photo, sizeof(int), 0);
 				if(res == sizeof(id_photo)) {
 					id_photo = ntohl(id_photo);
+
+					pthread_mutex_lock(&mux_photos);
+
 					curr_node = get_head(photo_data_list);
 					while(curr_node != NULL) {
 						photo_data_ = *(photo_data *)get_node_item(curr_node);
@@ -213,6 +232,8 @@ void *handle_client(void * arg) {
 						}
 						curr_node = get_next_node(curr_node);
 					}
+					pthread_mutex_unlock(&mux_photos);
+
 					if(curr_node == NULL) {
 						photo_size = htonl(0);
 						send(client_socket, &photo_size, sizeof(photo_size), 0);

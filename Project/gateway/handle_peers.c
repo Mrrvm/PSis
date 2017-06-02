@@ -38,8 +38,13 @@ void *handle_peer(void *arg) {
                     }
                     if(photo_size == n) {
                         // Manages the photo id - MUST HAVE LOCK
+
+                        pthread_mutex_lock(&mux_idcount);
                         photo_data_.id_photo = htonl((*thread_arg).id_counter);
                         (*thread_arg).id_counter++;
+                        pthread_mutex_unlock(&mux_idcount);
+
+                        pthread_mutex_lock(&mux_peers);
 
                         // Sends to all the peers for replication!
                         curr_node = get_head(servers_list);
@@ -51,6 +56,7 @@ void *handle_peer(void *arg) {
                             send(item_sock, buffer, photo_size, 0);;
                             curr_node = get_next_node(curr_node);
                         }
+                        pthread_mutex_unlock(&mux_peers);
                         free(buffer); 
                     }
                     else {
@@ -69,6 +75,9 @@ void *handle_peer(void *arg) {
                 res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
                 if(res == sizeof(photo_data_)) {
                     printf(KYEL"[Thread peer]"RESET": Redirecting keyword: %s\n", photo_data_.keyword);
+
+                    pthread_mutex_lock(&mux_peers);
+
                     // Sends to all the peers for replication!
                     curr_node = get_head(servers_list);
                     while(curr_node != NULL) {
@@ -78,6 +87,7 @@ void *handle_peer(void *arg) {
                         send(item_sock, &photo_data_, sizeof(photo_data_), 0);
                         curr_node = get_next_node(curr_node);
                     }
+                    pthread_mutex_unlock(&mux_peers);
                 }
                 else {
                     perror(KRED"[Thread peer]"RESET);
@@ -89,6 +99,10 @@ void *handle_peer(void *arg) {
             if(ntohl(type) == DEL_PHOTO){
                 res = recv(peer_sock, &photo_data_, sizeof(photo_data_), 0);
                 if(res == sizeof(photo_data_)) {
+
+                    pthread_mutex_lock(&mux_peers);
+
+                    // Sends to all the peers for replication!
                     curr_node = get_head(servers_list);
                     while(curr_node != NULL){
                         peer_data_ = *(peer_data *)get_node_item(curr_node);
@@ -96,8 +110,8 @@ void *handle_peer(void *arg) {
                         send(item_sock, &type, sizeof(type), 0);
                         send(item_sock, &photo_data_, sizeof(photo_data_), 0);
                         curr_node = get_next_node(curr_node);
-
                     }
+                    pthread_mutex_unlock(&mux_peers);
                 }
                 else {
                     perror(KRED"[Thread peer]"RESET);
@@ -111,7 +125,11 @@ void *handle_peer(void *arg) {
                 // Send data to new peer! 
                 res = recv(peer_sock, &n_nodes, sizeof(n_nodes), 0);
                 if(sizeof(n_nodes) == res) {
+
+                    pthread_mutex_lock(&mux_peers);
+
                     peer_data_ = *( peer_data *)get_node_item(get_head(servers_list));
+
                     item_sock = peer_data_.sock_peer;
                     send(item_sock, &n_nodes, sizeof(n_nodes), 0);
                     printf(KYEL"[Thread peer]"RESET": Sent previous %d list nodes\n", ntohl(n_nodes));
@@ -144,6 +162,8 @@ void *handle_peer(void *arg) {
                     }
                     i = 0;
                     set_item_as(get_head(servers_list), set_active, NULL);
+
+                    pthread_mutex_unlock(&mux_peers);
                 }
                 else {break;}     
             }
@@ -194,6 +214,8 @@ void *handle_peers(void * arg) {
         printf(KYEL"[Thread peer requests]"RESET": Accepting sock stream from peer\n");
         sock_peer_accepted = accept(sock_peer, NULL, NULL);
 
+        pthread_mutex_lock(&mux_peers);
+
         // Asks for the existant photos to another peer
         head_server = get_head(servers_list);
         if(head_server != NULL) {
@@ -215,6 +237,8 @@ void *handle_peers(void * arg) {
         peer_data_.peer_addr = peer_addr;
         push_item_to_list(servers_list, &peer_data_);
         print_list(servers_list, print_server);
+
+        pthread_mutex_unlock(&mux_peers);
         
         (*thread_arg).peer_socket = sock_peer_accepted;
         (*thread_arg).servers_list = servers_list;
