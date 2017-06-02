@@ -16,6 +16,8 @@
 
 5 - New peer sends its address to the gateway.
 
+For better understanding read our <a href="https://github.com/Mrrvm/PSis/blob/master/report80856_81164_grupo19.pdf">report</a> (in portuguese).
+
 <hr>
 
 <p>Compile gateway</p>
