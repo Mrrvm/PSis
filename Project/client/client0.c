@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
 	int fcn_number = 0;
 	uint32_t id_photo;
 	char photo_name[30];
+	int ret;
 
 	uint32_t *id_photos[100] = {0};
 	char *photo_name_ptr;
@@ -58,6 +59,21 @@ int main(int argc, char *argv[])
 				
 			}
 			else if(fcn_number == 6) {
+				printf("[Insert photo id and name of image to be downloaded]: ");
+					scanf("%d %s", &id_photo, photo_name);
+					//downloads foto
+					ret = gallery_get_photo(connect_ret, id_photo, photo_name);
+					if(ret == 1)
+					{
+						printf("\nPhoto downloaded successfully!\n");
+					}
+					else if(ret == 0){
+						printf("\nInvalid id\n");
+					}
+					else if(ret == -1){
+						printf("\nAn error ocurred\n");
+					}
+
 				
 			}
 			else {

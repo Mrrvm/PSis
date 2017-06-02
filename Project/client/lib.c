@@ -287,9 +287,6 @@ int gallery_get_photo(int peer_socket, uint32_t id_photo, char *file_name) {
 			n += res;
 		}
 
-		printf("n: %d\n", n);
-		printf("Size received: %d\n", res);
-
 		if(photo_size == n) {
 		    photo = fopen(file_name, "wb");
 		    if(photo_size != fwrite(buffer, 1, photo_size, photo)) {
