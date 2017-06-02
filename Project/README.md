@@ -6,7 +6,15 @@
   <img src=".images/arch.png">
 </p>
 
+1 - Client asks gateway for peer address, gateway responds.
 
+2 - Client makes API requests to the system, the system responds.
+
+3 - Gateway redirects requests to all peers.
+
+4 - Gateway pings peer, peer pings back if alive.
+
+5 - New peer sends its address to the gateway.
 
 <hr>
 
