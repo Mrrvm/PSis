@@ -1,8 +1,14 @@
 # PSis Project
+<p>This is the implemented architcture for the <a href="https://github.com/Mrrvm/PSis/blob/master/Project_statement.pdf">assignment</a>:
+</p>
 
 <p align="center">
   <img src=".images/arch.png">
 </p>
+
+
+
+<hr>
 
 <p>Compile gateway</p>
 
