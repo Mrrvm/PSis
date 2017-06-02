@@ -1,23 +1,35 @@
 # PSis Project
-
-<p align="center">
-  <img src=".images/main_image.png">
+<p>This is the implemented architcture for the <a href="https://github.com/Mrrvm/PSis/blob/master/Project_statement.pdf" target="_blank">assignment</a>:
 </p>
 
-	client/
-<p>Where the user will develop. Contains API test clients.</p>
+<p align="center">
+  <img src=".images/arch.png">
+</p>
 
-	lib/
-<p>Where all the client API functions are.</p>
+1 - Client asks gateway for peer address, gateway responds.
 
-	lib/lib.h	
-<p>This header is common to all this functions, and must be used by the client.</p>
+2 - Client makes API requests to the system, the system responds.
 
-	structures.h
-<p>Where all the different type of message structures are. Also contains the photo structure. This is common to the library and the peer.</p>
+3 - Gateway redirects requests to all peers.
 
-	generic_list.h
-<p>Void pointer list functions to be used by the peer and the gateway.</p>
+4 - Gateway pings peer, peer pings back if alive.
 
-	defs.h
-<p>Generic definitions, includes, etc common to peer, library and gateway.</p>
+5 - New peer sends its address to the gateway.
+
+For better understanding read our <a href="https://github.com/Mrrvm/PSis/blob/master/report80856_81164_grupo19.pdf" target="_blank">report</a> (in portuguese).
+
+<hr>
+
+<p>Compile gateway</p>
+
+	gcc -g -pthread defs.c generic_list.c gateway/* -o [program]
+
+<p>Compile peer</p>
+	
+	gcc -g -pthread defs.c generic_list.c peers/* -o [program]
+
+<p>Compile cliente</p>
+	
+	gcc -g client/* -o [program]
+
+<p>Execution order: gateway, peer (...), client (...)</p>
