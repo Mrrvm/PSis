@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
 						printf("%d ", id_photos[i]);
 						i++;
 					}
+					i = 0;
 					printf("\n");
 				}
 			}
