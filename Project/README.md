@@ -1,23 +1,16 @@
 # PSis Project
 
 <p align="center">
-  <img src=".images/main_image.png">
+  <img src=".images/arch.png">
 </p>
 
-	client/
-<p>Where the user will develop. Contains API test clients.</p>
+	Compile gateway
+<p>gcc -g -pthread defs.c generic_list.c gateway/* -o [program]</p>
 
-	lib/
-<p>Where all the client API functions are.</p>
+	Compile peer
+<p>gcc -g -pthread defs.c generic_list.c peers/* -o [program]</p>
 
-	lib/lib.h	
-<p>This header is common to all this functions, and must be used by the client.</p>
+	Compile cliente
+<p>gcc -g client/* -o [program]</p>
 
-	structures.h
-<p>Where all the different type of message structures are. Also contains the photo structure. This is common to the library and the peer.</p>
-
-	generic_list.h
-<p>Void pointer list functions to be used by the peer and the gateway.</p>
-
-	defs.h
-<p>Generic definitions, includes, etc common to peer, library and gateway.</p>
+	Execution order: gateway, peer (...), client (...)
