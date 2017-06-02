@@ -4,13 +4,13 @@
   <img src=".images/arch.png">
 </p>
 
-	Compile gateway
-<p>gcc -g -pthread defs.c generic_list.c gateway/* -o [program]</p>
+<p>Compile gateway</p>
+	gcc -g -pthread defs.c generic_list.c gateway/* -o [program]
 
-	Compile peer
-<p>gcc -g -pthread defs.c generic_list.c peers/* -o [program]</p>
+<p>Compile peer</p>
+	gcc -g -pthread defs.c generic_list.c peers/* -o [program]
 
-	Compile cliente
-<p>gcc -g client/* -o [program]</p>
+<p>Compile cliente</p>
+	gcc -g client/* -o [program]
 
-	Execution order: gateway, peer (...), client (...)
+<p>Execution order: gateway, peer (...), client (...)</p>
