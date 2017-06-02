@@ -7,6 +7,7 @@ void *handle_client(void * arg) {
 	int gw_socket = (*thread_arg).gw_sock;
 	int res = 0, ret = 0, type = 0, id_photo = 0, photo_size = 0, num_found = 0, j = 0;
 	int id_array[100] = {0};
+	int n;
 	char photo_name[100], keyword[MESSAGE_SIZE], *buffer;
 	node *curr_node = NULL;
 	list *photo_data_list = (*thread_arg).photo_data_list;
@@ -32,8 +33,12 @@ void *handle_client(void * arg) {
 						printf(KBLU"[Thread client]"RESET": Unable to alloc buffer\n");
 						exit(0);
 					}
-					res = recv(client_socket, buffer, photo_size, 0);
-					if(photo_size == res) {
+					n=0;
+					while(n != photo_size){
+						res = recv(client_socket, buffer+n, photo_size-n, 0);
+						n += res;
+					}
+					if(photo_size == n) {
 						printf(KBLU"[Thread client]"RESET": Redirecting photo of size %d\n", photo_size);
 						// Sends type and photo data to the gateway
 						photo_data_.cli_sock = htonl(client_socket);
@@ -155,6 +160,7 @@ void *handle_client(void * arg) {
 			/********** GET PHOTO NAME **************/
 			if(ntohl(type) == GET_NAME) {
 				res = recv(client_socket, &id_photo, sizeof(id_photo), 0);
+				perror("RECEIVING ID OF PHOTO TO GET NAME:");
 				if(res == sizeof(id_photo)) {
 					id_photo = ntohl(id_photo);
 					curr_node = get_head(photo_data_list);
@@ -193,7 +199,14 @@ void *handle_client(void * arg) {
 							sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
 							photo = fopen(photo_name, "rb");
 	                    	fread(buffer, 1, photo_data_.photo_size, photo);
-	                    	send(client_socket, buffer, photo_data_.photo_size, 0);
+
+	                    	n=0;
+	                    	while(n != photo_data_.photo_size){
+	                    		res = send(client_socket, buffer+n, photo_data_.photo_size-n, 0);
+	                    		n += res;
+	                    	}
+	                    	printf("Size sent: %d\n", res);
+
 	                    	fclose(photo);
 							free(buffer);
 							break;

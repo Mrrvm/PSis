@@ -269,8 +269,16 @@ int gallery_get_photo(int peer_socket, uint32_t id_photo, char *file_name) {
 			return 0;
 		}
 		buffer = malloc(photo_size);
-		res = recv(peer_socket, buffer, photo_size, 0);
-		if(photo_size == res) {
+		int n = 0;
+		while(n != photo_size){
+			res = recv(peer_socket, buffer+n, photo_size-n, 0);
+			n += res;
+		}
+
+		printf("n: %d\n", n);
+		printf("Size received: %d\n", res);
+
+		if(photo_size == n) {
 		    photo = fopen(file_name, "wb");
 		    if(photo_size != fwrite(buffer, 1, photo_size, photo)) {
 		        remove(file_name);

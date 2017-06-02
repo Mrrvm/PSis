@@ -10,6 +10,7 @@ void handle_rep(int socket, list* photo_data_list) {
 
     int res = 0, ret = 0, type = 0, id_photo = 0, cli_sock = 0;
     int peer_pid = 0, unwritten_len = 0, photo_size = 0, n_nodes = 0;
+    int n;
     char photo_name[100], keyword[MESSAGE_SIZE], *buffer;
     node *curr_node = NULL, *prev_node = NULL;
     FILE *photo;
@@ -31,8 +32,13 @@ void handle_rep(int socket, list* photo_data_list) {
                     photo_data_.peer_pid = ntohl(photo_data_.peer_pid);
                     photo_size = photo_data_.photo_size;
                     buffer = malloc(photo_size);
-                    res = recv(socket, buffer, photo_size, 0);
-                    if(photo_size >= res && res > 0) {
+
+                    n=0;
+                    while(n != photo_size){
+                        res = recv(socket, buffer+n, photo_size-n, 0);
+                        n += res;
+                    }
+                    if(photo_size >= n && n > 0) {
                         printf(KYEL"[Thread rep]"RESET": ADD_PHOTO - Received photo of size %d!\n", photo_size);
                         sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
                         photo = fopen(photo_name, "wb");

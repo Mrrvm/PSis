@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
 		gallery_search_photo(connect_ret, "hot", id_photos);
 		
-		usleep(50000);
+		
 		if(1 == gallery_get_photo(connect_ret, id_photo, "recv_nude"));
 			printf("Received photo\n");
 
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 			printf("Received name %s\n", photo_name_ptr);
 
 		if( 1 == gallery_delete_photo(connect_ret, id_photo))
-			printf("Deleted id_photo: %d\n", id_photo);
+		printf("Deleted id_photo: %d\n", id_photo);
 
 	}
 	return 0;

@@ -9,6 +9,7 @@ void *handle_peer(void *arg) {
  
     handle_peer_arg *thread_arg = (handle_peer_arg *)arg;
     list *servers_list = (*thread_arg).servers_list;
+    int n;
     int peer_sock = (*thread_arg).peer_socket; 
     int size_buff = 0, photo_size = 0, item_sock = 0, res = 0; 
     int id_photo = 0, type = 0, n_nodes = 0, i = 0;
@@ -29,8 +30,13 @@ void *handle_peer(void *arg) {
                 if(sizeof(photo_data_) == res) {
                     photo_size = ntohl(photo_data_.photo_size);
                     buffer = malloc(photo_size);
-                    res = recv(peer_sock, buffer, photo_size, 0);
-                    if(photo_size == res) {
+
+                    n=0;
+                    while(n != photo_size){
+                        res = recv(peer_sock, buffer+n, photo_size, 0); 
+                        n += res;
+                    }
+                    if(photo_size == n) {
                         // Manages the photo id - MUST HAVE LOCK
                         photo_data_.id_photo = htonl((*thread_arg).id_counter);
                         (*thread_arg).id_counter++;
@@ -118,8 +124,13 @@ void *handle_peer(void *arg) {
                             // Receive and send the photo
                             photo_size = ntohl(photo_data_.photo_size);
                             buffer = malloc(photo_size);
-                            res = recv(peer_sock, buffer, photo_size, 0);
-                            if(photo_size == res) {
+
+                            n=0;
+                            while(n != photo_size){
+                                res = recv(peer_sock, buffer+n, photo_size, 0);
+                                n += res;
+                            }
+                            if(photo_size == n) {
                                 send(item_sock, buffer, photo_size, 0);
                             }
                             else {break;}

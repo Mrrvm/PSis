@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
     int sock_gw_ping = 0, sock_gw = 0, sock_stream_client = 0, sock_stream_gw = 0;
     int reuse_socket = 1, error = 0, res = 0, i = 0, n_nodes = 0, photo_size = 0;
     int local_port = 3000+getpid();
+    int n;
     pthread_t thr_clients;
     pthread_t thr_ping_peer;
     void *ret;
@@ -81,8 +82,13 @@ int main(int argc, char *argv[])
                         printf("Unable to alloc buffer\n");
                         exit(-1);
                     }
-                    res = recv(sock_stream_gw, buffer, photo_size, 0);
-                    if(photo_size == res) {
+
+                    n=0;
+                    while(n != photo_size){
+                        res = recv(sock_stream_gw, buffer+n, photo_size-n, 0);
+                        n += res;
+                    }
+                    if(photo_size == n) {
                         printf("Received photo of size %d!\n", photo_data_.photo_size);
                         sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
                         photo = fopen(photo_name, "wb");
