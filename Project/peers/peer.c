@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
                     }
                     if(photo_size == n) {
                         printf("Received photo of size %d!\n", photo_data_.photo_size);
-                        sprintf(photo_name, "photos/id%d", photo_data_.id_photo);
+                        sprintf(photo_name, "id%d", photo_data_.id_photo);
                         photo = fopen(photo_name, "wb");
                         fwrite(buffer, 1, photo_data_.photo_size, photo);
                         fclose(photo);
